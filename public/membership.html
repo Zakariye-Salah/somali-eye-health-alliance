@@ -1,0 +1,534 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Membership — SEHA</title>
+  <link rel="stylesheet" href="style.css">
+  
+  <style>
+    :root {
+      --bg: #f6f7fb;
+      --card: #fff;
+      --muted: #6b7280;
+      --accent: #06b6d4;
+      --text: #0f172a;
+      --container: 1100px;
+      font-family: Inter, system-ui, Arial, sans-serif;
+    }
+    body { margin:0; background:var(--bg); color:var(--text); font-size:14px; }
+    .container { max-width: var(--container); margin: 28px auto; padding: 18px; }
+    .two-col { display:flex; gap:24px; align-items:flex-start; }
+    .card { background:var(--card); padding:18px; border-radius:12px; box-shadow:0 10px 30px rgba(2,6,23,0.06); }
+    input, select, textarea { width:100%; padding:10px; border-radius:8px; border:1px solid #e6e9ee; margin-top:8px; box-sizing:border-box; }
+    button.btn { background:#0f766e; color:#fff; padding:10px 14px; border-radius:10px; border:0; cursor:pointer; }
+    .muted { color:var(--muted); }
+    .small { font-size:13px; }
+    .result { background:#f8fffb; border:1px solid #e6f4ee; padding:12px; border-radius:8px; margin-top:12px; }
+    .admin-btn { background:#06b6d4; padding:8px 12px; border-radius:9px; color:#fff; border:0; cursor:pointer; font-weight:700; }
+    .header-row { display:flex; justify-content:space-between; align-items:center; gap:12px; margin-bottom:8px; }
+    .benefits { padding:12px; border-radius:10px; background:var(--card); box-shadow:0 6px 18px rgba(2,6,23,0.04); }
+
+    /* Mobile: put benefits under the form */
+    .mobile-benefits { display:none; margin-top:12px; }
+
+    /* Responsive */
+    @media (max-width: 880px) {
+      .two-col { flex-direction:column; }
+      .mobile-benefits { display:block; }
+    }
+  </style>
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const current = window.location.pathname.split("/").pop(); 
+      document.querySelectorAll(".main-nav a").forEach(a => {
+        const href = a.getAttribute("href");
+        if (href === current) {
+          a.classList.add("active");
+        }
+      });
+    });
+    </script>
+    
+  <!-- START: Back-to-top small styles (optional: move into style.css) -->
+  <style> 
+    /* Floating "back to top" button */
+    .seha-back-to-top {
+      position: fixed;
+      right: 20px;
+      bottom: 24px;
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--primary);
+      color: #fff;
+      box-shadow: 0 10px 30px rgba(2,6,23,0.12);
+      cursor: pointer;
+      z-index: 1600;
+      opacity: 0;
+      pointer-events: none;
+      transform: translateY(8px);
+      transition: opacity .18s ease, transform .18s ease;
+      border: 0;
+    }
+
+    .seha-back-to-top.show {
+      opacity: 1;
+      pointer-events: auto;
+      transform: translateY(0);
+    }
+
+    /* focus / keyboard visibility */
+    .seha-back-to-top:focus {
+      outline: 3px solid rgba(45,212,191,0.22);
+      outline-offset: 4px;
+    }
+
+    /* inner svg */
+    .seha-back-to-top svg { width: 20px; height: 20px; display:block; }
+
+    /* small responsive tweak so it doesn't overlap on very small screens */
+    @media (max-width: 420px) {
+      .seha-back-to-top { right: 12px; bottom: 16px; width:44px; height:44px; border-radius:10px; }
+    }
+
+    /* optional: hide if user prefers reduced motion */
+    @media (prefers-reduced-motion: reduce) {
+      .seha-back-to-top { transition: none; }
+      html { scroll-behavior: auto; }
+    }
+    /* === Small/tight desktop header patch — only layout + sizing === */
+/* Apply only on desktop so mobile/menu/toggles are untouched */
+@media (min-width: 981px) {
+
+/* tighten header row and flush container edges */
+.site-header { padding: 0; }
+.container.header-inner { padding: 0 6px; max-width: var(--container); }
+
+/* reduce overall header height and gaps */
+.header-inner {
+  height: 52px;            /* slightly shorter */
+  gap: 8px;
+  padding: 0;
+  align-items: center;
+}
+
+/* branding: smaller logo and reduced text sizes */
+.brand { gap: 8px; min-width: 0; }
+.brand .logo { width: 34px; height: 34px; border-radius: 6px; }
+.brand-text .org-name {
+  font-size: 11px;         /* smaller title */
+  font-weight: 700;
+  line-height: 1;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+}
+.brand-text .tagline {
+  font-size: 10px;         /* smaller tagline */
+  margin: 0;
+  opacity: 0.9;
+}
+
+/* navigation: smaller font, tighter padding and smaller gap */
+.main-nav { flex: 1 1 auto; min-width: 0; }
+.main-nav .nav-list {
+  gap: 6px;                /* tighter gap between menu items */
+  padding: 0 6px;
+}
+.main-nav a {
+  font-size: 11px;         /* smaller nav text */
+  padding: 2px 5px;        /* tighter clickable area */
+  border-radius: 6px;
+  font-weight: 700;
+}
+
+/* reduce the hover transform so it looks subtle on small header */
+.main-nav a:hover, .main-nav a:focus {
+  transform: translateY(-1px);
+  background: rgba(15,118,110,0.04);
+}
+
+/* ensure desktop popovers still position correctly (no clipping) */
+.nav-item { position: relative; }
+.nav-subtitle {
+  left: 50%;
+  transform: translateX(-50%) translateY(6px);
+  top: calc(100% + 6px);
+  min-width: 180px;
+  z-index: 2500;
+}
+}
+
+/* Keep mobile rules exactly as before (no changes) */
+@media (max-width: 980px) {
+/* nothing here — mobile behavior unchanged */
+}
+
+/* === ACTIVE NAVIGATION HIGHLIGHT === */
+@media (min-width: 981px) {
+  .main-nav a.active {
+    background: var(--primary-light, rgba(15,118,110,0.10));
+    color: var(--primary, #0f766e);
+    transform: none;       /* don't move up when active */
+  }
+
+  /* optional: keep hover consistent */
+  .main-nav a.active:hover {
+    background: var(--primary-light, rgba(15,118,110,0.12));
+    color: var(--primary, #0f766e);
+  }
+}
+
+  </style>
+  <!-- END: Back-to-top styles -->
+</head>
+<body>
+ <!-- HEADER -->
+<header class="site-header" role="banner">
+  
+  <!-- small, safe header-local CSS to avoid duplicate arrows & show mobile toggle only on small screens -->
+  <style>
+    /* If your global CSS also sets .nav-item.has-sub > a::after, override here so we don't get double arrows */
+    .nav-item.has-sub > a::after { content: ''; }
+
+    /* mobile-only helper: hide by default (desktop) and show only under your mobile breakpoint */
+    .mobile-only { display: none; align-items: center; gap: 8px; }
+    @media (max-width: 880px) {
+      .mobile-only { display: flex; }
+      /* ensure desktop popover remains visible on hover as before */
+      .nav-item.has-sub > .nav-subtitle { display: none; }
+      .nav-item.has-sub:hover > .nav-subtitle,
+      .nav-item.has-sub:focus-within > .nav-subtitle { display: block; }
+    }
+  </style>
+
+  <div class="container header-inner">
+    <div class="brand">
+      <img src="images/logo.png" alt="SEHA logo" class="logo" />
+      <div class="brand-text">
+        <h1 class="org-name">Somali Eye Health Alliance</h1>
+        <p class="tagline">Saving sight • Building local capacity</p>
+      </div>
+    </div>
+
+    <nav class="main-nav" role="navigation" aria-label="Main Navigation">
+      <ul class="nav-list">
+        <li class="nav-item"><a href="index.html">Home</a></li>
+
+        <li class="nav-item has-sub" id="nav-about">
+          <a href="about.html" aria-haspopup="true" aria-expanded="false">About Us ▾</a>
+
+          <!-- desktop popover -->
+          <div class="nav-subtitle" role="dialog" aria-hidden="true" aria-labelledby="about-subtitle">
+            <ul class="subtitle-list">
+              <li><a href="about.html#who" class="subtitle-link">Who we are</a></li>
+              <li><a href="about.html#what-we-do" class="subtitle-link">What we do</a></li>
+              <li><a href="about.html#framework" class="subtitle-link">Operational framework</a></li>
+              <li><a href="about.html#team" class="subtitle-link">Our team & governance</a></li>
+            </ul>
+          </div>
+
+          <!-- mobile submenu (kept for hamburger) -->
+          <ul class="sub" aria-label="About submenu">
+            <li><a href="about.html#who">Who we are</a></li>
+            <li><a href="about.html#what-we-do">What we do</a></li>
+            <li><a href="about.html#framework">Operational framework</a></li>
+            <li><a href="about.html#team">Our team & governance</a></li>
+          </ul>
+        </li>
+
+        <li class="nav-item has-sub" id="nav-ourwork">
+          <a href="our-work.html" aria-haspopup="true" aria-expanded="false">Our Work ▾</a>
+
+          <div class="nav-subtitle" role="dialog" aria-hidden="true" aria-labelledby="ourwork-subtitle">
+            <ul class="subtitle-list">
+              <li><a href="programs.html" class="subtitle-link">Core programs</a></li>
+              <li><a href="our-work.html#consortia" class="subtitle-link">Clinical consortia</a></li>
+              <li><a href="our-work.html#regions" class="subtitle-link">Regional activity</a></li>
+              <li><a href="our-work.html#impact" class="subtitle-link">Impact & results</a></li>
+            </ul>
+          </div>
+
+          <ul class="sub" aria-label="Our Work submenu">
+            <li><a href="programs.html">Programs</a></li>
+            <li><a href="our-work.html#consortia">Consortia</a></li>
+            <li><a href="our-work.html#regions">Regions</a></li>
+          </ul>
+        </li>
+
+        <li class="nav-item"><a href="programs.html">Programs</a></li>
+        <li class="nav-item"><a href="membership.html">Membership</a></li>
+        <li class="nav-item"><a href="resources.html">Resources</a></li>
+        <li class="nav-item"><a href="events.html">Events & Blogs</a></li>
+        <li class="nav-item"><a href="opportunities.html">Opportunities</a></li>
+        <li class="nav-item"><a href="awareness.html">Awareness</a></li>
+        <li class="nav-item"><a href="contact.html">Contact</a></li>
+
+        <!-- SETTINGS (single desktop link + mobile-only toggle + mobile submenu)
+             - Desktop: user sees the "Settings" anchor and the .nav-subtitle popover on hover/focus
+             - Mobile: the .mobile-only toggle (plus symbol) is shown and toggles the submenu;
+               the mobile-only element is hidden on desktop so you do not get two visible "Settings" -->
+        <li class="nav-item has-sub" id="nav-settings">
+          <!-- Desktop link (visible on all widths) -->
+          <!-- <a href="settings.html" aria-haspopup="true" aria-expanded="false" id="settingsDesktopLink">Settings ▾</a> -->
+          <a href="settings.html" aria-haspopup="true" aria-expanded="false">Settings ▾</a>
+
+
+          <!-- desktop popover -->
+          <div class="nav-subtitle" role="dialog" aria-hidden="true" aria-labelledby="settings-subtitle">
+            <ul class="subtitle-list">
+              <li><a href="settings.html#account">Account settings</a></li>
+              <li><a href="settings.html#privacy">Privacy & security</a></li>
+              <li><a href="settings.html#appearance">Appearance</a></li>
+            </ul>
+          </div>
+
+          <!-- Mobile-only toggle: hidden on desktop by .mobile-only rule above
+          <a href="#" class="mobile-toggle mobile-only" data-target="settingsSub" aria-controls="settingsSub" aria-expanded="false" id="settingsMobileToggle" style="justify-content:space-between;width:100%;padding:6px 0;">
+            <span>Settings</span>
+            <span class="toggle-symbol" aria-hidden="true">+</span>
+          </a> -->
+
+          <!-- mobile submenu -->
+          <ul class="sub mobile-sub" id="settingsSub" aria-hidden="true">
+            <li><a href="settings.html#account">Account settings</a></li>
+            <li><a href="settings.html#privacy">Privacy & security</a></li>
+            <li><a href="settings.html#appearance">Appearance</a></li>
+          </ul>
+        </li>
+        <!-- /SETTINGS -->
+
+      </ul>
+    </nav>
+
+    <div class="header-cta">
+      <a class="btn donate" id="donateBtn" href="donate.html" title="Donate">Donate</a>
+      <button class="hamb" id="hambBtn" aria-expanded="false" aria-controls="mobileMenu" aria-label="Open menu">☰</button>
+    </div>
+  </div>
+
+  <div class="mobile-menu" id="mobileMenu" aria-hidden="true"></div>
+</header>
+
+  <div class="container">
+    <div class="header-row">
+      <div>
+        <h1 style="margin:0">Membership</h1>
+        <div class="muted small">Join Somali Eye Health Alliance as an individual or institution to access training and resources.</div>
+      </div>
+
+      <!-- Admin button (shown only to admin/superadmin via JS) -->
+      <div>
+        <button id="adminAppsBtn" class="admin-btn" style="display:none">Membership applications</button>
+      </div>
+    </div>
+
+    <div class="two-col">
+      <div style="flex:1;">
+        <div class="card">
+          <h3 style="margin:0 0 8px 0">Apply to join</h3>
+
+          <form id="memberForm" enctype="multipart/form-data" novalidate>
+            <label>Full name</label>
+            <input name="fullName" id="fullName" placeholder="Full name" required>
+
+            <label style="margin-top:8px">Email</label>
+            <input type="email" name="email" id="email" placeholder="you@example.org" required>
+
+            <label style="margin-top:8px">Phone / WhatsApp</label>
+            <input name="phone" id="phone" placeholder="+252612XXXXXX" required>
+
+            <label style="margin-top:8px">Organization (optional)</label>
+            <input name="organization" id="organization" placeholder="Organization name">
+
+            <label style="margin-top:8px">Type</label>
+            <select name="type" id="type">
+              <option value="individual">Individual</option>
+              <option value="institution">Institution</option>
+            </select>
+
+            <label style="margin-top:8px">Organization / Message (optional)</label>
+            <textarea name="notes" id="notes" placeholder="Tell us about your organisation or why you'd like to join" rows="4"></textarea>
+
+            <label style="margin-top:8px">Upload CV (optional — pdf/doc/docx/rtf/txt)</label>
+            <input type="file" id="cv" name="cv" accept=".pdf,.doc,.docx,.rtf,.txt">
+
+            <div style="margin-top:12px;display:flex;gap:10px;align-items:center">
+              <button class="btn" type="submit">Apply</button>
+              <button type="button" id="clearMember" class="btn" style="background:#e6e9ee;color:#0f172a">Clear</button>
+            </div>
+          </form>
+
+          <div id="memberMsg" class="muted small" style="margin-top:12px"></div>
+          <div id="memberResult" style="display:none" class="result"></div>
+
+          
+        </div>
+      </div>
+
+      <!-- desktop aside: shows on larger screens -->
+      <aside style="width:320px">
+        <div class="benefits" style="display:block">
+          <h4 style="margin:0 0 8px 0">Member benefits</h4>
+          <ul class="small muted" style="margin:0 0 0 16px;padding:0">
+            <li>Training & capacity building</li>
+            <li>Member directory exposure</li>
+            <li>Priority for partnership projects</li>
+          </ul>
+        </div>
+      </aside>
+    </div>
+  </div>
+
+<!-- FOOTER -->
+<footer class="site-footer" role="contentinfo">
+  <div class="container footer-inner">
+    <div class="footer-col">
+      <img src="images/logo.png" alt="SEHA logo" class="footer-logo">
+      <p class="muted">© 2026 Somali Eye Health Alliance — All Rights Reserved <a href="/public/admin/developers-contact.html">Developers</a></p>
+    </div>
+
+    <div class="footer-col">
+      <h4>Quick links</h4>
+      <ul class="small-list footer-links">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="about.html">About Us</a></li>
+        <li><a href="programs.html">Programs</a></li>
+        <li><a href="resources.html">Resources</a></li>
+        <li><a href="membership.html">Membership</a></li>
+        <li><a href="contact.html">Contact</a></li>
+      </ul>
+    </div>
+
+    <div class="footer-col">
+      <h4>Contact</h4>
+      <address class="muted">
+        Mogadishu, Somalia<br>
+        info@Somalieyehealthalliance.org <br>
+        +252 61 7000264
+              </address>
+    </div>
+  </div>
+</footer>
+<script>
+(() => {
+  const API_BASE = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') ? 'http://localhost:4000' : '';
+
+  const form = document.getElementById('memberForm');
+  const msg = document.getElementById('memberMsg');
+  const result = document.getElementById('memberResult');
+  const clearBtn = document.getElementById('clearMember');
+  const adminBtn = document.getElementById('adminAppsBtn');
+
+  clearBtn.addEventListener('click', () => { form.reset(); msg.textContent=''; result.style.display='none'; });
+
+  async function showAdminIfNeeded() {
+    try {
+      const token = localStorage.getItem('seha_token') || null;
+      if (!token) return; // no token => not admin
+      const resp = await fetch(API_BASE + '/api/auth/me', { headers: { 'Authorization': 'Bearer ' + token } });
+      if (!resp.ok) return;
+      const data = await resp.json();
+      const role = data?.user?.role?.toLowerCase?.();
+      if (role === 'admin' || role === 'superadmin') {
+        // fetch count
+        try {
+          const cResp = await fetch(API_BASE + '/api/memberships/admin/count', { headers: { 'Authorization': 'Bearer ' + token } });
+          let count = null;
+          if (cResp.ok) {
+            const cj = await cResp.json();
+            count = cj.count || 0;
+          }
+          adminBtn.textContent = `Membership applications${count !== null ? ' (' + count + ')' : ''}`;
+          adminBtn.style.display = 'inline-block';
+          adminBtn.addEventListener('click', () => window.location.href = 'admin/memberships.html');
+        } catch (e) {
+          adminBtn.textContent = 'Membership applications';
+          adminBtn.style.display = 'inline-block';
+          adminBtn.addEventListener('click', () => window.location.href = '/admin/memberships.html');
+        }
+      }
+    } catch (err) { /* ignore */ }
+  }
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    msg.textContent = '';
+    result.style.display = 'none';
+
+    const fullName = document.getElementById('fullName').value.trim();
+    const email = document.getElementById('email').value.trim();
+    const phone = document.getElementById('phone').value.trim();
+    if (!fullName || !email || !phone) {
+      msg.textContent = 'Please fill in full name, email and phone.';
+      return;
+    }
+
+    const fd = new FormData();
+    fd.append('fullName', fullName);
+    fd.append('email', email);
+    fd.append('phone', phone);
+    fd.append('type', document.getElementById('type').value);
+    fd.append('notes', document.getElementById('notes').value.trim() || '');
+    fd.append('organization', document.getElementById('organization').value.trim() || '');
+
+    const fileInput = document.getElementById('cv');
+    if (fileInput && fileInput.files && fileInput.files[0]) {
+      fd.append('cv', fileInput.files[0], fileInput.files[0].name);
+    }
+
+    msg.textContent = 'Submitting...';
+    try {
+      const resp = await fetch(API_BASE + '/api/memberships', { method: 'POST', body: fd });
+      let j = null;
+      try { j = await resp.json(); } catch (e) { j = null; }
+
+      if (!resp.ok) {
+        msg.textContent = (j && (j.message || (j.errors && j.errors.map(x=>x.msg).join('; ')))) || resp.statusText || 'Submission failed';
+        return;
+      }
+
+      const mem = (j && (j.membership || j.member || j.data)) || null;
+      if (!mem) {
+        msg.textContent = 'Submission succeeded but server returned no membership object.';
+        return;
+      }
+
+      result.innerHTML = `
+        <strong>Application received</strong>
+        <div style="margin-top:8px">
+          <div><strong>Full name:</strong> ${escapeHtml(mem.fullName || mem.name || '')}</div>
+          <div><strong>Organization:</strong> ${escapeHtml(mem.organization || '')}</div>
+          <div><strong>Email:</strong> ${escapeHtml(mem.email || '')}</div>
+          <div><strong>Phone / WhatsApp:</strong> ${escapeHtml(mem.phone || '')}</div>
+          <div><strong>Type:</strong> ${escapeHtml(mem.type || '')}</div>
+          <div><strong>Notes:</strong> ${escapeHtml(mem.notes || '')}</div>
+          ${mem.cvUrl ? `<div style="margin-top:6px"><a href="${escapeHtml(mem.cvUrl)}" target="_blank" rel="noopener">Download uploaded CV</a></div>` : ''}
+          <div style="margin-top:6px" class="small muted">Submitted at: ${new Date(mem.createdAt).toLocaleString()}</div>
+        </div>
+      `;
+      result.style.display = 'block';
+      msg.textContent = 'Thank you — your application was recorded.';
+      form.reset();
+    } catch (err) {
+      console.error(err);
+      msg.textContent = 'Network error';
+    }
+  });
+
+  function escapeHtml(s) {
+    if (s === null || s === undefined) return '';
+    return String(s).replace(/[&<>"]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]));
+  }
+
+  // init
+  showAdminIfNeeded();
+})();
+</script>
+<script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,512 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Somali Eye Health Alliance  — Help Widget</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <style>
+    /* Widget styles (same as your previous design, compact) */
+    #sehaHelpRoot { font-family: Inter,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial; position: fixed; right: 16px; bottom: 16px; z-index: 9999; }
+    .seha-fab { width:56px;height:56px;border-radius:50%;background:#0f766e;color:#fff;border:0;box-shadow:0 8px 24px rgba(15,118,110,0.2); cursor:pointer; display:flex;align-items:center;justify-content:center;font-size:20px }
+    .seha-panel { width:92vw; max-width:420px; height:72vh; max-height:760px; background:#fff;border-radius:12px;box-shadow:0 20px 40px rgba(2,6,23,0.12); display:flex;flex-direction:column; overflow:hidden; }
+    .seha-panel.hidden { display:none }
+    .seha-header { padding:12px 14px; border-bottom:1px solid #f0f3f5; display:flex; align-items:center; gap:10px; }
+    .seha-title { font-weight:700; font-size:16px; margin:0; }
+    .seha-sub { color:#6b7280; font-size:13px }
+    .seha-body { padding:12px; flex:1; overflow:auto; display:flex; flex-direction:column; gap:10px; background:linear-gradient(#fff,#fbfdfe); }
+    .convo { display:flex; flex-direction:column; gap:8px; }
+    .msg { max-width:78%; padding:10px 12px; border-radius:10px; background:#f3f9f8; font-size:14px; color:#033; box-shadow:0 2px 6px rgba(2,6,23,0.04) }
+    .msg.user { background:#0f766e; color:#fff; align-self:flex-end; border-radius:10px 10px 6px 10px; }
+    .msg.meta { font-size:12px; color:#6b7280; margin-top:6px; }
+    .small { font-size:13px; color:#6b7280 }
+    .controls { display:flex; gap:8px; flex-wrap:wrap; }
+    .btn { padding:8px 12px; border-radius:8px; border:0; background:#e6f6f4; color:#0f766e; cursor:pointer }
+    .btn.primary { background:#0f766e; color:#fff }
+    .footer { padding:10px; border-top:1px solid #f0f3f5; display:flex; gap:8px; align-items:center }
+    .input { flex:1; padding:8px 10px; border-radius:8px; border:1px solid #eef2f2 }
+    .muted { color:#6b7280; font-size:13px }
+    @media(min-width:900px){ #sehaHelpRoot { right:40px; bottom:40px; } .seha-panel { width:420px; height:68vh; } }
+  </style>
+</head>
+<body>
+  <!-- HELP WIDGET -->
+  <div id="sehaHelpRoot" aria-live="polite">
+    <button id="sehaHelpFab" class="seha-fab" aria-label="Open support chat">💬</button>
+
+    <div id="sehaHelpPanel" class="seha-panel hidden" role="dialog" aria-modal="false" aria-label="Support chat">
+      <div class="seha-header">
+        <div style="display:flex;align-items:center;gap:10px">
+          <div style="width:40px;height:40px;border-radius:8px;background:#e6f6f4;color:#0f766e;display:flex;align-items:center;justify-content:center;font-weight:700">S</div>
+          <div>
+            <div class="seha-title">SEHA Support</div>
+            <div class="seha-sub" id="sehaHelpSub">Ask for help — anonymous OK</div>
+          </div>
+        </div>
+        <div style="margin-left:auto">
+          <button id="sehaCloseBtn" style="background:transparent;border:0;color:#6b7280;cursor:pointer">✕</button>
+        </div>
+      </div>
+
+      <div class="seha-body" id="sehaBody" role="log" aria-live="polite"></div>
+
+      <div class="footer" id="sehaFooter">
+        <input id="sehaInput" class="input" placeholder="Type a message..." aria-label="Type message" />
+        <button id="sehaSend" class="btn primary">Send</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+  (function () {
+    // ---------- config ----------
+    const API_BASE = (location.hostname === 'localhost' || location.hostname === '127.0.0.1')
+      ? 'http://localhost:4000' : ''; // << adjust if your backend runs elsewhere
+
+    // DOM
+    const fab = document.getElementById('sehaHelpFab');
+    const panel = document.getElementById('sehaHelpPanel');
+    const closeBtn = document.getElementById('sehaCloseBtn');
+    const body = document.getElementById('sehaBody');
+    const sub = document.getElementById('sehaHelpSub');
+    const input = document.getElementById('sehaInput');
+    const send = document.getElementById('sehaSend');
+
+    // storage keys
+    const localKeyAnon = 'seha_help_anon';
+    const localConvKey = 'seha_help_conv';
+
+    // state
+    let currentConv = null;
+    let socket = null;
+    let pollTimer = null;
+
+    // ---------- helpers: integrate with site auth if present ----------
+    function safeGetUser() {
+      try { if (typeof window.getUser === 'function') return window.getUser(); } catch (e) {}
+      try { const u = localStorage.getItem('seha_user'); return u ? JSON.parse(u) : null; } catch (e) { return null; }
+    }
+    function safeGetToken() {
+      try { if (typeof window.getToken === 'function') return window.getToken(); } catch (e) {}
+      return localStorage.getItem('seha_token') || null;
+    }
+
+    // lightweight API fetch wrapper
+    async function apiFetch(url, opts = {}) {
+      opts.headers = opts.headers || {};
+      const token = safeGetToken();
+      if (token) opts.headers['Authorization'] = 'Bearer ' + token;
+      if (opts.body && !opts.headers['Content-Type']) opts.headers['Content-Type'] = 'application/json';
+      opts.method = opts.method || (opts.body ? 'POST' : 'GET');
+      try {
+        const res = await fetch((API_BASE || '') + url, opts);
+        const json = await res.json().catch(() => null);
+        return { ok: res.ok, status: res.status, data: json };
+      } catch (err) {
+        return { ok: false, status: 0, error: err };
+      }
+    }
+
+    // anon id management
+    function ensureAnon() {
+      try {
+        let anon = JSON.parse(localStorage.getItem(localKeyAnon) || 'null');
+        if (!anon) {
+          anon = { anonId: 'anon-' + Math.random().toString(36).slice(2, 10) };
+          localStorage.setItem(localKeyAnon, JSON.stringify(anon));
+        }
+        return anon;
+      } catch (e) {
+        const anon = { anonId: 'anon-' + Math.random().toString(36).slice(2, 10) };
+        localStorage.setItem(localKeyAnon, JSON.stringify(anon));
+        return anon;
+      }
+    }
+
+    function anonLabel(anonId) {
+      if (!anonId) return 'Anonymous';
+      return 'Anonymous-' + String(anonId).slice(-6);
+    }
+
+    // ---------- UI rendering ----------
+    function renderMessages(messages) {
+      body.innerHTML = '';
+      const convDiv = document.createElement('div');
+      convDiv.className = 'convo';
+      if (!messages || messages.length === 0) {
+        convDiv.innerHTML = '<div class="muted">No messages yet</div>';
+      } else {
+        messages.forEach(m => {
+          const d = document.createElement('div');
+          d.className = 'msg' + (m.sender === 'user' ? ' user' : '');
+          // message main
+          const txt = document.createElement('div');
+          txt.textContent = m.text || '';
+          d.appendChild(txt);
+          // meta line (name + time + optional topic)
+          const meta = document.createElement('div');
+          meta.className = 'msg meta';
+          const who = m.senderName ? m.senderName : (m.sender === 'user' ? (currentConv && currentConv.name ? currentConv.name : anonLabel(currentConv && currentConv.anonId)) : 'Support');
+          const t = m.createdAt ? new Date(m.createdAt).toLocaleString() : '';
+          const topic = m.meta && m.meta.topic ? ` • ${m.meta.topic}` : '';
+          meta.textContent = `${who}${topic} • ${t}`;
+          d.appendChild(meta);
+          convDiv.appendChild(d);
+        });
+      }
+      body.appendChild(convDiv);
+      body.scrollTop = body.scrollHeight;
+    }
+
+    function appendLocalMessage(msg) {
+      currentConv.messages = currentConv.messages || [];
+      currentConv.messages.push(msg);
+      localStorage.setItem(localConvKey, JSON.stringify(currentConv));
+      renderMessages(currentConv.messages || []);
+    }
+
+    // ---------- welcome / flows ----------
+    function showWelcomeFlow() {
+      body.innerHTML = '';
+      const el = document.createElement('div');
+      el.innerHTML = `
+        <div style="font-weight:700">How can we help?</div>
+        <div class="muted" style="margin-bottom:8px">Choose a topic so we can route your message:</div>
+        <div class="controls" id="topicBtns">
+          <button class="btn" data-topic="Donation">Donation</button>
+          <button class="btn" data-topic="Membership">Membership</button>
+          <button class="btn" data-topic="Opportunities">Opportunities</button>
+          <button class="btn" data-topic="Other">Other</button>
+        </div>
+        <div style="margin-top:8px" id="namePrompt"></div>
+      `;
+      body.appendChild(el);
+
+      const anon = ensureAnon();
+      const user = safeGetUser();
+      const namePrompt = document.getElementById('namePrompt');
+      if (!user) {
+        namePrompt.innerHTML = `<div class="muted">What should we call you? (optional)</div>
+          <div style="display:flex;gap:8px;margin-top:6px">
+            <input id="visitorName" class="input" placeholder="Your name or leave anonymous" />
+            <button id="saveVisitorName" class="btn">Save</button>
+          </div>`;
+        document.getElementById('saveVisitorName').addEventListener('click', () => {
+          const val = (document.getElementById('visitorName').value || '').trim();
+          if (val) { anon.name = val; localStorage.setItem(localKeyAnon, JSON.stringify(anon)); }
+          // don't close; they can continue selecting topic
+        });
+      } else {
+        sub.textContent = 'Logged in as ' + (user.fullName || user.name || 'You');
+      }
+
+      document.querySelectorAll('#topicBtns .btn').forEach(b => {
+        b.addEventListener('click', () => {
+          askFollowUp(b.dataset.topic);
+        });
+      });
+    }
+
+    function askFollowUp(topic) {
+      body.innerHTML = '';
+      const wrapper = document.createElement('div');
+      wrapper.innerHTML = `
+        <div style="font-weight:700">${topic}</div>
+        <div class="muted" style="margin-bottom:8px">Please tell us more about your ${topic.toLowerCase()} question (short summary)</div>
+        <textarea id="followText" rows="4" style="width:100%;padding:8px;border-radius:8px;border:1px solid #eef2f2"></textarea>
+        <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:8px">
+          <button id="backTopic" class="btn">Back</button>
+          <button id="startConv" class="btn primary">Start chat</button>
+        </div>
+      `;
+      body.appendChild(wrapper);
+      document.getElementById('backTopic').addEventListener('click', showWelcomeFlow);
+      document.getElementById('startConv').addEventListener('click', async () => {
+        const details = (document.getElementById('followText').value || '').trim();
+        await startConversation(topic, details);
+      });
+    }
+
+    // ---------- create / append conversation ----------
+    async function startConversation(topic, details) {
+      const anon = ensureAnon();
+      const user = safeGetUser();
+      const payload = { anonId: anon.anonId, initialMessage: details || ('Start: ' + topic), topic, details, name: anon.name || null };
+      // local optimistic UI
+      currentConv = { localId: 'local-' + Date.now(), anonId: anon.anonId, messages: [{ sender: 'user', text: payload.initialMessage, createdAt: new Date().toISOString(), senderName: payload.name || null, meta: { topic } }], meta: { topic, details } };
+      localStorage.setItem(localConvKey, JSON.stringify(currentConv));
+      renderMessages(currentConv.messages);
+
+      // try server create
+      const r = await apiFetch('/api/help/conversations', { method: 'POST', body: JSON.stringify(payload) });
+      if (!r.ok) {
+        console.warn('create conv failed', r);
+        // keep local conv; user can continue and messages will be queued locally
+        startPolling(); // ensure we poll for updates
+        return;
+      }
+      currentConv = r.data.conversation;
+      localStorage.setItem(localConvKey, JSON.stringify(currentConv));
+      // join socket room if connected
+      if (socket && currentConv && currentConv._id) {
+        socket.emit('identify', { convId: currentConv._id });
+      }
+      renderMessages(currentConv.messages || []);
+      startPolling();
+    }
+
+    async function sendMessageFromInput() {
+      const txt = (input.value || '').trim();
+      if (!txt) return;
+      input.value = '';
+      const anon = ensureAnon();
+      const now = new Date().toISOString();
+      // optimistic local append
+      const msg = { _id: 'm-' + Date.now(), sender: 'user', text: txt, createdAt: now, status: 'pending', senderName: (currentConv && currentConv.name) ? currentConv.name : (anon.name || null), meta: (currentConv && currentConv.meta) ? currentConv.meta : null };
+      if (!currentConv) {
+        currentConv = { localId: 'local-' + Date.now(), anonId: anon.anonId, messages: [] };
+      }
+      appendLocalMessage(msg);
+
+      // if we have server conversation id, append via API
+      if (currentConv._id) {
+        const r = await apiFetch('/api/help/conversations/' + encodeURIComponent(currentConv._id) + '/messages', { method: 'POST', body: JSON.stringify({ text: txt, topic: (currentConv.meta && currentConv.meta.topic) ? currentConv.meta.topic : undefined }) });
+        if (r.ok && r.data && r.data.conversation) {
+          currentConv = r.data.conversation;
+          localStorage.setItem(localConvKey, JSON.stringify(currentConv));
+          renderMessages(currentConv.messages || []);
+          return;
+        } else {
+          // mark last local message failed
+          const last = currentConv.messages[currentConv.messages.length - 1];
+          if (last) last.status = 'failed';
+          localStorage.setItem(localConvKey, JSON.stringify(currentConv));
+          renderMessages(currentConv.messages || []);
+          return;
+        }
+      }
+
+      // Otherwise create conversation with initialMessage = txt (server will include this msg)
+      const payload = { anonId: anon.anonId, initialMessage: txt, topic: (currentConv && currentConv.meta) ? currentConv.meta.topic : undefined, details: (currentConv && currentConv.meta) ? currentConv.meta.details : undefined, name: anon.name || undefined };
+      const r2 = await apiFetch('/api/help/conversations', { method: 'POST', body: JSON.stringify(payload) });
+      if (r2.ok && r2.data && r2.data.conversation) {
+        currentConv = r2.data.conversation;
+        localStorage.setItem(localConvKey, JSON.stringify(currentConv));
+        renderMessages(currentConv.messages || []);
+        if (socket && currentConv && currentConv._id) socket.emit('identify', { convId: currentConv._id });
+        return;
+      } else {
+        // keep local fallback
+        startPolling();
+      }
+    }
+
+    // ---------- socket loader + init (backend first, CDN fallback) ----------
+    function loadSocketIoClient(callback) {
+      if (window.io) return callback(null);
+      const tryUrls = [];
+      if (API_BASE) tryUrls.push(API_BASE + '/socket.io/socket.io.js');
+      tryUrls.push('https://cdn.socket.io/4.6.1/socket.io.min.js');
+      let i = 0;
+      function next() {
+        if (i >= tryUrls.length) return callback(new Error('socket.io client failed to load'));
+        const src = tryUrls[i++];
+        const s = document.createElement('script');
+        s.src = src;
+        s.async = true;
+        s.onload = () => { if (window.io) return callback(null); else next(); };
+        s.onerror = () => { console.warn('socket.io client load failed:', src); next(); };
+        document.head.appendChild(s);
+      }
+      next();
+    }
+
+    function initSocket() {
+      if (!window.io) {
+        console.warn('socket.io client not present');
+        return;
+      }
+      const token = safeGetToken();
+      socket = io(API_BASE || '/', {
+        auth: token ? { token } : undefined,
+        transports: ['websocket', 'polling']
+      });
+
+      socket.on('connect', () => {
+        console.log('help widget socket connected', socket.id);
+        // join admin room if token indicates admin: server will mark socket.user and add to 'admins' if admin
+        // join current conversation room
+        if (currentConv && currentConv._id) socket.emit('identify', { convId: currentConv._id });
+        stopPolling();
+      });
+
+      socket.on('connect_error', (err) => {
+        console.warn('socket connect_error', err && err.message ? err.message : err);
+        // fallback to polling
+        startPolling();
+      });
+
+      socket.on('disconnect', (reason) => {
+        console.warn('socket disconnected', reason);
+        // start polling as fallback
+        startPolling();
+      });
+
+      // new message on conversation
+      socket.on('help.message', (data) => {
+        if (!data || !data.conversationId) return;
+        if (currentConv && String(currentConv._id) === String(data.conversationId)) {
+          currentConv.messages = currentConv.messages || [];
+          if (data.message) currentConv.messages.push(data.message);
+          localStorage.setItem(localConvKey, JSON.stringify(currentConv));
+          renderMessages(currentConv.messages || []);
+        }
+      });
+
+      // conversation updated (admins receive)
+      socket.on('help.updated', (data) => {
+        // If server pushed a full conversation, and it matches currentConv, replace it
+        if (data && data.conversation) {
+          if (currentConv && String(currentConv._id) === String(data.conversation._id)) {
+            currentConv = data.conversation;
+            localStorage.setItem(localConvKey, JSON.stringify(currentConv));
+            renderMessages(currentConv.messages || []);
+          }
+        }
+      });
+
+      // notify admins/new convs
+      socket.on('help.new', (data) => {
+        // admins will have a separate admin UI; widget doesn't need to handle this
+        console.log('help.new', data);
+      });
+    }
+
+    // ---------- polling fallback ----------
+    async function pollForConv() {
+      if (!currentConv) return;
+      if (!currentConv._id) return;
+      try {
+        const r = await apiFetch('/api/help/conversations/' + encodeURIComponent(currentConv._id));
+        if (r.ok && r.data && r.data.conversation) {
+          const conv = r.data.conversation;
+          // if updated, refresh
+          if (!currentConv.updatedAt || new Date(conv.updatedAt) - new Date(currentConv.updatedAt) > 500) {
+            currentConv = conv;
+            localStorage.setItem(localConvKey, JSON.stringify(currentConv));
+            renderMessages(currentConv.messages || []);
+          }
+        }
+      } catch (e) { /* ignore */ }
+    }
+    function startPolling() {
+      stopPolling();
+      pollTimer = setInterval(pollForConv, 3500);
+    }
+    function stopPolling() { if (pollTimer) { clearInterval(pollTimer); pollTimer = null; } }
+
+    // ---------- load existing conv on open ----------
+    async function loadExisting() {
+      const user = safeGetUser();
+      const anon = ensureAnon();
+      const token = safeGetToken();
+
+      // 1. if logged-in -> try /me
+      if (token) {
+        const r = await apiFetch('/api/help/conversations/me');
+        if (r.ok && r.data && r.data.conversation) {
+          currentConv = r.data.conversation;
+          localStorage.setItem(localConvKey, JSON.stringify(currentConv));
+          sub.textContent = 'Logged in as ' + (user && (user.fullName || user.name) ? (user.fullName || user.name) : 'You');
+          renderMessages(currentConv.messages || []);
+          // join socket if present
+          if (socket && currentConv && currentConv._id) socket.emit('identify', { convId: currentConv._id });
+          return;
+        }
+      }
+
+      // 2. local storage
+      const raw = localStorage.getItem(localConvKey);
+      if (raw) {
+        try { currentConv = JSON.parse(raw); renderMessages(currentConv.messages || []); return; } catch (e) { currentConv = null; }
+      }
+
+      // 3. server by anonId
+      const r2 = await apiFetch('/api/help/conversations/anon/' + encodeURIComponent(anon.anonId));
+      if (r2.ok && r2.data && r2.data.conversation) {
+        currentConv = r2.data.conversation;
+        localStorage.setItem(localConvKey, JSON.stringify(currentConv));
+        renderMessages(currentConv.messages || []);
+        if (socket && currentConv && currentConv._id) socket.emit('identify', { convId: currentConv._id });
+        return;
+      }
+
+      // else welcome
+      showWelcomeFlow();
+      // enable polling as a safety net
+      startPolling();
+    }
+
+    // ---------- UI interactions ----------
+    fab.addEventListener('click', async () => {
+      panel.classList.remove('hidden');
+      fab.style.display = 'none';
+      // attempt to load socket client & init
+      loadSocketIoClient((err) => {
+        if (!err) initSocket(); else {
+          console.warn('socket client unavailable, using polling fallback');
+          startPolling();
+        }
+      });
+      await loadExisting();
+    });
+    closeBtn.addEventListener('click', () => {
+      panel.classList.add('hidden');
+      fab.style.display = 'flex';
+      stopPolling();
+    });
+
+    send.addEventListener('click', sendMessageFromInput);
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessageFromInput(); }
+    });
+
+    // load socket.io client utility (exposed here)
+    function loadSocketIoClient(callback) {
+      if (window.io) return callback(null);
+      const tryUrls = [];
+      if (API_BASE) tryUrls.push(API_BASE + '/socket.io/socket.io.js');
+      tryUrls.push('https://cdn.socket.io/4.6.1/socket.io.min.js');
+      let i = 0;
+      function tryNext() {
+        if (i >= tryUrls.length) return callback(new Error('socket.io client failed to load'));
+        const src = tryUrls[i++];
+        const s = document.createElement('script');
+        s.src = src;
+        s.async = true;
+        s.onload = () => { if (window.io) return callback(null); else tryNext(); };
+        s.onerror = () => { console.warn('socket.io client load failed:', src); tryNext(); };
+        document.head.appendChild(s);
+      }
+      tryNext();
+    }
+
+    // ---------- init: pre-load token/user display if present ----------
+    (function preInit() {
+      const user = safeGetUser();
+      if (user && (user.fullName || user.name)) sub.textContent = 'Signed in as ' + (user.fullName || user.name);
+      // attempt to pre-load socket client lazily (not required) - defer until open
+    })();
+
+    // expose some helpers for debugging
+    window.__seha_help = {
+      ensureAnon,
+      getCurrentConv: () => currentConv,
+      startPolling,
+      stopPolling
+    };
+
+  })();
+  </script>
+</body>
+</html>

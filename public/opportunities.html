@@ -1,0 +1,949 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Opportunities — SEHA</title>
+  <link rel="stylesheet" href="style.css">
+ 
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const current = window.location.pathname.split("/").pop(); 
+      document.querySelectorAll(".main-nav a").forEach(a => {
+        const href = a.getAttribute("href");
+        if (href === current) {
+          a.classList.add("active");
+        }
+      });
+    });
+    </script>
+    
+  <!-- START: Back-to-top small styles (optional: move into style.css) -->
+  <style>
+    /* Floating "back to top" button */
+    .seha-back-to-top {
+      position: fixed;
+      right: 20px;
+      bottom: 24px;
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--primary);
+      color: #fff;
+      box-shadow: 0 10px 30px rgba(2,6,23,0.12);
+      cursor: pointer;
+      z-index: 1600;
+      opacity: 0;
+      pointer-events: none;
+      transform: translateY(8px);
+      transition: opacity .18s ease, transform .18s ease;
+      border: 0;
+    }
+
+    .seha-back-to-top.show {
+      opacity: 1;
+      pointer-events: auto;
+      transform: translateY(0);
+    }
+
+    /* focus / keyboard visibility */
+    .seha-back-to-top:focus {
+      outline: 3px solid rgba(45,212,191,0.22);
+      outline-offset: 4px;
+    }
+
+    /* inner svg */
+    .seha-back-to-top svg { width: 20px; height: 20px; display:block; }
+
+    /* small responsive tweak so it doesn't overlap on very small screens */
+    @media (max-width: 420px) {
+      .seha-back-to-top { right: 12px; bottom: 16px; width:44px; height:44px; border-radius:10px; }
+    }
+
+    /* optional: hide if user prefers reduced motion */
+    @media (prefers-reduced-motion: reduce) {
+      .seha-back-to-top { transition: none; }
+      html { scroll-behavior: auto; }
+    }
+    /* === Small/tight desktop header patch — only layout + sizing === */
+/* Apply only on desktop so mobile/menu/toggles are untouched */
+@media (min-width: 981px) {
+
+/* tighten header row and flush container edges */
+.site-header { padding: 0; }
+.container.header-inner { padding: 0 6px; max-width: var(--container); }
+
+/* reduce overall header height and gaps */
+.header-inner {
+  height: 52px;            /* slightly shorter */
+  gap: 8px;
+  padding: 0;
+  align-items: center;
+}
+
+/* branding: smaller logo and reduced text sizes */
+.brand { gap: 8px; min-width: 0; }
+.brand .logo { width: 34px; height: 34px; border-radius: 6px; }
+.brand-text .org-name {
+  font-size: 11px;         /* smaller title */
+  font-weight: 700;
+  line-height: 1;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+}
+.brand-text .tagline {
+  font-size: 10px;         /* smaller tagline */
+  margin: 0;
+  opacity: 0.9;
+}
+
+/* navigation: smaller font, tighter padding and smaller gap */
+.main-nav { flex: 1 1 auto; min-width: 0; }
+.main-nav .nav-list {
+  gap: 6px;                /* tighter gap between menu items */
+  padding: 0 6px;
+}
+.main-nav a {
+  font-size: 12px;         /* smaller nav text */
+  padding: 6px 8px;        /* tighter clickable area */
+  border-radius: 6px;
+  font-weight: 700;
+}
+
+/* reduce the hover transform so it looks subtle on small header */
+.main-nav a:hover, .main-nav a:focus {
+  transform: translateY(-1px);
+  background: rgba(15,118,110,0.04);
+}
+
+/* ensure desktop popovers still position correctly (no clipping) */
+.nav-item { position: relative; }
+.nav-subtitle {
+  left: 50%;
+  transform: translateX(-50%) translateY(6px);
+  top: calc(100% + 6px);
+  min-width: 180px;
+  z-index: 2500;
+}
+}
+
+/* Keep mobile rules exactly as before (no changes) */
+@media (max-width: 980px) {
+/* nothing here — mobile behavior unchanged */
+}
+
+/* === ACTIVE NAVIGATION HIGHLIGHT === */
+@media (min-width: 981px) {
+  .main-nav a.active {
+    background: var(--primary-light, rgba(15,118,110,0.10));
+    color: var(--primary, #0f766e);
+    transform: none;       /* don't move up when active */
+  }
+
+  /* optional: keep hover consistent */
+  .main-nav a.active:hover {
+    background: var(--primary-light, rgba(15,118,110,0.12));
+    color: var(--primary, #0f766e);
+  }
+}
+
+  </style>
+  <!-- END: Back-to-top styles -->
+</head>
+<body>
+ <!-- HEADER -->
+<header class="site-header" role="banner">
+  
+  <!-- small, safe header-local CSS to avoid duplicate arrows & show mobile toggle only on small screens -->
+  <style>
+    /* If your global CSS also sets .nav-item.has-sub > a::after, override here so we don't get double arrows */
+    .nav-item.has-sub > a::after { content: ''; }
+
+    /* mobile-only helper: hide by default (desktop) and show only under your mobile breakpoint */
+    .mobile-only { display: none; align-items: center; gap: 8px; }
+    @media (max-width: 880px) {
+      .mobile-only { display: flex; }
+      /* ensure desktop popover remains visible on hover as before */
+      .nav-item.has-sub > .nav-subtitle { display: none; }
+      .nav-item.has-sub:hover > .nav-subtitle,
+      .nav-item.has-sub:focus-within > .nav-subtitle { display: block; }
+    }
+  </style>
+
+  <div class="container header-inner">
+    <div class="brand">
+      <img src="images/logo.png" alt="SEHA logo" class="logo" />
+      <div class="brand-text">
+        <h1 class="org-name">Somali Eye Health Alliance</h1>
+        <p class="tagline">Saving sight • Building local capacity</p>
+      </div>
+    </div>
+
+    <nav class="main-nav" role="navigation" aria-label="Main Navigation">
+      <ul class="nav-list">
+        <li class="nav-item"><a href="index.html">Home</a></li>
+
+        <li class="nav-item has-sub" id="nav-about">
+          <a href="about.html" aria-haspopup="true" aria-expanded="false">About Us ▾</a>
+
+          <!-- desktop popover -->
+          <div class="nav-subtitle" role="dialog" aria-hidden="true" aria-labelledby="about-subtitle">
+            <ul class="subtitle-list">
+              <li><a href="about.html#who" class="subtitle-link">Who we are</a></li>
+              <li><a href="about.html#what-we-do" class="subtitle-link">What we do</a></li>
+              <li><a href="about.html#framework" class="subtitle-link">Operational framework</a></li>
+              <li><a href="about.html#team" class="subtitle-link">Our team & governance</a></li>
+            </ul>
+          </div>
+
+          <!-- mobile submenu (kept for hamburger) -->
+          <ul class="sub" aria-label="About submenu">
+            <li><a href="about.html#who">Who we are</a></li>
+            <li><a href="about.html#what-we-do">What we do</a></li>
+            <li><a href="about.html#framework">Operational framework</a></li>
+            <li><a href="about.html#team">Our team & governance</a></li>
+          </ul>
+        </li>
+
+        <li class="nav-item has-sub" id="nav-ourwork">
+          <a href="our-work.html" aria-haspopup="true" aria-expanded="false">Our Work ▾</a>
+
+          <div class="nav-subtitle" role="dialog" aria-hidden="true" aria-labelledby="ourwork-subtitle">
+            <ul class="subtitle-list">
+              <li><a href="programs.html" class="subtitle-link">Core programs</a></li>
+              <li><a href="our-work.html#consortia" class="subtitle-link">Clinical consortia</a></li>
+              <li><a href="our-work.html#regions" class="subtitle-link">Regional activity</a></li>
+              <li><a href="our-work.html#impact" class="subtitle-link">Impact & results</a></li>
+            </ul>
+          </div>
+
+          <ul class="sub" aria-label="Our Work submenu">
+            <li><a href="programs.html">Programs</a></li>
+            <li><a href="our-work.html#consortia">Consortia</a></li>
+            <li><a href="our-work.html#regions">Regions</a></li>
+          </ul>
+        </li>
+
+        <li class="nav-item"><a href="programs.html">Programs</a></li>
+        <li class="nav-item"><a href="membership.html">Membership</a></li>
+        <li class="nav-item"><a href="resources.html">Resources</a></li>
+        <li class="nav-item"><a href="events.html">Events & Blogs</a></li>
+        <li class="nav-item"><a href="opportunities.html">Opportunities</a></li>
+        <li class="nav-item"><a href="awareness.html">Awareness</a></li>
+        <li class="nav-item"><a href="contact.html">Contact</a></li>
+
+        <!-- SETTINGS (single desktop link + mobile-only toggle + mobile submenu)
+             - Desktop: user sees the "Settings" anchor and the .nav-subtitle popover on hover/focus
+             - Mobile: the .mobile-only toggle (plus symbol) is shown and toggles the submenu;
+               the mobile-only element is hidden on desktop so you do not get two visible "Settings" -->
+        <li class="nav-item has-sub" id="nav-settings">
+          <!-- Desktop link (visible on all widths) -->
+          <!-- <a href="settings.html" aria-haspopup="true" aria-expanded="false" id="settingsDesktopLink">Settings ▾</a> -->
+          <a href="settings.html" aria-haspopup="true" aria-expanded="false">Settings ▾</a>
+
+
+          <!-- desktop popover -->
+          <div class="nav-subtitle" role="dialog" aria-hidden="true" aria-labelledby="settings-subtitle">
+            <ul class="subtitle-list">
+              <li><a href="settings.html#account">Account settings</a></li>
+              <li><a href="settings.html#privacy">Privacy & security</a></li>
+              <li><a href="settings.html#appearance">Appearance</a></li>
+            </ul>
+          </div>
+
+          <!-- Mobile-only toggle: hidden on desktop by .mobile-only rule above
+          <a href="#" class="mobile-toggle mobile-only" data-target="settingsSub" aria-controls="settingsSub" aria-expanded="false" id="settingsMobileToggle" style="justify-content:space-between;width:100%;padding:6px 0;">
+            <span>Settings</span>
+            <span class="toggle-symbol" aria-hidden="true">+</span>
+          </a> -->
+
+          <!-- mobile submenu -->
+          <ul class="sub mobile-sub" id="settingsSub" aria-hidden="true">
+            <li><a href="settings.html#account">Account settings</a></li>
+            <li><a href="settings.html#privacy">Privacy & security</a></li>
+            <li><a href="settings.html#appearance">Appearance</a></li>
+          </ul>
+        </li>
+        <!-- /SETTINGS -->
+
+      </ul>
+    </nav>
+
+    <div class="header-cta">
+      <a class="btn donate" id="donateBtn" href="donate.html" title="Donate">Donate</a>
+      <button class="hamb" id="hambBtn" aria-expanded="false" aria-controls="mobileMenu" aria-label="Open menu">☰</button>
+    </div>
+  </div>
+
+  <div class="mobile-menu" id="mobileMenu" aria-hidden="true"></div>
+</header>
+
+  <main class="section">
+    <div class="container">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:12px">
+        <div>
+          <h1>Opportunities</h1>
+          <p class="muted">Volunteer placements, internships, short contracts and job openings — check back for new listings.</p>
+        </div>
+
+        <div style="display:flex;gap:8px;align-items:center">
+          <!-- admin-only button -->
+          <button id="adminCheckAppsBtn" class="btn" style="display:none">Check applications (admin)</button>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:6px">
+        <h3>How to apply</h3>
+        <p class="muted">Click <strong>Details</strong> to read the full description. Click <strong>Apply now</strong> to open the application form and submit. CV upload is optional and retained client-side only.</p>
+      </div>
+
+      <div id="oppList" class="opportunities-grid" style="margin-top:12px"></div>
+
+      <div style="margin-top:18px;display:flex;align-items:center;gap:12px">
+        <button id="checkMyApps" class="secondary">Check my applications</button>
+        <span class="muted">(uses application ids stored in your browser)</span>
+      </div>
+    </div>
+  </main>
+
+  <!-- DETAILS modal -->
+  <div id="detailsModal" class="seha-modal-overlay" aria-hidden="true" role="dialog">
+    <div class="seha-modal" role="document">
+      <button id="detailsClose" class="secondary" style="position:absolute;right:12px;top:12px">Close</button>
+      <h2 id="detailsTitle"></h2>
+      <div class="muted" id="detailsMeta" style="margin-bottom:8px"></div>
+      <div id="detailsBody" class="muted" style="white-space:pre-wrap"></div>
+
+      <div style="margin-top:12px;display:flex;gap:8px;justify-content:flex-end">
+        <button id="detailsApplyBtn" class="apply-btn">Apply now →</button>
+        <a id="detailsFileLink" class="secondary" style="display:none" target="_blank" rel="noopener">Open detail page</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- apply modal (keeps your existing modal structure but we reuse it) -->
+  <div id="applyModal" class="seha-modal-overlay" aria-hidden="true" role="dialog">
+    <div class="seha-modal">
+      <button id="modalClose" class="secondary" style="position:absolute;right:12px;top:12px">Close</button>
+      <h3 id="applyModalTitle">Apply for opportunity</h3>
+      <div id="applyJobMeta" class="muted">Which opportunity: <strong id="applyJobTitle"></strong></div>
+
+      <form id="applyForm" novalidate>
+        <div class="modal-row" style="margin-top:12px">
+          <div style="flex:1">
+            <label>Full name</label>
+            <input id="appName" name="name" type="text" required>
+          </div>
+          <div style="flex:1">
+            <label>Email</label>
+            <input id="appEmail" name="email" type="email" required>
+          </div>
+        </div>
+
+        <div class="modal-row" style="margin-top:8px">
+          <div style="flex:1">
+            <label>Location (City, Country)</label>
+            <input id="appLocation" name="location" type="text" placeholder="City, Country">
+          </div>
+          <div style="flex:1">
+            <label>Type</label>
+            <select id="appType" name="type">
+              <option value="">(select)</option>
+              <option>Volunteer</option>
+              <option>Internship</option>
+              <option>Short-term contract</option>
+              <option>Employment</option>
+            </select>
+          </div>
+        </div>
+
+        <div style="margin-top:8px">
+          <label>Short statement (why you apply)</label>
+          <textarea id="appStatement" name="statement" placeholder="200–400 words recommended" rows="6" required></textarea>
+        </div>
+
+        <div class="modal-row" style="margin-top:8px">
+          <div style="flex:1">
+            <label>Upload CV (PDF, optional)</label>
+            <input id="appCV" type="file" accept=".pdf,.doc,.docx">
+            <div id="appCVName" class="muted" style="font-size:13px;margin-top:6px"></div>
+            <div class="muted small" style="font-size:12px;margin-top:6px">CV WILL NOT BE UPLOADED OR STORED. This field is for your local convenience only.</div>
+          </div>
+          <div style="width:160px">
+            <label>Available from (approx.)</label>
+            <input id="appStart" name="available" type="text" placeholder="e.g. 2026-05">
+          </div>
+        </div>
+
+        <div id="applyMsg" class="muted" style="margin-top:8px"></div>
+
+        <div style="margin-top:12px;display:flex;gap:8px;justify-content:flex-end">
+          <button type="submit" class="apply-btn">Submit application</button>
+          <button type="button" id="applyCancel" class="secondary">Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- check-my-applications modal -->
+  <div id="appsModal" class="seha-modal-overlay" aria-hidden="true" role="dialog">
+    <div class="seha-modal" style="max-width:720px">
+      <button id="appsModalClose" class="secondary" style="position:absolute;right:12px;top:12px">Close</button>
+      <h3>Your saved applications</h3>
+      <div class="muted small" style="margin-bottom:8px">Saved in your browser — not on the server. You can copy an id and then click "Check status" to query the server.</div>
+      <div class="apps-list" id="appsList"></div>
+      <div style="margin-top:12px;text-align:right">
+        <button id="clearApps" class="secondary">Clear all</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer class="site-footer" role="contentinfo">
+    <div class="container footer-inner">
+      <div class="footer-col">
+        <img src="images/logo.png" alt="SEHA logo" class="footer-logo">
+        <p class="muted">© 2026 Somali Eye Health Alliance — All Rights Reserved <a href="/public/admin/developers-contact.html">Developers</a></p>
+      </div>
+
+      <div class="footer-col">
+        <h4>Quick links</h4>
+        <ul class="small-list footer-links">
+          <li><a href="index.html">Home</a></li>
+          <li><a href="about.html">About Us</a></li>
+          <li><a href="programs.html">Programs</a></li>
+          <li><a href="resources.html">Resources</a></li>
+          <li><a href="membership.html">Membership</a></li>
+          <li><a href="contact.html">Contact</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Contact</h4>
+        <address class="muted">
+          Mogadishu, Somalia<br>
+          info@Somalieyehealthalliance.org <br>
+          +252 61 7000264
+                </address>
+      </div>
+    </div>
+  </footer>
+<script>
+(function(){
+  // remove server usage: use local only
+  const API_BASE = (location.hostname === 'localhost' || location.hostname === '127.0.0.1') ? 'http://localhost:4000' : '';
+
+  // LOCAL_OPPS only — the page will not request the server for listings
+  const LOCAL_OPPS = [
+    {
+      _id: '69368ffa46098488d8049154',
+      title: 'Volunteer Ophthalmic Nurse - Boorama',
+      location: 'Boorama',
+      type: 'Volunteer',
+      duration: '6 months',
+      stipend: 'Basic stipend & accommodation',
+      excerpt: 'Support outreach and theatre lists; assist with refraction and postoperative follow-up.',
+      details: 'Work with outreach teams, support theatre, patient follow-up and simple refractions. Must be a certified ophthalmic nurse.',
+      detailPage: 'opportunity-detail-a1b2c3d4e5f60718293a4b5c.html'
+    },
+    {
+      _id: '4d5e6f7a8b9c0d1e2f3a4b5c',
+      title: 'Research Assistant (part-time) - Mogadishu',
+      location: 'Mogadishu',
+      type: 'Part-time',
+      duration: '6 months',
+      stipend: 'Monthly honorarium',
+      excerpt: 'Support monitoring & evaluation, data collection and report writing.',
+      details: 'Work with M&E team on data collection, cleaning, analysis and basic report drafting. Experience with SPSS/R preferred.',
+      detailPage: 'opportunity-detail-4d5e6f7a8b9c0d1e2f3a4b5c.html'
+    },
+    {
+      _id: 'a1b2c3d4e5f60718293a4b5c',
+      title: 'Optical Technician (short contract) - Hargeisa',
+      location: 'Hargeisa',
+      type: 'Short-term contract',
+      duration: '3 months',
+      stipend: 'Paid contract',
+      excerpt: 'Set up small optical dispensing workshop and train local staff.',
+      details: 'Install basic dispensing tools and train local technicians in lens edging and simple repairs.',
+      detailPage: 'opportunity-detail-a1b2c3d4e5f60718293a4b5c.html'
+    },
+    {
+      _id: 'c0ffee1234567890abcdef12',
+      title: 'Community Outreach Coordinator - Beledweyne',
+      location: 'Beledweyne',
+      type: 'Employment',
+      duration: '12 months',
+      stipend: 'Salary (competitive)',
+      excerpt: 'Lead community mobilization, partner liaison and vendor logistics for outreach days.',
+      details: 'Coordinate outreach logistics and partnerships in Beledweyne.',
+      detailPage: 'opportunity-detail-c0ffee1234567890abcdef12.html'
+    },
+    {
+      _id: 'deadbeef8765432101234567',
+      title: 'CPD Trainer (voluntary) - National',
+      location: 'Multiple',
+      type: 'Volunteer',
+      duration: 'Ongoing',
+      stipend: 'Travel covered',
+      excerpt: 'Deliver short CPD sessions and mentorship to nurses and optometrists in regions.',
+      details: 'Deliver CPD training and mentorship across regions.',
+      detailPage: 'opportunity-detail-deadbeef8765432101234567.html'
+    },
+    {
+      _id: 'feedface0011223344556677',
+      title: 'Communications Intern - Remote',
+      location: 'Remote',
+      type: 'Internship',
+      duration: '3 months',
+      stipend: 'Small stipend',
+      excerpt: 'Support communications, social media and simple reporting for campaigns.',
+      details: 'Assist with social media, content drafts and campaign reporting.',
+      detailPage: 'opportunity-detail-feedface0011223344556677.html'
+    }
+  ];
+
+  // GLOBAL merged list (we will just use LOCAL_OPPS)
+  let ALL_OPPS = LOCAL_OPPS.slice();
+
+  // UI elements
+  const oppList = document.getElementById('oppList');
+  const detailsModal = document.getElementById('detailsModal');
+  const detailsTitle = document.getElementById('detailsTitle');
+  const detailsMeta = document.getElementById('detailsMeta');
+  const detailsBody = document.getElementById('detailsBody');
+  const detailsClose = document.getElementById('detailsClose');
+  const detailsApplyBtn = document.getElementById('detailsApplyBtn');
+  const detailsFileLink = document.getElementById('detailsFileLink');
+
+  const applyModal = document.getElementById('applyModal');
+  const applyJobTitle = document.getElementById('applyJobTitle');
+  const applyForm = document.getElementById('applyForm');
+  const appName = document.getElementById('appName');
+  const appEmail = document.getElementById('appEmail');
+  const appLocation = document.getElementById('appLocation');
+  const appType = document.getElementById('appType');
+  const appStatement = document.getElementById('appStatement');
+  const appCV = document.getElementById('appCV');
+  const appCVName = document.getElementById('appCVName');
+  const appStart = document.getElementById('appStart');
+  const applyMsg = document.getElementById('applyMsg');
+  const modalClose = document.getElementById('modalClose');
+  const applyCancel = document.getElementById('applyCancel');
+
+  const checkMyApps = document.getElementById('checkMyApps');
+  const adminCheckAppsBtn = document.getElementById('adminCheckAppsBtn');
+
+  const appsModal = document.getElementById('appsModal');
+  const appsModalClose = document.getElementById('appsModalClose');
+  const appsList = document.getElementById('appsList');
+  const clearApps = document.getElementById('clearApps');
+
+  let currentOpp = null;
+  let lastOpener = null;
+
+  // RENDER (LOCAL_OPPS only)
+  function renderOpps(opps){
+    oppList.innerHTML = '';
+    opps.forEach(o => {
+      const card = document.createElement('article');
+      card.className = 'card';
+      card.style.display = 'flex';
+      card.style.flexDirection = 'column';
+
+      const metaHtml = `<div class="opp-meta">
+          <div>${escapeHtml(o.location || '')}</div><div>•</div><div>${escapeHtml(o.type || '')}</div><div>•</div><div>${escapeHtml(o.duration || '')}</div>
+        </div>`;
+
+      card.innerHTML = `
+        <h4 style="margin:0 0 6px 0">${escapeHtml(o.title)}</h4>
+        ${metaHtml}
+        <p style="flex:1;margin-top:6px">${escapeHtml(o.excerpt || '')}</p>
+        <div style="margin-top:12px;display:flex;gap:8px;justify-content:flex-end">
+          <button class="secondary details-btn" data-id="${escapeAttr(o._id)}" style="padding:8px 10px">Details</button>
+          <button class="apply-btn" data-id="${escapeAttr(o._id)}">Apply now →</button>
+        </div>
+      `;
+      oppList.appendChild(card);
+    });
+  }
+
+  // open details modal
+// --- replace your existing openDetails(...) with this ---
+function openDetails(opp, opener){
+  currentOpp = opp;
+  lastOpener = opener || null;
+
+  // title + meta + body
+  detailsTitle.textContent = opp.title || '';
+  detailsMeta.innerHTML = `<strong>${escapeHtml(opp.location || '')}</strong> • ${escapeHtml(opp.type || '')} • ${escapeHtml(opp.duration || '')} • ${escapeHtml(opp.stipend || '')}`;
+  detailsBody.textContent = opp.details || opp.excerpt || '';
+
+  // Build detail page link WITHOUT forcing a leading '/'
+  // 1) If opp.detailPage exists, use it exactly as provided (no prefix/slice).
+  // 2) Else, if an _id exists, fallback to the conventional filename 'opportunity-detail-<id>.html'
+  //    (also WITHOUT a leading '/').
+  // 3) If neither exists, hide the link.
+  let fileHref = '';
+  if (opp.detailPage && String(opp.detailPage).trim()) {
+    fileHref = String(opp.detailPage).trim();
+  } else if (opp._id) {
+    fileHref = `opportunity-detail-${String(opp._id)}.html`;
+  } else {
+    fileHref = '';
+  }
+
+  if (fileHref) {
+    detailsFileLink.style.display = 'inline-block';
+    // Make sure the URL is safe and uses only the provided filename/path.
+    // If the path accidentally contains a leading slash, remove it (per your request).
+    if (fileHref.startsWith('/')) fileHref = fileHref.slice(1);
+    detailsFileLink.href = fileHref;
+    detailsFileLink.target = '_blank';
+    detailsFileLink.rel = 'noopener noreferrer';
+  } else {
+    detailsFileLink.style.display = 'none';
+    detailsFileLink.href = '#';
+  }
+
+  // open modal & set focus
+  detailsModal.classList.add('open');
+  detailsModal.setAttribute('aria-hidden','false');
+  setTimeout(()=> detailsApplyBtn.focus(), 50);
+}
+
+
+  function closeDetails(){
+    detailsModal.classList.remove('open'); detailsModal.setAttribute('aria-hidden','true');
+    if (lastOpener) lastOpener.focus();
+  }
+
+  // open apply modal (populates with opportunity)
+  function openApply(opp, opener){
+    currentOpp = opp;
+    lastOpener = opener || null;
+    applyJobTitle.textContent = opp.title || '';
+    applyForm.reset();
+    appCVName.textContent='';
+    applyMsg.textContent='';
+    applyModal.classList.add('open'); applyModal.setAttribute('aria-hidden','false');
+    setTimeout(()=> appName.focus(), 50);
+  }
+  function closeApply(){ applyModal.classList.remove('open'); applyModal.setAttribute('aria-hidden','true'); if (lastOpener) lastOpener.focus(); }
+
+  // LISTEN for click events in list
+  oppList.addEventListener('click', (e) => {
+    const detailsBtn = e.target.closest('.details-btn');
+    if (detailsBtn){
+      const id = detailsBtn.dataset.id;
+      const found = ALL_OPPS.find(x => String(x._id) === String(id) || (x.slug && x.slug === id));
+      if (found) openDetails(found, detailsBtn);
+      else alert('Opportunity details not found.');
+      return;
+    }
+    const applyBtn = e.target.closest('.apply-btn');
+    if (applyBtn){
+      const id = applyBtn.dataset.id;
+      const found = ALL_OPPS.find(x => String(x._id) === String(id) || (x.slug && x.slug === id));
+      if (found) openApply(found, applyBtn);
+      else alert('Opportunity not found.');
+      return;
+    }
+  });
+
+  // details modal controls
+  detailsClose.addEventListener('click', closeDetails);
+  detailsModal.addEventListener('click', (e)=> { if (e.target === detailsModal) closeDetails(); });
+  detailsApplyBtn.addEventListener('click', ()=> { if (currentOpp) { closeDetails(); openApply(currentOpp); } });
+
+  // apply modal controls
+  modalClose.addEventListener('click', closeApply);
+  applyCancel.addEventListener('click', closeApply);
+  applyModal.addEventListener('click', (e) => { if (e.target === applyModal) closeApply(); });
+  document.addEventListener('keydown', (e)=> {
+    if (e.key === 'Escape') {
+      if (applyModal.classList.contains('open')) closeApply();
+      if (detailsModal.classList.contains('open')) closeDetails();
+      if (appsModal.classList.contains('open')) { appsModal.classList.remove('open'); appsModal.setAttribute('aria-hidden','true'); }
+    }
+  });
+
+  // CV preview (client-only)
+  if (appCV) {
+    appCV.addEventListener('change', (e) => {
+      const f = e.target.files && e.target.files[0];
+      if (f) appCVName.textContent = `${f.name} (${Math.round(f.size/1024)} KB)`;
+      else appCVName.textContent = '';
+    });
+  }
+
+  // submit application
+// Replace the existing applyForm submit handler with this:
+applyForm.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  applyMsg.style.color = '#6b7280';
+  applyMsg.textContent = '';
+
+  const name = (appName.value||'').trim();
+  const email = (appEmail.value||'').trim();
+  const statement = (appStatement.value||'').trim();
+  if (!name || !email || !statement) {
+    applyMsg.style.color = '#dc2626';
+    applyMsg.textContent = 'Please complete name, email and statement.';
+    return;
+  }
+
+  // Build FormData so file is uploaded when present
+  const fd = new FormData();
+  fd.append('name', name);
+  fd.append('email', email);
+  fd.append('phone', (document.getElementById('appPhone') ? document.getElementById('appPhone').value.trim() : '') || '');
+  fd.append('location', (appLocation.value||'').trim());
+  fd.append('type', (appType.value||'').trim());
+  fd.append('statement', statement);
+  fd.append('availableFrom', (appStart.value||'').trim());
+
+  // pass opportunity metadata so server can tie to an opportunity
+  if (currentOpp) {
+    if (currentOpp._id) fd.append('opportunityId', currentOpp._id);
+    if (currentOpp.title) fd.append('opportunityTitle', currentOpp.title);
+  }
+
+  if (appCV.files && appCV.files[0]) {
+    fd.append('cv', appCV.files[0], appCV.files[0].name);
+  }
+
+  applyMsg.textContent = 'Submitting...';
+
+  // local save helper
+  function saveLocalApplication(appObj) {
+    const key = 'seha_applications';
+    let arr = [];
+    try { arr = JSON.parse(localStorage.getItem(key)) || []; } catch(e){ arr = []; }
+    arr.unshift(appObj);
+    localStorage.setItem(key, JSON.stringify(arr.slice(0, 50)));
+  }
+
+  try {
+    if (!API_BASE) {
+      // no backend configured -> save local
+      const localApp = {
+        _id: 'local-' + Date.now(),
+        opportunityTitle: currentOpp ? currentOpp.title : 'Unknown',
+        name, email,
+        location: fd.get('location'),
+        type: fd.get('type'),
+        statement,
+        availableFrom: fd.get('availableFrom'),
+        cvName: (appCV.files && appCV.files[0]) ? appCV.files[0].name : null,
+        status: 'pending',
+        createdAt: new Date().toISOString(),
+        __localOnly: true
+      };
+      saveLocalApplication(localApp);
+      applyMsg.style.color = '#0f766e';
+      applyMsg.textContent = 'Application saved locally (no server configured).';
+      applyForm.reset(); appCVName.textContent = '';
+      setTimeout(()=> closeApply(), 1200);
+      return;
+    }
+
+    const resp = await fetch(API_BASE + '/api/opportunities/apply', {
+      method: 'POST',
+      body: fd // let browser set content-type and boundaries
+    });
+
+    const j = await resp.json().catch(()=>null);
+
+    if (!resp.ok) {
+      // server-side rejection -> try to fallback to local save when appropriate
+      const message = j && j.message ? j.message : ('Submission failed (' + (resp.status || 'error') + ')');
+      if (resp.status === 400 && /missing required/i.test(message)) {
+        // fallback: save local copy so user doesn't lose work
+        const localApp = {
+          _id: 'local-' + Date.now(),
+          opportunityTitle: currentOpp ? currentOpp.title : 'Unknown',
+          name, email,
+          location: fd.get('location'),
+          type: fd.get('type'),
+          statement,
+          availableFrom: fd.get('availableFrom'),
+          cvName: (appCV.files && appCV.files[0]) ? appCV.files[0].name : null,
+          status: 'pending',
+          createdAt: new Date().toISOString(),
+          __localOnly: true,
+          serverError: message
+        };
+        saveLocalApplication(localApp);
+        applyMsg.style.color = '#0f766e';
+        applyMsg.textContent = 'Application saved locally because the server rejected the request. You can check it with "Check my applications".';
+        applyForm.reset(); appCVName.textContent = '';
+        setTimeout(()=> closeApply(), 1200);
+        return;
+      }
+      applyMsg.style.color = '#dc2626';
+      applyMsg.textContent = message;
+      return;
+    }
+
+    // success
+    const app = (j && j.application) ? j.application : j;
+    // store a small record locally for "check my applications" UI
+    const key = 'seha_applications';
+    let arr = [];
+    try { arr = JSON.parse(localStorage.getItem(key)) || []; } catch(e){ arr = []; }
+    arr.unshift({ id: app._id || app.id, opportunityTitle: app.opportunityTitle || (currentOpp ? currentOpp.title : 'Unknown'), createdAt: app.createdAt || new Date().toISOString() });
+    localStorage.setItem(key, JSON.stringify(arr.slice(0,20)));
+
+    applyMsg.style.color = '#0f766e';
+    applyMsg.textContent = 'Application received — thank you.';
+    applyForm.reset(); appCVName.textContent = '';
+    setTimeout(()=> closeApply(), 1200);
+
+  } catch (err) {
+    console.error('apply submit error', err);
+    // fallback to local save on network error
+    const localApp = {
+      _id: 'local-' + Date.now(),
+      opportunityTitle: currentOpp ? currentOpp.title : 'Unknown',
+      name, email,
+      location: fd.get('location'),
+      type: fd.get('type'),
+      statement,
+      availableFrom: fd.get('availableFrom'),
+      cvName: (appCV.files && appCV.files[0]) ? appCV.files[0].name : null,
+      status: 'pending',
+      createdAt: new Date().toISOString(),
+      __localOnly: true,
+      networkError: true
+    };
+    saveLocalApplication(localApp);
+    applyMsg.style.color = '#0f766e';
+    applyMsg.textContent = 'Network error — application saved locally.';
+    applyForm.reset(); appCVName.textContent = '';
+    setTimeout(()=> closeApply(), 1200);
+  }
+});
+// Check saved applications in localStorage (client side)
+  checkMyApps.addEventListener('click', () => {
+    const key = 'seha_applications';
+    let arr = [];
+    try { arr = JSON.parse(localStorage.getItem(key)) || []; } catch(e){}
+    if (!arr.length) { alert('No local application records found in your browser. After you apply, this button will list your applications.'); return; }
+    populateAppsModal(arr);
+    appsModal.classList.add('open'); appsModal.setAttribute('aria-hidden','false');
+  });
+
+  appsModalClose.addEventListener('click', () => { appsModal.classList.remove('open'); appsModal.setAttribute('aria-hidden','true'); });
+  appsModal.addEventListener('click', (e) => { if (e.target === appsModal) { appsModal.classList.remove('open'); appsModal.setAttribute('aria-hidden','true'); } });
+
+  clearApps.addEventListener('click', () => {
+    if (!confirm('Clear saved application records from your browser?')) return;
+    localStorage.removeItem('seha_applications');
+    appsList.innerHTML = '<div class="muted">No saved applications.</div>';
+  });
+
+  function populateAppsModal(arr){
+    appsList.innerHTML = '';
+    arr.forEach(a => {
+      const node = document.createElement('div');
+      node.className = 'app-item';
+      node.innerHTML = `
+        <div style="flex:1">
+          <div style="font-weight:600">${escapeHtml(a.opportunityTitle)}</div>
+          <div class="small muted">id: <code style="font-family:monospace">${a.id}</code> • ${new Date(a.createdAt).toLocaleString()}</div>
+        </div>
+        <div style="display:flex;gap:6px;align-items:center">
+          <button class="copy-btn" data-id="${a.id}" title="Copy id">📋</button>
+          <button class="secondary" data-check="${a.id}">Check status</button>
+          <button class="secondary" data-remove="${a.id}" title="Remove">Remove</button>
+        </div>
+      `;
+      appsList.appendChild(node);
+    });
+
+    appsList.querySelectorAll('.copy-btn').forEach(b => {
+      b.addEventListener('click', async () => {
+        const id = b.dataset.id;
+        try {
+          await navigator.clipboard.writeText(id);
+          b.textContent = '✓';
+          setTimeout(()=> b.textContent = '📋', 900);
+        } catch (err) {
+          alert('Copy failed — please select and copy manually: ' + id);
+        }
+      });
+    });
+
+    appsList.querySelectorAll('[data-check]').forEach(b => {
+      b.addEventListener('click', async () => {
+        const id = b.dataset.check;
+        b.textContent = 'Checking…';
+        try {
+          const resp = await fetch(API_BASE + '/api/opportunities/application/' + id);
+          const j = await resp.json().catch(()=>null);
+          if (!resp.ok) { alert('Error: ' + (j && j.message ? j.message : resp.statusText)); b.textContent = 'Check status'; return; }
+          const a = j.application || j;
+          const txt = `Opportunity: ${a.opportunityTitle}\nName: ${a.name}\nEmail: ${a.email}\nPhone: ${a.phone||'(none)'}\nStatus: ${a.status}\nSubmitted: ${new Date(a.createdAt).toLocaleString()}`;
+          alert(txt);
+        } catch (err) {
+          console.error(err);
+          alert('Network error');
+        } finally { b.textContent = 'Check status'; }
+      });
+    });
+
+    appsList.querySelectorAll('[data-remove]').forEach(b => {
+      b.addEventListener('click', () => {
+        const id = b.dataset.remove;
+        if (!confirm('Remove this saved application from your browser?')) return;
+        let arr2 = [];
+        try { arr2 = JSON.parse(localStorage.getItem('seha_applications')) || []; } catch(e){}
+        arr2 = arr2.filter(x => x.id !== id);
+        localStorage.setItem('seha_applications', JSON.stringify(arr2));
+        populateAppsModal(arr2);
+      });
+    });
+
+    if (!arr.length) appsList.innerHTML = '<div class="muted">No saved applications</div>';
+  }
+
+  // admin check (keeps original behavior: checks /api/auth/me)
+  async function adminCheck(){
+    try {
+      const token = localStorage.getItem('seha_token') || null;
+      if (!token) return;
+      const resp = await fetch(API_BASE + '/api/auth/me', { headers: { 'Authorization': 'Bearer ' + token }});
+      if (!resp.ok) return;
+      const j = await resp.json().catch(()=>null);
+      const user = j && j.user ? j.user : null;
+      const role = user && user.role ? String(user.role).toLowerCase() : null;
+      if (role === 'admin' || role === 'superadmin') {
+        adminCheckAppsBtn.style.display = 'inline-block';
+        adminCheckAppsBtn.addEventListener('click', ()=> { window.location.href = 'admin/opportunities-applications.html'; });
+      }
+    } catch (err) {
+      console.warn('admin check failed', err);
+    }
+  }
+
+  // Escape helpers
+  function escapeHtml(s){ if (s === null || s === undefined) return ''; return String(s).replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m])); }
+  function escapeAttr(s){ return String(s || '').replace(/"/g,'&quot;'); }
+
+  // boot: only use LOCAL_OPPS
+  (function init(){
+    ALL_OPPS = LOCAL_OPPS.slice();
+    renderOpps(ALL_OPPS);
+    adminCheck();
+  })();
+
+})();
+</script>
+<script src="script.js"></script>
+</body>
+</html>

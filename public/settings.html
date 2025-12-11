@@ -1,0 +1,1004 @@
+<!doctype html>
+<html lang="en">
+  <script>
+    /* apply persisted theme as early as possible to avoid flash */
+    (function(){
+      try {
+        var mode = localStorage.getItem('seha_theme') || 'system';
+        if (mode === 'dark') document.documentElement.classList.add('dark');
+        else if (mode === 'light') document.documentElement.classList.add('light');
+        else { /* system: don't set classes — prefer media query */ }
+      } catch(e){ /* ignore */ }
+    })();
+    </script>
+    
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Settings — Somali Eye Health Alliance (SEHA)</title>
+  <meta name="description" content="Account settings, language and profile — Somali Eye Health Alliance" />
+  <link rel="icon" href="images/logo.png">
+  <link rel="stylesheet" href="style.css">
+
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const current = window.location.pathname.split("/").pop(); 
+    document.querySelectorAll(".main-nav a").forEach(a => {
+      const href = a.getAttribute("href");
+      if (href === current) {
+        a.classList.add("active");
+      }
+    });
+  });
+  </script>
+  
+<!-- START: Back-to-top small styles (optional: move into style.css) -->
+<style>
+  /* Floating "back to top" button */
+  .seha-back-to-top {
+    position: fixed;
+    right: 20px;
+    bottom: 24px;
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--primary);
+    color: #fff;
+    box-shadow: 0 10px 30px rgba(2,6,23,0.12);
+    cursor: pointer;
+    z-index: 1600;
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(8px);
+    transition: opacity .18s ease, transform .18s ease;
+    border: 0;
+  }
+
+  .seha-back-to-top.show {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateY(0);
+  }
+
+  /* focus / keyboard visibility */
+  .seha-back-to-top:focus {
+    outline: 3px solid rgba(45,212,191,0.22);
+    outline-offset: 4px;
+  }
+
+  /* inner svg */
+  .seha-back-to-top svg { width: 20px; height: 20px; display:block; }
+
+  /* small responsive tweak so it doesn't overlap on very small screens */
+  @media (max-width: 420px) {
+    .seha-back-to-top { right: 12px; bottom: 16px; width:44px; height:44px; border-radius:10px; }
+  }
+
+  /* optional: hide if user prefers reduced motion */
+  @media (prefers-reduced-motion: reduce) {
+    .seha-back-to-top { transition: none; }
+    html { scroll-behavior: auto; }
+  }
+  /* === Small/tight desktop header patch — only layout + sizing === */
+/* Apply only on desktop so mobile/menu/toggles are untouched */
+@media (min-width: 981px) {
+
+/* tighten header row and flush container edges */
+.site-header { padding: 0; }
+.container.header-inner { padding: 0 6px; max-width: var(--container); }
+
+/* reduce overall header height and gaps */
+.header-inner {
+height: 52px;            /* slightly shorter */
+gap: 8px;
+padding: 0;
+align-items: center;
+}
+
+/* branding: smaller logo and reduced text sizes */
+.brand { gap: 8px; min-width: 0; }
+.brand .logo { width: 34px; height: 34px; border-radius: 6px; }
+.brand-text .org-name {
+font-size: 11px;         /* smaller title */
+font-weight: 700;
+line-height: 1;
+white-space: nowrap;
+text-overflow: ellipsis;
+overflow: hidden;
+}
+.brand-text .tagline {
+font-size: 10px;         /* smaller tagline */
+margin: 0;
+opacity: 0.9;
+}
+
+/* navigation: smaller font, tighter padding and smaller gap */
+.main-nav { flex: 1 1 auto; min-width: 0; }
+.main-nav .nav-list {
+gap: 6px;                /* tighter gap between menu items */
+padding: 0 6px;
+}
+.main-nav a {
+font-size: 12px;         /* smaller nav text */
+padding: 6px 8px;        /* tighter clickable area */
+border-radius: 6px;
+font-weight: 700;
+}
+
+/* reduce the hover transform so it looks subtle on small header */
+.main-nav a:hover, .main-nav a:focus {
+transform: translateY(-1px);
+background: rgba(15,118,110,0.04);
+}
+
+/* ensure desktop popovers still position correctly (no clipping) */
+.nav-item { position: relative; }
+.nav-subtitle {
+left: 50%;
+transform: translateX(-50%) translateY(6px);
+top: calc(100% + 6px);
+min-width: 180px;
+z-index: 2500;
+}
+}
+
+/* Keep mobile rules exactly as before (no changes) */
+@media (max-width: 980px) {
+/* nothing here — mobile behavior unchanged */
+}
+
+/* === ACTIVE NAVIGATION HIGHLIGHT === */
+@media (min-width: 981px) {
+.main-nav a.active {
+  background: var(--primary-light, rgba(15,118,110,0.10));
+  color: var(--primary, #0f766e);
+  transform: none;       /* don't move up when active */
+}
+
+/* optional: keep hover consistent */
+.main-nav a.active:hover {
+  background: var(--primary-light, rgba(15,118,110,0.12));
+  color: var(--primary, #0f766e);
+}
+}
+
+
+
+
+/* =========================
+SETTINGS + MODALS STYLES
+Paste into style.css (or inside a <style> on settings page)
+========================= */
+
+/* Ensure we use existing css variables (fallbacks safe) */
+:root {
+--settings-gap: 20px;
+--settings-aside-width: 320px;
+--card-radius: 12px;
+--card-pad: 18px;
+--muted-2: rgba(65, 73, 52, 0.45);
+--muted-3: rgba(232, 6, 6, 0.25);
+--border: rgba(105, 60, 60, 0.785);
+--shadow-soft: 0 8px 28px rgba(2,6,23,0.06);
+}
+
+/* ---------- Settings page layout ---------- */
+.settings-hero {
+display:flex;
+align-items:center;
+justify-content:space-between;
+gap:12px;
+margin-bottom: 8px;
+}
+
+/* Title area: allows a small action next to title (like requested) */
+.settings-title {
+display:flex;
+align-items:center;
+gap:14px;
+}
+.settings-title h1,
+.settings-title h2,
+.settings-title h3 {
+margin:0;
+font-weight:700;
+font-size:20px;
+}
+.settings-title .title-action {
+margin-left:6px;
+display:inline-flex;
+align-items:center;
+gap:8px;
+}
+
+/* Main two-column layout used in your page */
+.settings-grid {
+display:grid;
+grid-template-columns: 1fr var(--settings-aside-width);
+gap: var(--settings-gap);
+align-items:start;
+}
+@media (max-width: 980px) {
+.settings-grid { grid-template-columns: 1fr; }
+}
+
+/* Card common */
+.settings-card,
+.card { /* .card already used; keep consistent */
+border-radius: var(--card-radius);
+background: var(--card);
+padding: var(--card-pad);
+box-shadow: var(--shadow-soft);
+border: 1px solid var(--border);
+}
+
+/* Card header */
+.card h4 {
+margin: 0 0 8px 0;
+font-size:15px;
+font-weight:700;
+}
+.card p.muted { margin:0 0 10px 0; color:var(--muted); }
+
+/* Action buttons group */
+.settings-actions { display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+.btn1 {
+display:inline-flex;
+align-items:center;
+justify-content:center;
+padding:8px 12px;
+border-radius:8px;
+border: 1px solid var(--border);
+background: transparent;
+cursor: pointer;
+font-weight:600;
+line-height:1;
+}
+.btn1:focus { outline:3px solid rgba(0,0,0,0.06); outline-offset:2px; }
+.btn1.primary {
+background: var(--accent);
+color: #fff;
+border-color: transparent;
+}
+.btn1.secondary {
+background: var(--card);
+color: var(--text, #0f172a);
+border-color: var(--border);
+}
+
+/* Small, subtle button used in cards */
+.btn.small {
+padding:6px 10px;
+font-size:14px;
+border-radius:8px;
+}
+
+/* Account summary card specifics */
+.account-summary .muted { color:var(--muted); font-size:13px; }
+.account-summary strong { display:block; font-weight:700; margin-bottom:6px; }
+
+/* Users table (Manage modal) */
+table.users-table {
+width:100%;
+border-collapse:collapse;
+font-size:14px;
+}
+table.users-table th, table.users-table td {
+padding:10px 8px;
+border-bottom: 1px solid var(--border);
+text-align:left;
+vertical-align:middle;
+}
+table.users-table th { font-weight:700; background:transparent; }
+
+/* role badge */
+.role-chip {
+padding:4px 8px;
+border-radius:999px;
+font-size:12px;
+display:inline-block;
+background: rgba(0,0,0,0.04);
+}
+
+/* action icons in table */
+.action-btn {
+display:inline-flex;
+align-items:center;
+justify-content:center;
+width:36px;
+height:36px;
+border-radius:8px;
+border:0;
+background:transparent;
+cursor:pointer;
+}
+.action-btn:focus { box-shadow: 0 0 0 3px rgba(2,6,23,0.06); }
+.action-btn.edit { color: var(--primary, #0369a1); }
+.action-btn.del  { color: var(--error, #dc2626); }
+.action-btn[disabled] { opacity:0.45; cursor:not-allowed; }
+
+/* small helper text */
+.note { font-size:13px; color:var(--muted); }
+
+/* ---------- Modal/backdrop (hidden by default) ---------- */
+/* IMPORTANT: keep modal-backdrop hidden unless .show is applied by JS */
+.modal-backdrop {
+position: fixed;
+inset: 0;
+display: none;           /* hidden by default until JS adds .show */
+align-items: center;
+justify-content: center;
+padding: 20px;
+background: rgba(2,6,23,0.45);
+z-index: 2200;
+-webkit-overflow-scrolling: touch;
+}
+.modal-backdrop.show {
+display: flex;           /* shown when JS adds .show */
+}
+
+/* Modal panel */
+.modal {
+width: 100%;
+max-width: 920px;
+background: var(--card);
+border-radius: 10px;
+padding: 18px;
+box-shadow: 0 12px 48px rgba(2,6,23,0.24);
+transform: translateY(8px);
+opacity: 0;
+transition: opacity 180ms ease, transform 180ms ease;
+}
+
+/* When backdrop is shown, animate modal in */
+.modal-backdrop.show .modal {
+transform: translateY(0);
+opacity: 1;
+}
+
+/* smaller modal variant */
+.modal.small { max-width: 520px; }
+
+/* modal header */
+.modal-header { display:flex; align-items:center; justify-content:space-between; gap:8px; }
+.modal-title { font-size:18px; margin:0; font-weight:700; }
+.modal-close {
+background:transparent;
+border:0;
+font-size:20px;
+cursor:pointer;
+padding:6px;
+line-height:1;
+}
+.modal-close:focus { outline:3px solid rgba(2,6,23,0.06); outline-offset:2px; }
+
+/* modal body spacing */
+.modal-body { margin-top:12px; }
+
+/* defensive: ensure forms look consistent inside modal */
+.modal input[type="text"],
+.modal input[type="email"],
+.modal input[type="password"],
+.modal select,
+.modal textarea {
+width:100%;
+padding:10px;
+border-radius:8px;
+border:1px solid var(--border);
+background:var(--card);
+margin-top:6px;
+box-sizing:border-box;
+}
+
+/* modal actions row */
+.modal .actions { margin-top:12px; display:flex; gap:8px; justify-content:flex-end; }
+
+/* Accessibility: trap focus hints (optional) */
+.modal[aria-hidden="true"] { pointer-events:none; opacity:0.98; }
+
+/* ---------- Utility & responsiveness ---------- */
+
+@media (max-width: 880px) {
+.settings-title h1, .settings-title h2, .settings-title h3 { font-size:18px; }
+.modal { margin: 18px; } /* keep side margin on small screens */
+}
+
+/* ---------- Minor visual polish ---------- */
+.subtitle-list li a { display:block; padding:6px 8px; border-radius:6px; }
+.subtitle-list li a:hover,
+.subtitle-list li a:focus { background: rgba(2,6,23,0.03); outline:none; }
+
+/* keep focus ring visible in dark/light but subtle */
+:focus { outline: none; }
+a:focus, button:focus, input:focus, select:focus, textarea:focus {
+box-shadow: 0 0 0 3px rgba(2,6,23,0.06);
+border-color: rgba(2,6,23,0.08);
+}
+
+/* ---------- Notes for your JS behavior (no code change) ----------
+- Your JS shows modals by adding "modal-backdrop.show" (already present in current code).
+This CSS ensures modal-backdrop is hidden by default and becomes visible with .show.
+- Buttons like #manageBtn, #addUserBtn etc. remain controlled by your JS (do not change).
+- If you want a subtle fade-out, you can toggle aria-hidden in JS together with .show. */
+
+/* End of settings + modals styles */
+
+:root{
+  --bg:#f7f8fa; --card:#ffffff; --muted:#6b7280;
+  --accent:#2dd4bf; --primary:#0f172a; --gap:16px;
+  font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, Arial;
+}
+.card{background:var(--card);padding:18px;border-radius:12px;box-shadow:0 6px 18px rgba(2,6,23,0.04)}
+.section-title{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.muted{color:var(--muted);font-size:14px}
+form .row{display:flex;gap:12px;flex-wrap:wrap;margin-top:12px}
+label{display:block;font-size:13px;margin-bottom:6px}
+input[type="text"], input[type="email"], input[type="password"], select, textarea{
+  width:100%;padding:10px;border-radius:8px;border:1px solid #e6e9ee;background:#fff
+}
+.two-col{display:grid;grid-template-columns:1fr 320px;gap:20px}
+.small{font-size:13px}
+.actions{display:flex;gap:8px;margin-top:12px}
+.btn.secondary{border:1px solid #e6e9ee;background:#fff}
+.lang-switch{display:flex;gap:8px;align-items:center}
+@media (max-width:880px){
+
+}
+.hidden{display:none}
+.error{color:#dc2626}
+.success{color:#16a34a}
+.note{font-size:13px;color:var(--muted);margin-top:8px}
+
+/* Modal styles */
+.modal{background:var(--card);width:100%;max-width:920px;border-radius:10px;padding:18px;box-shadow:0 12px 48px rgba(2,6,23,0.24)}
+.modal.small{max-width:520px}
+.modal-header{display:flex;align-items:center;justify-content:space-between}
+.modal-title{font-size:18px;margin:0}
+.modal-close{background:transparent;border:0;font-size:20px;cursor:pointer}
+.modal-body{margin-top:12px}
+.modal.show{display:block}
+.modal-backdrop.show{display:flex}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+table.users-table{width:100%;border-collapse:collapse;margin-top:12px}
+table.users-table th, table.users-table td{padding:8px;border-bottom:1px solid #f1f1f4;text-align:left}
+table.users-table th{background:#fbfcfd;font-weight:600}
+.role-chip{display:inline-block;padding:4px 8px;border-radius:999px;background:#f1f5f9;font-size:12px}
+.action-btn{border:0;background:transparent;cursor:pointer;padding:6px;border-radius:6px}
+.action-btn.edit{color:#0369a1}
+.action-btn.del{color:#dc2626}
+.action-btn[disabled]{opacity:0.4;cursor:not-allowed}
+</style>
+
+
+
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const current = window.location.pathname.split("/").pop(); 
+    document.querySelectorAll(".main-nav a").forEach(a => {
+      const href = a.getAttribute("href");
+      if (href === current) {
+        a.classList.add("active");
+      }
+    });
+  });
+  </script>
+  
+<!-- START: Back-to-top small styles (optional: move into style.css) -->
+<style>
+  /* Floating "back to top" button */
+  .seha-back-to-top {
+    position: fixed;
+    right: 20px;
+    bottom: 24px;
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--primary);
+    color: #fff;
+    box-shadow: 0 10px 30px rgba(2,6,23,0.12);
+    cursor: pointer;
+    z-index: 1600;
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(8px);
+    transition: opacity .18s ease, transform .18s ease;
+    border: 0;
+  }
+
+  .seha-back-to-top.show {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateY(0);
+  }
+
+  /* focus / keyboard visibility */
+  .seha-back-to-top:focus {
+    outline: 3px solid rgba(45,212,191,0.22);
+    outline-offset: 4px;
+  }
+
+  /* inner svg */
+  .seha-back-to-top svg { width: 20px; height: 20px; display:block; }
+
+  /* small responsive tweak so it doesn't overlap on very small screens */
+  @media (max-width: 420px) {
+    .seha-back-to-top { right: 12px; bottom: 16px; width:44px; height:44px; border-radius:10px; }
+  }
+
+  /* optional: hide if user prefers reduced motion */
+  @media (prefers-reduced-motion: reduce) {
+    .seha-back-to-top { transition: none; }
+    html { scroll-behavior: auto; }
+  }
+  /* === Small/tight desktop header patch — only layout + sizing === */
+/* Apply only on desktop so mobile/menu/toggles are untouched */
+@media (min-width: 981px) {
+
+/* tighten header row and flush container edges */
+.site-header { padding: 0; }
+.container.header-inner { padding: 0 6px; max-width: var(--container); }
+
+/* reduce overall header height and gaps */
+.header-inner {
+height: 52px;            /* slightly shorter */
+gap: 8px;
+padding: 0;
+align-items: center;
+}
+
+/* branding: smaller logo and reduced text sizes */
+.brand { gap: 8px; min-width: 0; }
+.brand .logo { width: 34px; height: 34px; border-radius: 6px; }
+.brand-text .org-name {
+font-size: 11px;         /* smaller title */
+font-weight: 700;
+line-height: 1;
+white-space: nowrap;
+text-overflow: ellipsis;
+overflow: hidden;
+}
+.brand-text .tagline {
+font-size: 10px;         /* smaller tagline */
+margin: 0;
+opacity: 0.9;
+}
+
+/* navigation: smaller font, tighter padding and smaller gap */
+.main-nav { flex: 1 1 auto; min-width: 0; }
+.main-nav .nav-list {
+gap: 6px;                /* tighter gap between menu items */
+padding: 0 6px;
+}
+.main-nav a {
+font-size: 12px;         /* smaller nav text */
+padding: 6px 8px;        /* tighter clickable area */
+border-radius: 6px;
+font-weight: 700;
+}
+
+/* reduce the hover transform so it looks subtle on small header */
+.main-nav a:hover, .main-nav a:focus {
+transform: translateY(-1px);
+background: rgba(15,118,110,0.04);
+}
+
+/* ensure desktop popovers still position correctly (no clipping) */
+.nav-item { position: relative; }
+.nav-subtitle {
+left: 50%;
+transform: translateX(-50%) translateY(6px);
+top: calc(100% + 6px);
+min-width: 180px;
+z-index: 2500;
+}
+}
+
+/* Keep mobile rules exactly as before (no changes) */
+@media (max-width: 980px) {
+/* nothing here — mobile behavior unchanged */
+}
+
+/* === ACTIVE NAVIGATION HIGHLIGHT === */
+@media (min-width: 981px) {
+.main-nav a.active {
+  background: var(--primary-light, rgba(15,118,110,0.10));
+  color: var(--primary, #0f766e);
+  transform: none;       /* don't move up when active */
+}
+
+/* optional: keep hover consistent */
+.main-nav a.active:hover {
+  background: var(--primary-light, rgba(15,118,110,0.12));
+  color: var(--primary, #0f766e);
+}
+}
+
+</style>
+<!-- END: Back-to-top styles -->
+</head>
+<body>
+<!-- HEADER -->
+<header class="site-header" role="banner">
+
+<!-- small, safe header-local CSS to avoid duplicate arrows & show mobile toggle only on small screens -->
+<style>
+  /* If your global CSS also sets .nav-item.has-sub > a::after, override here so we don't get double arrows */
+  .nav-item.has-sub > a::after { content: ''; }
+
+  /* mobile-only helper: hide by default (desktop) and show only under your mobile breakpoint */
+  .mobile-only { display: none; align-items: center; gap: 8px; }
+  @media (max-width: 880px) {
+    .mobile-only { display: flex; }
+    /* ensure desktop popover remains visible on hover as before */
+    .nav-item.has-sub > .nav-subtitle { display: none; }
+    .nav-item.has-sub:hover > .nav-subtitle,
+    .nav-item.has-sub:focus-within > .nav-subtitle { display: block; }
+  }
+</style>
+
+<div class="container header-inner">
+  <div class="brand">
+    <img src="images/logo.png" alt="SEHA logo" class="logo" />
+    <div class="brand-text">
+      <h1 class="org-name">Somali Eye Health Alliance</h1>
+      <p class="tagline">Saving sight • Building local capacity</p>
+    </div>
+  </div>
+
+  <nav class="main-nav" role="navigation" aria-label="Main Navigation">
+    <ul class="nav-list">
+      <li class="nav-item"><a href="index.html">Home</a></li>
+
+      <li class="nav-item has-sub" id="nav-about">
+        <a href="about.html" aria-haspopup="true" aria-expanded="false">About Us ▾</a>
+
+        <!-- desktop popover -->
+        <div class="nav-subtitle" role="dialog" aria-hidden="true" aria-labelledby="about-subtitle">
+          <ul class="subtitle-list">
+            <li><a href="about.html#who" class="subtitle-link">Who we are</a></li>
+            <li><a href="about.html#what-we-do" class="subtitle-link">What we do</a></li>
+            <li><a href="about.html#framework" class="subtitle-link">Operational framework</a></li>
+            <li><a href="about.html#team" class="subtitle-link">Our team & governance</a></li>
+          </ul>
+        </div>
+
+        <!-- mobile submenu (kept for hamburger) -->
+        <ul class="sub" aria-label="About submenu">
+          <li><a href="about.html#who">Who we are</a></li>
+          <li><a href="about.html#what-we-do">What we do</a></li>
+          <li><a href="about.html#framework">Operational framework</a></li>
+          <li><a href="about.html#team">Our team & governance</a></li>
+        </ul>
+      </li>
+
+      <li class="nav-item has-sub" id="nav-ourwork">
+        <a href="our-work.html" aria-haspopup="true" aria-expanded="false">Our Work ▾</a>
+
+        <div class="nav-subtitle" role="dialog" aria-hidden="true" aria-labelledby="ourwork-subtitle">
+          <ul class="subtitle-list">
+            <li><a href="programs.html" class="subtitle-link">Core programs</a></li>
+            <li><a href="our-work.html#consortia" class="subtitle-link">Clinical consortia</a></li>
+            <li><a href="our-work.html#regions" class="subtitle-link">Regional activity</a></li>
+            <li><a href="our-work.html#impact" class="subtitle-link">Impact & results</a></li>
+          </ul>
+        </div>
+
+        <ul class="sub" aria-label="Our Work submenu">
+          <li><a href="programs.html">Programs</a></li>
+          <li><a href="our-work.html#consortia">Consortia</a></li>
+          <li><a href="our-work.html#regions">Regions</a></li>
+        </ul>
+      </li>
+
+      <li class="nav-item"><a href="programs.html">Programs</a></li>
+      <li class="nav-item"><a href="membership.html">Membership</a></li>
+      <li class="nav-item"><a href="resources.html">Resources</a></li>
+      <li class="nav-item"><a href="events.html">Events & Blogs</a></li>
+      <li class="nav-item"><a href="opportunities.html">Opportunities</a></li>
+      <li class="nav-item"><a href="awareness.html">Awareness</a></li>
+      <li class="nav-item"><a href="contact.html">Contact</a></li>
+
+      <!-- SETTINGS (single desktop link + mobile-only toggle + mobile submenu)
+           - Desktop: user sees the "Settings" anchor and the .nav-subtitle popover on hover/focus
+           - Mobile: the .mobile-only toggle (plus symbol) is shown and toggles the submenu;
+             the mobile-only element is hidden on desktop so you do not get two visible "Settings" -->
+      <li class="nav-item has-sub" id="nav-settings">
+        <!-- Desktop link (visible on all widths) -->
+        <!-- <a href="settings.html" aria-haspopup="true" aria-expanded="false" id="settingsDesktopLink">Settings ▾</a> -->
+        <a href="settings.html" aria-haspopup="true" aria-expanded="false">Settings ▾</a>
+
+
+        <!-- desktop popover -->
+        <div class="nav-subtitle" role="dialog" aria-hidden="true" aria-labelledby="settings-subtitle">
+          <ul class="subtitle-list">
+            <li><a href="settings.html#account">Account settings</a></li>
+            <li><a href="settings.html#privacy">Privacy & security</a></li>
+            <li><a href="settings.html#appearance">Appearance</a></li>
+          </ul>
+        </div>
+
+        <!-- Mobile-only toggle: hidden on desktop by .mobile-only rule above
+        <a href="#" class="mobile-toggle mobile-only" data-target="settingsSub" aria-controls="settingsSub" aria-expanded="false" id="settingsMobileToggle" style="justify-content:space-between;width:100%;padding:6px 0;">
+          <span>Settings</span>
+          <span class="toggle-symbol" aria-hidden="true">+</span>
+        </a> -->
+
+        <!-- mobile submenu -->
+        <ul class="sub mobile-sub" id="settingsSub" aria-hidden="true">
+          <li><a href="settings.html#account">Account settings</a></li>
+          <li><a href="settings.html#privacy">Privacy & security</a></li>
+          <li><a href="settings.html#appearance">Appearance</a></li>
+        </ul>
+      </li>
+      <!-- /SETTINGS -->
+
+    </ul>
+  </nav>
+
+  <div class="header-cta">
+    <a class="btn donate" id="donateBtn" href="donate.html" title="Donate">Donate</a>
+    <button class="hamb" id="hambBtn" aria-expanded="false" aria-controls="mobileMenu" aria-label="Open menu">☰</button>
+  </div>
+</div>
+
+<div class="mobile-menu" id="mobileMenu" aria-hidden="true"></div>
+</header>
+  <main role="main" class="container">
+    <div class="two-col">
+      <div>
+        <h3 class="section-title">Account settings</h3>
+          <!-- Manage button: visible only to admin/superadmin -->
+          <button id="manageBtn" class="btn manage hidden" title="Manage users">Manage</button>
+
+        <p class="muted">Manage your profile, password and language preference.</p>
+
+        <div class="card" style="margin-top:12px">
+          <h4 id="profileTitle">Profile</h4>
+          <p class="muted">Use the Edit profile modal to change details.</p>
+          <div class="actions" style="margin-top:10px">
+            <button id="openEditFromPage" class="btn secondary">Edit profile</button>
+          </div>
+        </div>
+
+        <div class="card" style="margin-top:14px">
+          <h4 id="loginTitle">Account</h4>
+          <p class="muted">Use the Login modal to sign in. You will stay signed in until you click Logout.</p>
+          <div class="actions" style="margin-top:10px">
+            <button id="openLoginFromPage" class="btn">Login</button>
+            <button id="pageLogoutBtn" class="btn secondary hidden">Logout</button>
+          </div>
+          <div id="loginMsg" class="note" role="status" aria-live="polite"></div>
+        </div>
+      </div>
+
+      <aside>
+        <div class="card">
+          <h4 id="accountSummaryTitle">Account</h4>
+          <div id="accountSummary" class="muted">
+            <div><strong id="summaryName">Not signed in</strong></div>
+            <div id="summaryEmail" class="muted small">—</div>
+            <div style="margin-top:8px" id="signedStatus"></div>
+          </div>
+          <div style="margin-top:12px">
+            <label for="sidebarLang" class="small muted">Language</label>
+            <select id="sidebarLang">
+              <option value="en">English (EN)</option>
+              <option value="so">Somali (SO)</option>
+            </select>
+          </div>
+          <div style="margin-top:12px">
+            <label for="sidebarTheme" class="small muted">Theme</label>
+            <select id="sidebarTheme" class="theme-select">
+              <option value="system">System</option>
+              <option value="dark">Dark</option>
+              <option value="light">Light</option>
+            </select>
+          </div>
+          
+          <div class="note" style="margin-top:10px">Need help? <a href="contact.html">Contact support</a></div>
+        </div>
+      </aside>
+    </div>
+  </main>
+
+  <footer>© 2026 Somali Eye Health Alliance — All rights reserved</footer>
+
+  <!-- LOGIN MODAL -->
+  <div class="modal-backdrop" id="loginModalBackdrop" aria-hidden="true" role="dialog" aria-labelledby="loginModalTitle">
+    <div class="modal small" role="document" aria-modal="true">
+      <div class="modal-header">
+        <h3 class="modal-title" id="loginModalTitle">Login</h3>
+        <button class="modal-close" id="loginModalClose" aria-label="Close login dialog">✕</button>
+      </div>
+      <div class="modal-body">
+        <form id="modalLoginForm">
+          <div style="margin-top:8px">
+            <label for="modalLoginUsername">Username or email</label>
+            <input id="modalLoginUsername" name="username" type="text" required />
+          </div>
+          <div style="margin-top:8px">
+            <label for="modalLoginPassword">Password</label>
+            <input id="modalLoginPassword" name="password" type="password" required />
+          </div>
+          <div class="actions" style="margin-top:12px">
+            <button type="submit" class="btn1" id="modalDoLoginBtn">Login</button>
+            <button type="button" class="btn1 secondary" id="modalCancelLogin">Cancel</button>
+          </div>
+          <div id="modalLoginMsg" class="note" role="status" aria-live="polite"></div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- EDIT PROFILE MODAL -->
+  <div class="modal-backdrop" id="editModalBackdrop" aria-hidden="true" role="dialog" aria-labelledby="editModalTitle">
+    <div class="modal small" role="document" aria-modal="true">
+      <div class="modal-header">
+        <h3 class="modal-title" id="editModalTitle">Edit profile</h3>
+        <button class="modal-close" id="editModalClose" aria-label="Close edit dialog">✕</button>
+      </div>
+      <div class="modal-body">
+        <form id="modalEditForm">
+          <div style="margin-top:8px">
+            <label for="modalFullName">Full name</label>
+            <input id="modalFullName" name="fullName" type="text" />
+          </div>
+          <div style="margin-top:8px">
+            <label for="modalEmail">Email (optional)</label>
+            <input id="modalEmail" name="email" type="email" />
+          </div>
+          <div style="margin-top:8px">
+            <label for="modalPassword">New password (optional)</label>
+            <input id="modalPassword" name="password" type="password" />
+          </div>
+          <div class="actions" style="margin-top:12px">
+            <button type="submit" class="btn1" id="modalSaveProfileBtn">Save</button>
+            <button type="button" class="btn1 secondary" id="modalCancelEdit">Cancel</button>
+          </div>
+          <div id="modalEditMsg" class="note" role="status" aria-live="polite"></div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- MANAGE USERS MODAL -->
+  <div class="modal-backdrop" id="manageModalBackdrop" aria-hidden="true" role="dialog" aria-labelledby="manageModalTitle">
+    <div class="modal" role="document" aria-modal="true">
+      <div class="modal-header">
+        <h3 class="modal-title" id="manageModalTitle">Manage Users</h3>
+        <div style="display:flex;gap:8px;align-items:center">
+          <button id="addUserBtn" class="btn1" title="Add user">Add user</button>
+          <button class="modal-close" id="manageModalClose" aria-label="Close manage dialog">✕</button>
+        </div>
+      </div>
+
+      <div class="modal-body">
+        <div id="manageMsg" class="note" role="status" aria-live="polite"></div>
+
+        <div style="margin-top:12px">
+          <input id="userSearch" placeholder="Search username or name" style="padding:8px;border-radius:8px;border:1px solid #e6e9ee;width:100%" />
+        </div>
+
+        <div id="usersListWrap" style="margin-top:12px;max-height:420px;overflow:auto">
+          <table class="users-table" id="usersTable" aria-live="polite">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Username</th>
+                <th>Email</th>
+                <th>Role</th>
+                <th>Created</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="usersTbody">
+              <!-- rows populated by JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ADD USER MODAL -->
+  <div class="modal-backdrop" id="addUserBackdrop" aria-hidden="true" role="dialog" aria-labelledby="addUserTitle">
+    <div class="modal small" role="document" aria-modal="true">
+      <div class="modal-header">
+        <h3 class="modal-title" id="addUserTitle">Add User</h3>
+        <button class="modal-close" id="addUserClose" aria-label="Close add user dialog">✕</button>
+      </div>
+      <div class="modal-body">
+        <form id="addUserForm">
+          <div style="margin-top:8px"><label for="addFullName">Full name</label><input id="addFullName" required /></div>
+          <div style="margin-top:8px"><label for="addUsername">Username</label><input id="addUsername" required /></div>
+          <div style="margin-top:8px"><label for="addEmail">Email (optional)</label><input id="addEmail" type="email" /></div>
+          <div style="margin-top:8px"><label for="addPassword">Password</label><input id="addPassword" type="password" required /></div>
+          <div style="margin-top:8px"><label for="addRole">Role</label>
+            <select id="addRole">
+              <option value="user">user</option>
+              <option value="admin">admin</option>
+              <option value="superadmin">superadmin</option>
+            </select>
+          </div>
+
+          <div class="actions" style="margin-top:12px">
+            <button type="submit" class="btn1">Create</button>
+            <button type="button" class="btn1 secondary" id="addUserCancel">Cancel</button>
+          </div>
+          <div id="addUserMsg" class="note" role="status" aria-live="polite"></div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- EDIT USER MODAL -->
+  <div class="modal-backdrop" id="editUserBackdrop" aria-hidden="true" role="dialog" aria-labelledby="editUserTitle">
+    <div class="modal small" role="document" aria-modal="true">
+      <div class="modal-header">
+        <h3 class="modal-title" id="editUserTitle">Edit User</h3>
+        <button class="modal-close" id="editUserClose" aria-label="Close edit user dialog">✕</button>
+      </div>
+      <div class="modal-body">
+        <form id="editUserForm">
+          <input type="hidden" id="editUserId" />
+          <div style="margin-top:8px"><label for="editFullName">Full name</label><input id="editFullName" /></div>
+          <div style="margin-top:8px"><label for="editEmail">Email (optional)</label><input id="editEmail" type="email" /></div>
+          <div style="margin-top:8px"><label for="editPassword">New password (optional)</label><input id="editPassword" type="password" /></div>
+          <div style="margin-top:8px"><label for="editRole">Role</label>
+            <select id="editRole">
+              <option value="user">user</option>
+              <option value="admin">admin</option>
+              <option value="superadmin">superadmin</option>
+            </select>
+          </div>
+
+          <div class="actions" style="margin-top:12px">
+            <button type="submit" class="btn1" id="editUserSave">Save</button>
+            <button type="button" class="btn1 secondary" id="editUserCancel">Cancel</button>
+          </div>
+          <div id="editUserMsg" class="note" role="status" aria-live="polite"></div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer class="site-footer" role="contentinfo">
+    <div class="container footer-inner">
+      <div class="footer-col">
+        <img src="images/logo.png" alt="SEHA logo" class="footer-logo">
+        <p class="muted">© 2026 Somali Eye Health Alliance — All Rights Reserved <a href="/public/admin/developers-contact.html">Developers</a></p>
+      </div>
+
+      <div class="footer-col">
+        <h4>Quick links</h4>
+        <ul class="small-list footer-links">
+          <li><a href="index.html">Home</a></li>
+          <li><a href="about.html">About Us</a></li>
+          <li><a href="programs.html">Programs</a></li>
+          <li><a href="resources.html">Resources</a></li>
+          <li><a href="membership.html">Membership</a></li>
+          <li><a href="contact.html">Contact</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Contact</h4>
+        <address class="muted">
+          Mogadishu, Somalia<br>
+          info@Somalieyehealthalliance.org <br>
+          +252 61 7000264
+                </address>
+      </div>
+    </div>
+  </footer>
+<script src="script.js"></script>
+<script src="user.js"></script>
+</body>
+</html>

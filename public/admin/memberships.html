@@ -1,0 +1,225 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Admin — Membership Applications</title>
+  <style>
+    :root { --bg:#f6f7fb; --card:#fff; --muted:#6b7280; --accent:#06b6d4; --danger:#dc2626; --text:#0f172a; font-family:Inter,system-ui,Arial; }
+    body{margin:0;background:var(--bg);color:var(--text);font-size:14px}
+    .container{max-width:1200px;margin:20px auto;padding:18px}
+    header{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
+    .card{background:var(--card);padding:12px;border-radius:10px;box-shadow:0 6px 18px rgba(2,6,23,0.04)}
+    .filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+    input,select{padding:8px;border-radius:8px;border:1px solid #e6e9ee}
+    button.btn{padding:8px 10px;border-radius:8px;border:0;background:var(--accent);color:#fff;cursor:pointer}
+    button.ghost{background:transparent;border:1px solid #e6e9ee;color:var(--text)}
+    table{width:100%;border-collapse:collapse;margin-top:12px}
+    th,td{padding:10px;border-bottom:1px solid #f0f0f4;text-align:left}
+    th{background:#fbfcfd}
+    .muted{color:var(--muted)}
+    .center{text-align:center}
+    .danger-btn{background:transparent;border:1px solid #f3d3d3;color:var(--danger);padding:6px 8px;border-radius:6px;cursor:pointer}
+    .small{font-size:13px;color:var(--muted)}
+    .loginNotice{display:none;padding:10px;margin-bottom:12px}
+    /* modal */
+    .modal { position: fixed; inset: 0; display:none; align-items:center; justify-content:center; background: rgba(0,0,0,0.5); }
+    .modal .box { background:#fff; padding:16px; width:90%; max-width:700px; border-radius:8px; }
+    @media (max-width: 780px) {
+      th:nth-child(3), td:nth-child(3) { display:none; } /* hide organization column on very small screens */
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div>
+        <h1 style="margin:0;display:flex;gap:12px;align-items:center;">Membership applications
+          <a id="backToMember" href="/public/membership.html" style="margin-left:12px;text-decoration:none;"><button class="ghost">Public form</button></a>
+        </h1>
+        <div class="small muted">List of membership applications (admin / superadmin only)</div>
+      </div>
+      <div>
+        <button id="btnRefresh" class="btn">Refresh</button>
+        <button id="btnExport" class="ghost">Export CSV</button>
+      </div>
+    </header>
+
+    <div id="loginNotice" class="card loginNotice">
+      <strong>Not signed in as admin.</strong> Please login and store token in <code>localStorage.seha_token</code>.
+    </div>
+
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+      <div class="filters">
+        <input id="q" placeholder="Search name, email, org" />
+        <button id="btnFilter" class="ghost">Apply</button>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center">
+        <label class="small muted">Per page</label>
+        <select id="limit"><option>20</option><option>50</option><option>100</option></select>
+      </div>
+    </div>
+
+    <div class="card" id="listWrap">
+      <table id="tbl"><thead><tr><th>ID</th><th>Name</th><th>Organization</th><th>Email</th><th>Phone</th><th>Type</th><th>Submitted</th><th class="center">Actions</th></tr></thead>
+      <tbody id="tbody"><tr><td colspan="8" class="center muted">Loading…</td></tr></tbody></table>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:12px">
+        <div class="small muted" id="pagerInfo"></div>
+        <div><button id="prevPage" class="ghost">Prev</button> <button id="nextPage" class="ghost">Next</button></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- view modal -->
+  <div id="viewModal" class="modal" aria-hidden="true">
+    <div class="box">
+      <h3 id="viewTitle">Member</h3>
+      <div id="viewBody" style="font-family:Inter, system-ui, monospace;white-space:pre-wrap"></div>
+      <div style="text-align:right;margin-top:8px"><button id="viewClose">Close</button></div>
+    </div>
+  </div>
+
+<script>
+(function(){
+  const API_BASE = (location.hostname === 'localhost' || location.hostname === '127.0.0.1') ? 'http://localhost:4000' : '';
+  const token = localStorage.getItem('seha_token') || '';
+  const tbody = document.getElementById('tbody');
+  const qInput = document.getElementById('q');
+  const btnFilter = document.getElementById('btnFilter');
+  const btnRefresh = document.getElementById('btnRefresh');
+  const btnExport = document.getElementById('btnExport');
+  const btnPrev = document.getElementById('prevPage');
+  const btnNext = document.getElementById('nextPage');
+  const limitEl = document.getElementById('limit');
+  const pagerInfo = document.getElementById('pagerInfo');
+  const loginNotice = document.getElementById('loginNotice');
+  const viewModal = document.getElementById('viewModal');
+  const viewBody = document.getElementById('viewBody');
+  const viewTitle = document.getElementById('viewTitle');
+  const viewClose = document.getElementById('viewClose');
+  let page = 1, total = 0;
+
+  function headers(){ const h = {'Content-Type':'application/json'}; if (token) h['Authorization']='Bearer '+token; return h; }
+  function showLogin(show){ loginNotice.style.display = show ? 'block' : 'none'; }
+
+  async function loadList(){
+    tbody.innerHTML = '<tr><td colspan="8" class="center muted">Loading…</td></tr>';
+    const q = encodeURIComponent(qInput.value||'');
+    const limit = Number(limitEl.value||20);
+    const url = `${API_BASE}/api/memberships/admin/list?page=${page}&limit=${limit}${q?`&q=${q}`:''}`;
+    try {
+      const resp = await fetch(url, { headers: headers() });
+      if (resp.status === 401 || resp.status === 403) { tbody.innerHTML = '<tr><td colspan="8" class="center muted">Unauthorized — admin token required.</td></tr>'; showLogin(true); return; }
+      showLogin(false);
+      if (!resp.ok) { const j=await resp.json().catch(()=>({message:'Fetch failed'})); tbody.innerHTML = `<tr><td colspan="8" class="center muted">Error: ${j.message||resp.statusText}</td></tr>`; return; }
+      const data = await resp.json();
+      const rows = data.members || [];
+      total = data.total || rows.length;
+      if (!rows.length) { tbody.innerHTML = '<tr><td colspan="8" class="center muted">No applications found.</td></tr>'; pagerInfo.textContent=`0 results`; return; }
+      tbody.innerHTML = rows.map(r => {
+        const created = new Date(r.createdAt).toLocaleString();
+        return `<tr data-id="${r._id}">
+          <td style="font-family:monospace">${r._id.slice(-8)}</td>
+          <td>${escapeHtml(r.fullName)}</td>
+          <td>${escapeHtml(r.organization||'')}</td>
+          <td>${escapeHtml(r.email)}</td>
+          <td>${escapeHtml(r.phone||'')}</td>
+          <td>${escapeHtml(r.type||'')}</td>
+          <td>${escapeHtml(created)}</td>
+          <td class="center">
+            <button class="ghost view" data-id="${r._id}">View</button>
+            <button class="danger-btn delete" data-id="${r._id}" title="Delete membership">Delete</button>
+          </td>
+        </tr>`;
+      }).join('');
+      pagerInfo.textContent = `Showing page ${page} • ${Math.min(limit, total)} items (total ${total})`;
+      attachRowListeners();
+    } catch (err){ console.error(err); tbody.innerHTML = '<tr><td colspan="8" class="center muted">Network or server error</td></tr>'; }
+  }
+
+  function attachRowListeners(){
+    document.querySelectorAll('button.view').forEach(btn=>{
+      btn.onclick = async () => {
+        const id = btn.dataset.id;
+        try {
+          const resp = await fetch(API_BASE + `/api/memberships/admin/membership/${id}`, { headers: headers() });
+          const j = await resp.json();
+          if (!resp.ok) { alert('Error: ' + (j.message || resp.statusText)); return; }
+          const m = j.member;
+          viewTitle.textContent = 'Member ' + (m._id || '').slice(-8);
+          let html = '';
+          html += `<div><strong>Full name:</strong> ${escapeHtml(m.fullName || '')}</div>`;
+          html += `<div><strong>Organization:</strong> ${escapeHtml(m.organization || '')}</div>`;
+          html += `<div><strong>Email:</strong> ${escapeHtml(m.email || '')}</div>`;
+          html += `<div><strong>Phone:</strong> ${escapeHtml(m.phone || '')}</div>`;
+          html += `<div><strong>Type:</strong> ${escapeHtml(m.type || '')}</div>`;
+          html += `<div style="margin-top:8px"><strong>Notes:</strong><pre style="white-space:pre-wrap">${escapeHtml(m.notes || '')}</pre></div>`;
+          if (m.cvUrl) {
+            html += `<div style="margin-top:8px"><a href="${escapeHtml(m.cvUrl)}" target="_blank" rel="noopener">Download CV</a> (${escapeHtml(m.cvName||'file')})</div>`;
+          }
+          html += `<div style="margin-top:8px" class="small muted">Submitted: ${new Date(m.createdAt).toLocaleString()}</div>`;
+          viewBody.innerHTML = html;
+          viewModal.style.display = 'flex';
+          viewModal.setAttribute('aria-hidden','false');
+        } catch (err) { console.error(err); alert('Network error'); }
+      };
+    });
+
+    document.querySelectorAll('button.delete').forEach(btn=>{
+      btn.onclick = async () => {
+        const id = btn.dataset.id;
+        if (!confirm('Permanently delete this membership? This cannot be undone.')) return;
+        btn.disabled = true;
+        try {
+          const resp = await fetch(API_BASE + `/api/memberships/admin/membership/${id}`, {
+            method: 'DELETE',
+            headers: headers()
+          });
+          const j = await resp.json().catch(()=>null);
+          if (!resp.ok) {
+            alert('Delete failed: ' + (j && j.message ? j.message : resp.statusText));
+          } else {
+            alert('Membership deleted.');
+            loadList();
+          }
+        } catch (err) {
+          console.error(err);
+          alert('Network error');
+        } finally {
+          btn.disabled = false;
+        }
+      };
+    });
+  }
+
+  btnFilter.onclick = ()=>{ page = 1; loadList(); };
+  btnRefresh.onclick = ()=>{ loadList(); };
+  limitEl.onchange = ()=>{ page = 1; loadList(); };
+  btnPrev.onclick = ()=>{ if(page>1){ page--; loadList(); } };
+  btnNext.onclick = ()=>{ page++; loadList(); };
+
+  btnExport.onclick = async () => {
+    try {
+      const url = API_BASE + '/api/memberships/admin/export';
+      const resp = await fetch(url, { headers: headers() });
+      if (!resp.ok) { const j=await resp.json().catch(()=>({message:'Export failed'})); alert('Export error: ' + (j.message || resp.statusText)); return; }
+      const blob = await resp.blob();
+      const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'memberships.csv'; document.body.appendChild(a); a.click(); a.remove();
+    } catch (err){ console.error(err); alert('Export failed'); }
+  };
+
+  viewClose.onclick = ()=> { viewModal.style.display = 'none'; viewModal.setAttribute('aria-hidden','true'); viewBody.innerHTML = ''; };
+
+  function escapeHtml(s){ if (s===null||s===undefined) return ''; return String(s).replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m])); }
+
+  // init: if no token show login notice
+  if (!token) {
+    showLogin(true);
+    tbody.innerHTML = '<tr><td colspan="8" class="center muted">Sign in as admin to view applications.</td></tr>';
+  } else {
+    loadList();
+  }
+})();
+</script>
+</body>
+</html>

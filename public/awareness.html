@@ -1,0 +1,410 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Awareness — Somali Eye Health Alliance (SEHA)</title>
+  <meta name="description" content="SEHA awareness campaigns, toolkits and posters promoting eye health in Somali communities." />
+  <link rel="icon" href="images/logo.png">
+  <link rel="stylesheet" href="style.css">
+
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const current = window.location.pathname.split("/").pop(); 
+      document.querySelectorAll(".main-nav a").forEach(a => {
+        const href = a.getAttribute("href");
+        if (href === current) {
+          a.classList.add("active");
+        }
+      });
+    });
+    </script>
+    
+  <!-- START: Back-to-top small styles (optional: move into style.css) -->
+  <style>
+    /* Floating "back to top" button */
+    .seha-back-to-top {
+      position: fixed;
+      right: 20px;
+      bottom: 24px;
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--primary);
+      color: #fff;
+      box-shadow: 0 10px 30px rgba(2,6,23,0.12);
+      cursor: pointer;
+      z-index: 1600;
+      opacity: 0;
+      pointer-events: none;
+      transform: translateY(8px);
+      transition: opacity .18s ease, transform .18s ease;
+      border: 0;
+    }
+
+    .seha-back-to-top.show {
+      opacity: 1;
+      pointer-events: auto;
+      transform: translateY(0);
+    }
+
+    /* focus / keyboard visibility */
+    .seha-back-to-top:focus {
+      outline: 3px solid rgba(45,212,191,0.22);
+      outline-offset: 4px;
+    }
+
+    /* inner svg */
+    .seha-back-to-top svg { width: 20px; height: 20px; display:block; }
+
+    /* small responsive tweak so it doesn't overlap on very small screens */
+    @media (max-width: 420px) {
+      .seha-back-to-top { right: 12px; bottom: 16px; width:44px; height:44px; border-radius:10px; }
+    }
+
+    /* optional: hide if user prefers reduced motion */
+    @media (prefers-reduced-motion: reduce) {
+      .seha-back-to-top { transition: none; }
+      html { scroll-behavior: auto; }
+    }
+    /* === Small/tight desktop header patch — only layout + sizing === */
+/* Apply only on desktop so mobile/menu/toggles are untouched */
+@media (min-width: 981px) {
+
+/* tighten header row and flush container edges */
+.site-header { padding: 0; }
+.container.header-inner { padding: 0 6px; max-width: var(--container); }
+
+/* reduce overall header height and gaps */
+.header-inner {
+  height: 52px;            /* slightly shorter */
+  gap: 8px;
+  padding: 0;
+  align-items: center;
+}
+
+/* branding: smaller logo and reduced text sizes */
+.brand { gap: 8px; min-width: 0; }
+.brand .logo { width: 34px; height: 34px; border-radius: 6px; }
+.brand-text .org-name {
+  font-size: 11px;         /* smaller title */
+  font-weight: 700;
+  line-height: 1;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+}
+.brand-text .tagline {
+  font-size: 10px;         /* smaller tagline */
+  margin: 0;
+  opacity: 0.9;
+}
+
+/* navigation: smaller font, tighter padding and smaller gap */
+.main-nav { flex: 1 1 auto; min-width: 0; }
+.main-nav .nav-list {
+  gap: 6px;                /* tighter gap between menu items */
+  padding: 0 6px;
+}
+.main-nav a {
+  font-size: 12px;         /* smaller nav text */
+  padding: 6px 8px;        /* tighter clickable area */
+  border-radius: 6px;
+  font-weight: 700;
+}
+
+/* reduce the hover transform so it looks subtle on small header */
+.main-nav a:hover, .main-nav a:focus {
+  transform: translateY(-1px);
+  background: rgba(15,118,110,0.04);
+}
+
+/* ensure desktop popovers still position correctly (no clipping) */
+.nav-item { position: relative; }
+.nav-subtitle {
+  left: 50%;
+  transform: translateX(-50%) translateY(6px);
+  top: calc(100% + 6px);
+  min-width: 180px;
+  z-index: 2500;
+}
+}
+
+/* Keep mobile rules exactly as before (no changes) */
+@media (max-width: 980px) {
+/* nothing here — mobile behavior unchanged */
+}
+
+/* === ACTIVE NAVIGATION HIGHLIGHT === */
+@media (min-width: 981px) {
+  .main-nav a.active {
+    background: var(--primary-light, rgba(15,118,110,0.10));
+    color: var(--primary, #0f766e);
+    transform: none;       /* don't move up when active */
+  }
+
+  /* optional: keep hover consistent */
+  .main-nav a.active:hover {
+    background: var(--primary-light, rgba(15,118,110,0.12));
+    color: var(--primary, #0f766e);
+  }
+}
+
+  </style>
+  <!-- END: Back-to-top styles -->
+</head>
+<body>
+ <!-- HEADER -->
+<header class="site-header" role="banner">
+  
+  <!-- small, safe header-local CSS to avoid duplicate arrows & show mobile toggle only on small screens -->
+  <style>
+    /* If your global CSS also sets .nav-item.has-sub > a::after, override here so we don't get double arrows */
+    .nav-item.has-sub > a::after { content: ''; }
+
+    /* mobile-only helper: hide by default (desktop) and show only under your mobile breakpoint */
+    .mobile-only { display: none; align-items: center; gap: 8px; }
+    @media (max-width: 880px) {
+      .mobile-only { display: flex; }
+      /* ensure desktop popover remains visible on hover as before */
+      .nav-item.has-sub > .nav-subtitle { display: none; }
+      .nav-item.has-sub:hover > .nav-subtitle,
+      .nav-item.has-sub:focus-within > .nav-subtitle { display: block; }
+    }
+  </style>
+
+  <div class="container header-inner">
+    <div class="brand">
+      <img src="images/logo.png" alt="SEHA logo" class="logo" />
+      <div class="brand-text">
+        <h1 class="org-name">Somali Eye Health Alliance</h1>
+        <p class="tagline">Saving sight • Building local capacity</p>
+      </div>
+    </div>
+
+    <nav class="main-nav" role="navigation" aria-label="Main Navigation">
+      <ul class="nav-list">
+        <li class="nav-item"><a href="index.html">Home</a></li>
+
+        <li class="nav-item has-sub" id="nav-about">
+          <a href="about.html" aria-haspopup="true" aria-expanded="false">About Us ▾</a>
+
+          <!-- desktop popover -->
+          <div class="nav-subtitle" role="dialog" aria-hidden="true" aria-labelledby="about-subtitle">
+            <ul class="subtitle-list">
+              <li><a href="about.html#who" class="subtitle-link">Who we are</a></li>
+              <li><a href="about.html#what-we-do" class="subtitle-link">What we do</a></li>
+              <li><a href="about.html#framework" class="subtitle-link">Operational framework</a></li>
+              <li><a href="about.html#team" class="subtitle-link">Our team & governance</a></li>
+            </ul>
+          </div>
+
+          <!-- mobile submenu (kept for hamburger) -->
+          <ul class="sub" aria-label="About submenu">
+            <li><a href="about.html#who">Who we are</a></li>
+            <li><a href="about.html#what-we-do">What we do</a></li>
+            <li><a href="about.html#framework">Operational framework</a></li>
+            <li><a href="about.html#team">Our team & governance</a></li>
+          </ul>
+        </li>
+
+        <li class="nav-item has-sub" id="nav-ourwork">
+          <a href="our-work.html" aria-haspopup="true" aria-expanded="false">Our Work ▾</a>
+
+          <div class="nav-subtitle" role="dialog" aria-hidden="true" aria-labelledby="ourwork-subtitle">
+            <ul class="subtitle-list">
+              <li><a href="programs.html" class="subtitle-link">Core programs</a></li>
+              <li><a href="our-work.html#consortia" class="subtitle-link">Clinical consortia</a></li>
+              <li><a href="our-work.html#regions" class="subtitle-link">Regional activity</a></li>
+              <li><a href="our-work.html#impact" class="subtitle-link">Impact & results</a></li>
+            </ul>
+          </div>
+
+          <ul class="sub" aria-label="Our Work submenu">
+            <li><a href="programs.html">Programs</a></li>
+            <li><a href="our-work.html#consortia">Consortia</a></li>
+            <li><a href="our-work.html#regions">Regions</a></li>
+          </ul>
+        </li>
+
+        <li class="nav-item"><a href="programs.html">Programs</a></li>
+        <li class="nav-item"><a href="membership.html">Membership</a></li>
+        <li class="nav-item"><a href="resources.html">Resources</a></li>
+        <li class="nav-item"><a href="events.html">Events & Blogs</a></li>
+        <li class="nav-item"><a href="opportunities.html">Opportunities</a></li>
+        <li class="nav-item"><a href="awareness.html">Awareness</a></li>
+        <li class="nav-item"><a href="contact.html">Contact</a></li>
+
+        <!-- SETTINGS (single desktop link + mobile-only toggle + mobile submenu)
+             - Desktop: user sees the "Settings" anchor and the .nav-subtitle popover on hover/focus
+             - Mobile: the .mobile-only toggle (plus symbol) is shown and toggles the submenu;
+               the mobile-only element is hidden on desktop so you do not get two visible "Settings" -->
+        <li class="nav-item has-sub" id="nav-settings">
+          <!-- Desktop link (visible on all widths) -->
+          <!-- <a href="settings.html" aria-haspopup="true" aria-expanded="false" id="settingsDesktopLink">Settings ▾</a> -->
+          <a href="settings.html" aria-haspopup="true" aria-expanded="false">Settings ▾</a>
+
+
+          <!-- desktop popover -->
+          <div class="nav-subtitle" role="dialog" aria-hidden="true" aria-labelledby="settings-subtitle">
+            <ul class="subtitle-list">
+              <li><a href="settings.html#account">Account settings</a></li>
+              <li><a href="settings.html#privacy">Privacy & security</a></li>
+              <li><a href="settings.html#appearance">Appearance</a></li>
+            </ul>
+          </div>
+
+          <!-- Mobile-only toggle: hidden on desktop by .mobile-only rule above
+          <a href="#" class="mobile-toggle mobile-only" data-target="settingsSub" aria-controls="settingsSub" aria-expanded="false" id="settingsMobileToggle" style="justify-content:space-between;width:100%;padding:6px 0;">
+            <span>Settings</span>
+            <span class="toggle-symbol" aria-hidden="true">+</span>
+          </a> -->
+
+          <!-- mobile submenu -->
+          <ul class="sub mobile-sub" id="settingsSub" aria-hidden="true">
+            <li><a href="settings.html#account">Account settings</a></li>
+            <li><a href="settings.html#privacy">Privacy & security</a></li>
+            <li><a href="settings.html#appearance">Appearance</a></li>
+          </ul>
+        </li>
+        <!-- /SETTINGS -->
+
+      </ul>
+    </nav>
+
+    <div class="header-cta">
+      <a class="btn donate" id="donateBtn" href="donate.html" title="Donate">Donate</a>
+      <button class="hamb" id="hambBtn" aria-expanded="false" aria-controls="mobileMenu" aria-label="Open menu">☰</button>
+    </div>
+  </div>
+
+  <div class="mobile-menu" id="mobileMenu" aria-hidden="true"></div>
+</header>
+  <!-- MAIN -->
+  <main class="section">
+    <div class="container">
+      <h1>Awareness Campaigns & Toolkits</h1>
+      <p class="muted">SEHA produces campaigns, posters and simple toolkits for community health workers, schools and clinics to raise awareness about eye care, preventable blindness, and how to access local services.</p>
+
+    
+
+      <!-- Campaign grid -->
+      <div class="grid grid-3" id="awarenessGrid" style="margin-top:12px">
+        <!-- Campaign card 1 -->
+        <article class="card">
+          <img src="images/image1.png" alt="School vision screening" style="width:100%;height:160px;object-fit:cover;border-radius:8px">
+          <h4 style="margin-top:10px">School Vision Screening Drive</h4>
+          <p class="muted">A complete school screening toolkit — poster, screening form and referral card so teachers and health workers can detect refractive errors early.</p>
+          <p class="muted"><strong>Downloads:</strong></p>
+          <ul class="small-list">
+            <li><a href="toolkits/school-screening-toolkit.pdf" target="_blank" rel="noopener">Screening toolkit (PDF)</a></li>
+            <li><a href="toolkits/school-poster.pdf" target="_blank" rel="noopener">Poster (A3 PDF)</a></li>
+          </ul>
+          <p style="margin-top:8px"><a href="awareness-detail-1.html">Learn more →</a></p>
+        </article>
+
+        <!-- Campaign card 2 -->
+        <article class="card">
+          <img src="images/image2.png" alt="Community outreach" style="width:100%;height:160px;object-fit:cover;border-radius:8px">
+          <h4>Community Outreach & Screening</h4>
+          <p class="muted">Materials and messaging for outreach events in markets and community centers: oral scripts, poster artwork and community radio briefings.</p>
+          <ul class="small-list">
+            <li><a href="toolkits/community-outreach-toolkit.pdf" target="_blank" rel="noopener">Community toolkit (PDF)</a></li>
+            <li><a href="toolkits/community-poster.pdf" target="_blank" rel="noopener">Market poster (A2 PDF)</a></li>
+          </ul>
+          <p style="margin-top:8px"><a href="awareness-detail-2.html">Learn more →</a></p>
+        </article>
+
+        <!-- Campaign card 3 -->
+        <article class="card">
+          <img src="images/image3.png" alt="Caregiver messaging" style="width:100%;height:160px;object-fit:cover;border-radius:8px">
+          <h4>Caregiver & Maternal Health Messaging</h4>
+          <p class="muted">Short messages for maternal health clinics about neonatal red reflex checks and when to refer for urgent ophthalmic care.</p>
+          <ul class="small-list">
+            <li><a href="toolkits/maternal-eye-health.pdf" target="_blank" rel="noopener">Maternal toolkit (PDF)</a></li>
+          </ul>
+          <p style="margin-top:8px"><a href="awareness-detail-3.html">Learn more →</a></p>
+        </article>
+
+        <!-- Campaign card 4 -->
+        <article class="card">
+          <img src="images/image4.png" alt="Spectacle acceptance" style="width:100%;height:160px;object-fit:cover;border-radius:8px">
+          <h4>Spectacle Acceptance Campaign</h4>
+          <p class="muted">Materials to reduce stigma and encourage children and adults to wear prescribed spectacles — includes before/after visuals and community stories.</p>
+          <ul class="small-list">
+            <li><a href="toolkits/spectacle-campaign.pdf" target="_blank" rel="noopener">Campaign pack (PDF)</a></li>
+          </ul>
+          <p style="margin-top:8px"><a href="awareness-detail-4.html">Learn more →</a></p>
+        </article>
+
+        <!-- Campaign card 5 -->
+        <article class="card">
+          <img src="images/image5.png" alt="Surgical outreach info" style="width:100%;height:160px;object-fit:cover;border-radius:8px">
+          <h4>Surgical Outreach - Patient Information</h4>
+          <p class="muted">Patient handouts and consent summaries in simple language, with pre/post op care instructions and transport guidance.</p>
+          <ul class="small-list">
+            <li><a href="toolkits/surgical-patient-leaflet.pdf" target="_blank" rel="noopener">Patient leaflet (PDF)</a></li>
+          </ul>
+          <p style="margin-top:8px"><a href="awareness-detail-5.html">Learn more →</a></p>
+        </article>
+
+        <!-- Campaign card 6 -->
+        <article class="card">
+          <img src="images/image6.png" alt="Tele-referral pilot" style="width:100%;height:160px;object-fit:cover;border-radius:8px">
+          <h4>Tele-referral Pilot — Community poster</h4>
+          <p class="muted">Poster and short guide for clinics participating in tele-referral pilots to help patients connect with remote specialists.</p>
+          <ul class="small-list">
+            <li><a href="toolkits/tele-referral-guide.pdf" target="_blank" rel="noopener">Tele-referral guide (PDF)</a></li>
+            <li><a href="toolkits/tele-poster.pdf" target="_blank" rel="noopener">Clinic poster (A3 PDF)</a></li>
+          </ul>
+          <p style="margin-top:8px"><a href="awareness-detail-6.html">Learn more →</a></p>
+        </article>
+      </div>
+
+      <div style="margin-top:18px" class="card">
+        <h3>How to use our toolkits</h3>
+        <p class="muted">Most materials are editable, printable and designed for low-bandwidth printing. Toolkits include simple instructions for local translation, resizing for posters, and suggested radio scripts in Somali and English.</p>
+        <p><a href="resources.html">Browse all resources →</a></p>
+      </div>
+
+      <p style="margin-top:20px"><a href="index.html">← Back to Home</a></p>
+    </div>
+  </main>
+
+<!-- FOOTER -->
+<footer class="site-footer" role="contentinfo">
+  <div class="container footer-inner">
+    <div class="footer-col">
+      <img src="images/logo.png" alt="SEHA logo" class="footer-logo">
+      <p class="muted">© 2026 Somali Eye Health Alliance — All Rights Reserved <a href="/public/admin/developers-contact.html">Developers</a></p>
+    </div>
+
+    <div class="footer-col">
+      <h4>Quick links</h4>
+      <ul class="small-list footer-links">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="about.html">About Us</a></li>
+        <li><a href="programs.html">Programs</a></li>
+        <li><a href="resources.html">Resources</a></li>
+        <li><a href="membership.html">Membership</a></li>
+        <li><a href="contact.html">Contact</a></li>
+      </ul>
+    </div>
+
+    <div class="footer-col">
+      <h4>Contact</h4>
+      <address class="muted">
+        Mogadishu, Somalia<br>
+        info@Somalieyehealthalliance.org <br>
+        +252 61 7000264
+              </address>
+    </div>
+  </div>
+</footer>
+
+  <script src="script.js"></script>
+</body>
+</html>

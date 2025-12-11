@@ -1,0 +1,510 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>About SEHA — Somali Eye Health Alliance</title>
+  <meta name="description" content="About SEHA — mission, vision, history and governance. English-only expanded content." />
+  <link rel="stylesheet" href="style.css">
+
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const current = window.location.pathname.split("/").pop(); 
+      document.querySelectorAll(".main-nav a").forEach(a => {
+        const href = a.getAttribute("href");
+        if (href === current) {
+          a.classList.add("active");
+        }
+      });
+    });
+    </script>
+    
+  <!-- START: Back-to-top small styles (optional: move into style.css) -->
+  <style>
+    /* Floating "back to top" button */
+    .seha-back-to-top {
+      position: fixed;
+      right: 20px;
+      bottom: 24px;
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--primary);
+      color: #fff;
+      box-shadow: 0 10px 30px rgba(2,6,23,0.12);
+      cursor: pointer;
+      z-index: 1600;
+      opacity: 0;
+      pointer-events: none;
+      transform: translateY(8px);
+      transition: opacity .18s ease, transform .18s ease;
+      border: 0;
+    }
+
+    .seha-back-to-top.show {
+      opacity: 1;
+      pointer-events: auto;
+      transform: translateY(0);
+    }
+
+    /* focus / keyboard visibility */
+    .seha-back-to-top:focus {
+      outline: 3px solid rgba(45,212,191,0.22);
+      outline-offset: 4px;
+    }
+
+    /* inner svg */
+    .seha-back-to-top svg { width: 20px; height: 20px; display:block; }
+
+    /* small responsive tweak so it doesn't overlap on very small screens */
+    @media (max-width: 420px) {
+      .seha-back-to-top { right: 12px; bottom: 16px; width:44px; height:44px; border-radius:10px; }
+    }
+
+    /* optional: hide if user prefers reduced motion */
+    @media (prefers-reduced-motion: reduce) {
+      .seha-back-to-top { transition: none; }
+      html { scroll-behavior: auto; }
+    }
+    /* === Small/tight desktop header patch — only layout + sizing === */
+/* Apply only on desktop so mobile/menu/toggles are untouched */
+@media (min-width: 981px) {
+
+/* tighten header row and flush container edges */
+.site-header { padding: 0; }
+.container.header-inner { padding: 0 6px; max-width: var(--container); }
+
+/* reduce overall header height and gaps */
+.header-inner {
+  height: 52px;            /* slightly shorter */
+  gap: 8px;
+  padding: 0;
+  align-items: center;
+}
+
+/* branding: smaller logo and reduced text sizes */
+.brand { gap: 8px; min-width: 0; }
+.brand .logo { width: 34px; height: 34px; border-radius: 6px; }
+.brand-text .org-name {
+  font-size: 11px;         /* smaller title */
+  font-weight: 700;
+  line-height: 1;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+}
+.brand-text .tagline {
+  font-size: 10px;         /* smaller tagline */
+  margin: 0;
+  opacity: 0.9;
+}
+
+/* navigation: smaller font, tighter padding and smaller gap */
+.main-nav { flex: 1 1 auto; min-width: 0; }
+.main-nav .nav-list {
+  gap: 6px;                /* tighter gap between menu items */
+  padding: 0 6px;
+}
+.main-nav a {
+  font-size: 12px;         /* smaller nav text */
+  padding: 6px 8px;        /* tighter clickable area */
+  border-radius: 6px;
+  font-weight: 700;
+}
+
+/* reduce the hover transform so it looks subtle on small header */
+.main-nav a:hover, .main-nav a:focus {
+  transform: translateY(-1px);
+  background: rgba(15,118,110,0.04);
+}
+
+/* ensure desktop popovers still position correctly (no clipping) */
+.nav-item { position: relative; }
+.nav-subtitle {
+  left: 50%;
+  transform: translateX(-50%) translateY(6px);
+  top: calc(100% + 6px);
+  min-width: 180px;
+  z-index: 2500;
+}
+}
+
+/* Keep mobile rules exactly as before (no changes) */
+@media (max-width: 980px) {
+/* nothing here — mobile behavior unchanged */
+}
+
+/* === ACTIVE NAVIGATION HIGHLIGHT === */
+@media (min-width: 981px) {
+  .main-nav a.active {
+    background: var(--primary-light, rgba(15,118,110,0.10));
+    color: var(--primary, #0f766e);
+    transform: none;       /* don't move up when active */
+  }
+
+  /* optional: keep hover consistent */
+  .main-nav a.active:hover {
+    background: var(--primary-light, rgba(15,118,110,0.12));
+    color: var(--primary, #0f766e);
+  }
+}
+
+.mission {
+  width: 30px;
+  height: 30px;
+} 
+  </style>
+  <!-- END: Back-to-top styles -->
+</head>
+<body>
+ <!-- HEADER -->
+<header class="site-header" role="banner">
+  
+  <!-- small, safe header-local CSS to avoid duplicate arrows & show mobile toggle only on small screens -->
+  <style>
+    /* If your global CSS also sets .nav-item.has-sub > a::after, override here so we don't get double arrows */
+    .nav-item.has-sub > a::after { content: ''; }
+
+    /* mobile-only helper: hide by default (desktop) and show only under your mobile breakpoint */
+    .mobile-only { display: none; align-items: center; gap: 8px; }
+    @media (max-width: 880px) {
+      .mobile-only { display: flex; }
+      /* ensure desktop popover remains visible on hover as before */
+      .nav-item.has-sub > .nav-subtitle { display: none; }
+      .nav-item.has-sub:hover > .nav-subtitle,
+      .nav-item.has-sub:focus-within > .nav-subtitle { display: block; }
+    }
+  </style>
+
+  <div class="container header-inner">
+    <div class="brand">
+      <img src="images/logo.png" alt="SEHA logo" class="logo" />
+      <div class="brand-text">
+        <h1 class="org-name">Somali Eye Health Alliance</h1>
+        <p class="tagline">Saving sight • Building local capacity</p>
+      </div>
+    </div>
+
+    <nav class="main-nav" role="navigation" aria-label="Main Navigation">
+      <ul class="nav-list">
+        <li class="nav-item"><a href="index.html">Home</a></li>
+
+        <li class="nav-item has-sub" id="nav-about">
+          <a href="about.html" aria-haspopup="true" aria-expanded="false">About Us ▾</a>
+
+          <!-- desktop popover -->
+          <div class="nav-subtitle" role="dialog" aria-hidden="true" aria-labelledby="about-subtitle">
+            <ul class="subtitle-list">
+              <li><a href="about.html#who" class="subtitle-link">Who we are</a></li>
+              <li><a href="about.html#what-we-do" class="subtitle-link">What we do</a></li>
+              <li><a href="about.html#framework" class="subtitle-link">Operational framework</a></li>
+              <li><a href="about.html#team" class="subtitle-link">Our team & governance</a></li>
+            </ul>
+          </div>
+
+          <!-- mobile submenu (kept for hamburger) -->
+          <ul class="sub" aria-label="About submenu">
+            <li><a href="about.html#who">Who we are</a></li>
+            <li><a href="about.html#what-we-do">What we do</a></li>
+            <li><a href="about.html#framework">Operational framework</a></li>
+            <li><a href="about.html#team">Our team & governance</a></li>
+          </ul>
+        </li>
+
+        <li class="nav-item has-sub" id="nav-ourwork">
+          <a href="our-work.html" aria-haspopup="true" aria-expanded="false">Our Work ▾</a>
+
+          <div class="nav-subtitle" role="dialog" aria-hidden="true" aria-labelledby="ourwork-subtitle">
+            <ul class="subtitle-list">
+              <li><a href="programs.html" class="subtitle-link">Core programs</a></li>
+              <li><a href="our-work.html#consortia" class="subtitle-link">Clinical consortia</a></li>
+              <li><a href="our-work.html#regions" class="subtitle-link">Regional activity</a></li>
+              <li><a href="our-work.html#impact" class="subtitle-link">Impact & results</a></li>
+            </ul>
+          </div>
+
+          <ul class="sub" aria-label="Our Work submenu">
+            <li><a href="programs.html">Programs</a></li>
+            <li><a href="our-work.html#consortia">Consortia</a></li>
+            <li><a href="our-work.html#regions">Regions</a></li>
+          </ul>
+        </li>
+
+        <li class="nav-item"><a href="programs.html">Programs</a></li>
+        <li class="nav-item"><a href="membership.html">Membership</a></li>
+        <li class="nav-item"><a href="resources.html">Resources</a></li>
+        <li class="nav-item"><a href="events.html">Events & Blogs</a></li>
+        <li class="nav-item"><a href="opportunities.html">Opportunities</a></li>
+        <li class="nav-item"><a href="awareness.html">Awareness</a></li>
+        <li class="nav-item"><a href="contact.html">Contact</a></li>
+
+        <!-- SETTINGS (single desktop link + mobile-only toggle + mobile submenu)
+             - Desktop: user sees the "Settings" anchor and the .nav-subtitle popover on hover/focus
+             - Mobile: the .mobile-only toggle (plus symbol) is shown and toggles the submenu;
+               the mobile-only element is hidden on desktop so you do not get two visible "Settings" -->
+        <li class="nav-item has-sub" id="nav-settings">
+          <!-- Desktop link (visible on all widths) -->
+          <!-- <a href="settings.html" aria-haspopup="true" aria-expanded="false" id="settingsDesktopLink">Settings ▾</a> -->
+          <a href="settings.html" aria-haspopup="true" aria-expanded="false">Settings ▾</a>
+
+
+          <!-- desktop popover -->
+          <div class="nav-subtitle" role="dialog" aria-hidden="true" aria-labelledby="settings-subtitle">
+            <ul class="subtitle-list">
+              <li><a href="settings.html#account">Account settings</a></li>
+              <li><a href="settings.html#privacy">Privacy & security</a></li>
+              <li><a href="settings.html#appearance">Appearance</a></li>
+            </ul>
+          </div>
+
+          <!-- Mobile-only toggle: hidden on desktop by .mobile-only rule above
+          <a href="#" class="mobile-toggle mobile-only" data-target="settingsSub" aria-controls="settingsSub" aria-expanded="false" id="settingsMobileToggle" style="justify-content:space-between;width:100%;padding:6px 0;">
+            <span>Settings</span>
+            <span class="toggle-symbol" aria-hidden="true">+</span>
+          </a> -->
+
+          <!-- mobile submenu -->
+          <ul class="sub mobile-sub" id="settingsSub" aria-hidden="true">
+            <li><a href="settings.html#account">Account settings</a></li>
+            <li><a href="settings.html#privacy">Privacy & security</a></li>
+            <li><a href="settings.html#appearance">Appearance</a></li>
+          </ul>
+        </li>
+        <!-- /SETTINGS -->
+
+      </ul>
+    </nav>
+
+    <div class="header-cta">
+      <a class="btn donate" id="donateBtn" href="donate.html" title="Donate">Donate</a>
+      <button class="hamb" id="hambBtn" aria-expanded="false" aria-controls="mobileMenu" aria-label="Open menu">☰</button>
+    </div>
+  </div>
+
+  <div class="mobile-menu" id="mobileMenu" aria-hidden="true"></div>
+</header>
+
+
+  <!-- MAIN -->
+  <main class="section">
+    <div class="container">
+
+      <header style="margin-bottom:18px">
+        <h1>About Somali Eye Health Alliance (SEHA)</h1>
+        <p class="muted">Somali Eye Health Alliance is a locally-led alliance that coordinates practical support, capacity building and sustainable eye care delivery across Somalia. We enable clinics, mentor teams, and design simple systems so communities keep their sight close to home.</p>
+      </header>
+
+      <!-- WHO WE ARE -->
+      <section id="who" class="section-bg section-bg-who" style="margin-top:8px">
+        <h2><span class="section-icon" aria-hidden="true"><!-- eye SVG --><svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
+          <path d="M12 6.5C7.5 6.5 3.7 9 2 12c1.7 3 5.5 5.5 10 5.5s8.3-2.5 10-5.5c-1.7-3-5.5-5.5-10-5.5zm0 8a2.5 2.5 0 1 1 0-5 2.5 2.5 0 0 1 0 5z"/>
+        </svg></span>Who we are</h2>
+
+        <p class="muted">Somali Eye Health Alliance brings together Somali clinicians, regional health managers, local NGOs and volunteer specialists. We partner with hospitals, eye units and optical workshops to strengthen routine services — screening, refraction, spectacle dispensing and safe cataract surgery. Above all we prioritise local leadership, making sure solutions are owned and run locally.</p>
+
+        <p class="muted">We work where needs are greatest: supporting clinic teams with training, mentoring visiting specialists, and helping health authorities embed low-cost, high-impact services into routine care. Our membership is a mix of clinical units, academic partners and field teams who share protocols, mentors and learning.</p>
+      </section>
+
+      <!-- HISTORY -->
+      <section id="history" class="section-bg section-bg-history" style="margin-top:18px">
+        <h2><span class="section-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg></span>History & origins</h2>
+
+        <p class="muted">For two decades a mix of volunteer efforts, NGO projects and clinician networks provided eye care across Somalia. Fragmented projects and repeated duplication highlighted the need for a coordinating body that emphasises sustainability and local ownership. SEHA was formed to align efforts, reduce duplication, and scale what works.</p>
+
+        <p class="muted">Early Somali Eye Health Alliance activities included mapping in-country capacity, piloting low-cost optical workshops, standardising basic surgical safety checklists and running paired mentorship visits — all designed to move clinics from one-off support to predictable, repeatable improvement cycles.</p>
+      </section>
+
+      <!-- MISSION & GOALS -->
+      <section id="mission" class="section-bg section-bg-mission" style="margin-top:18px">
+        <h2><span class="section-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><img class="mission" src="images/mission.jpg" alt=""></svg></span>Mission</h2>
+
+        <p class="muted">To strengthen local eye-care services across Somalia through hands-on training, mentorship, practical toolkits, routine monitoring and small targeted investments — all delivered under Somali leadership so clinics continue to provide accessible, safe eye care after external teams leave.</p>
+
+        <h3 style="margin-top:12px"><span class="section-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><img class="mission" src="images/goals.png" alt=""></svg></span>Goals</h3>
+        <ul class="small-list muted">
+          <li>Improve access to screening, refraction and basic treatment across districts.</li>
+          <li>Grow a sustainable local surgical and refraction workforce through mentoring and train-the-trainer programs.</li>
+          <li>Enable clinics to run low-cost optical dispensing and simple inventory systems.</li>
+          <li>Document and share simple toolkits so successful pilots can be scaled by partners.</li>
+        </ul>
+      </section>
+
+      <!-- WHAT WE DO -->
+      <section id="what-we-do" class="two-col section-bg section-bg-what" style="margin-top:18px">
+        <div>
+          <h2><span class="section-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M5 12h14M12 5v14"/></svg></span>What we do — Four core areas</h2>
+
+          <h4 style="margin-top:12px"><span class="section-icon-inline" aria-hidden="true"><svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><path d="M3 11h18v2H3z"/></svg></span>1. Screening & outreach</h4>
+          <p class="muted">We run school vision checks, community screening days and mobile outreach. Each campaign includes clear referral pathways, on-site refraction and low-cost spectacles where appropriate. We plan with district teams so follow-up and referral work reliably after the event.</p>
+
+          <h4 style="margin-top:10px"><span class="section-icon-inline" aria-hidden="true"><svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><path d="M12 2l2.5 6.5L21 9l-5 3.6L17 21l-5-3.2L7 21l1-8.4L3 9l6.5-.5L12 2z"/></svg></span>2. Workforce development</h4>
+          <p class="muted">We deliver practical CPD, supervised operating lists, refraction training and certified 'train-the-trainer' courses so local staff can continue training independently. Emphasis is on hands-on skills, safety and simple assessment metrics.</p>
+
+          <h4 style="margin-top:10px"><span class="section-icon-inline" aria-hidden="true"><svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><path d="M4 6h16v12H4z"/></svg></span>3. Small grants & clinic systems</h4>
+          <p class="muted">Seed grants help clinics set up optical dispensing, basic supply chains and simple finance tools that make services sustainable. Grants are paired with short business training so workshops are financially viable.</p>
+
+          <h4 style="margin-top:10px"><span class="section-icon-inline" aria-hidden="true"><svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><path d="M12 3l2 4 4 .5-3 2 1 4-3-2-3 2 1-4-3-2 4-.5z"/></svg></span>4. Research & digital pilots</h4>
+          <p class="muted">We test low-cost imaging, tele-referral and data-collection pilots to speed diagnosis and reduce unnecessary travel. Operational research helps refine what works in Somali settings and produces short toolkits for partners.</p>
+        </div>
+
+        <aside>
+          <div class="card">
+            <h4>Core approaches</h4>
+            <ul class="small-list muted">
+              <li>Partner-led planning with clinics and health authorities</li>
+              <li>Hands-on mentoring & supervised practice</li>
+              <li>Practical toolkits, short job aids and checklists</li>
+            </ul>
+          </div>
+
+          <div class="card" style="margin-top:12px">
+            <h4>Quick impact examples</h4>
+            <ul class="small-list muted">
+              <li>School campaigns identifying hundreds of children with refractive errors</li>
+              <li>Cataract mentorship weeks that increased local surgical output and safety</li>
+              <li>Tele-referral pilots reducing travel for specialist consultations</li>
+            </ul>
+          </div>
+        </aside>
+      </section>
+
+      <!-- OP FRAMEWORK -->
+      <section id="framework" class="section-bg section-bg-framework" style="margin-top:18px">
+        <h2><span class="section-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M3 13h18v8H3zM3 3h18v8H3z"/></svg></span>Operational framework</h2>
+
+        <p class="muted">SEHA organises work across three linked levels to ensure interventions are appropriate and accountable:</p>
+        <ol class="muted">
+          <li><strong>Programs</strong> — targeted interventions (screening, training, grants).</li>
+          <li><strong>Consortia</strong> — clinical networks sharing mentors, supplies and protocols.</li>
+          <li><strong>Regions</strong> — in-region leads who adapt and report to local health authorities.</li>
+        </ol>
+
+        <p class="muted">This structure ensures resources match local need and that improvements are maintained through local systems rather than one-off projects.</p>
+      </section>
+
+      <!-- GOVERNANCE -->
+      <section id="team" class="section-bg section-bg-team" style="margin-top:18px">
+        <h2><span class="section-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM2 20c0-4 4-6 10-6s10 2 10 6v2H2v-2z"/></svg></span>Governance & team</h2>
+
+        <p class="muted">A steering committee of regional leads, partner representatives and senior clinicians provides strategic oversight. SEHA's small secretariat coordinates programs, fundraising and communications. We prioritise transparent reporting, open budgets for grants, and clear operational responsibilities.</p>
+
+        <div class="card" style="margin-top:12px">
+          <h4>Typical team roles</h4>
+          <ul class="small-list muted">
+            <li>Regional leads (clinical managers)</li>
+            <li>Program managers (training & outreach)</li>
+            <li>M&E and research coordinator</li>
+            <li>Finance & procurement support</li>
+            <li>Communications & partnership lead</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- PARTNERS -->
+      <section id="partners" class="section-bg section-bg-partners" style="margin-top:18px">
+        <h2><span class="section-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5s-3 1.34-3 3 1.34 3 3 3zM8 11c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5 5 6.34 5 8s1.34 3 3 3zM8 13c-2.33 0-7 1.17-7 3.5V19h14v-2.5C15 14.17 10.33 13 8 13zM16 13c-.29 0-.62.02-.97.05 1.16.84 1.97 2 1.97 3.45V19h6v-2.5C23 14.17 18.33 13 16 13z"/></svg></span>Partners & collaborators</h2>
+
+        <p class="muted">We work with hospitals, health directorates, optical workshops, universities, NGOs and volunteer specialists. Partnerships focus on skill transfer, systems-strengthening and ensuring lasting benefit for communities after external teams complete activities.</p>
+
+        <div class="card" style="margin-top:12px">
+          <h4>Example partner activities</h4>
+          <ul class="small-list muted">
+            <li>Clinical mentorship during cataract campaigns</li>
+            <li>Setting up and running low-cost optical workshops</li>
+            <li>Operational research with local teams</li>
+          </ul>
+        </div>
+      </section>
+
+      <p style="margin-top:20px"><a href="index.html">← Back to Home</a></p>
+    </div>
+  </main>
+
+<!-- FOOTER -->
+<footer class="site-footer" role="contentinfo">
+  <div class="container footer-inner">
+    <div class="footer-col">
+      <img src="images/logo.png" alt="SEHA logo" class="footer-logo">
+      <p class="muted">© 2026 Somali Eye Health Alliance — All Rights Reserved <a href="/public/admin/developers-contact.html">Developers</a></p>
+    </div>
+
+    <div class="footer-col">
+      <h4>Quick links</h4>
+      <ul class="small-list footer-links">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="about.html">About Us</a></li>
+        <li><a href="programs.html">Programs</a></li>
+        <li><a href="resources.html">Resources</a></li>
+        <li><a href="membership.html">Membership</a></li>
+        <li><a href="contact.html">Contact</a></li>
+      </ul>
+    </div>
+
+    <div class="footer-col">
+      <h4>Contact</h4>
+      <address class="muted">
+        Mogadishu, Somalia<br>
+        info@Somalieyehealthalliance.org <br>
+        +252 61 7000264
+              </address>
+    </div>
+  </div>
+</footer>
+
+  <!-- small script to toggle desktop subtitle popovers and keep keyboard accessible -->
+  <script>
+    (function(){
+      const desktopThreshold = 980;
+      function isDesktop(){ return window.innerWidth > desktopThreshold; }
+
+      function setupPopover(navId){
+        const parent = document.getElementById(navId);
+        if(!parent) return;
+        const trigger = parent.querySelector('a');
+        const pop = parent.querySelector('.nav-subtitle');
+
+        trigger.addEventListener('click', function(e){
+          if(!isDesktop()) return; // mobile uses mobile menu
+          e.preventDefault();
+          const open = parent.classList.toggle('open');
+          parent.setAttribute('aria-expanded', open ? 'true' : 'false');
+          if(pop) pop.setAttribute('aria-hidden', open ? 'false' : 'true');
+        });
+      }
+
+      ['nav-about','nav-ourwork'].forEach(setupPopover);
+
+      // close popovers clicking outside or pressing Escape
+      document.addEventListener('click', function(e){
+        if(!isDesktop()) return;
+        const within = e.target.closest('.nav-item');
+        document.querySelectorAll('.nav-item.open').forEach(item => {
+          if(item !== within){
+            item.classList.remove('open');
+            item.setAttribute('aria-expanded','false');
+            const pop = item.querySelector('.nav-subtitle');
+            if(pop) pop.setAttribute('aria-hidden','true');
+          }
+        });
+      });
+
+      document.addEventListener('keydown', function(e){
+        if(e.key === 'Escape'){
+          document.querySelectorAll('.nav-item.open').forEach(item => {
+            item.classList.remove('open');
+            item.setAttribute('aria-expanded','false');
+            const pop = item.querySelector('.nav-subtitle');
+            if(pop) pop.setAttribute('aria-hidden','true');
+            item.querySelector('a')?.focus();
+          });
+        }
+      });
+    })();
+  </script>
+
+  <script src="script.js"></script>
+</body>
+</html>

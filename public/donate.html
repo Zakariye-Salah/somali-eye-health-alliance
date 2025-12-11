@@ -1,0 +1,450 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Donate — Somali Eye Health Alliance (SEHA)</title>
+  <meta name="description" content="Support SEHA — donations fund outreach, training and supplies that restore sight across Somalia." />
+  <link rel="icon" href="images/logo.png">
+  <link rel="stylesheet" href="style.css">
+
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const current = window.location.pathname.split("/").pop(); 
+      document.querySelectorAll(".main-nav a").forEach(a => {
+        const href = a.getAttribute("href");
+        if (href === current) {
+          a.classList.add("active");
+        }
+      });
+    });
+    </script>
+    
+  <!-- START: Back-to-top small styles (optional: move into style.css) -->
+  <style>
+    /* Floating "back to top" button */
+    .seha-back-to-top {
+      position: fixed;
+      right: 20px;
+      bottom: 24px;
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--primary);
+      color: #fff;
+      box-shadow: 0 10px 30px rgba(2,6,23,0.12);
+      cursor: pointer;
+      z-index: 1600;
+      opacity: 0;
+      pointer-events: none;
+      transform: translateY(8px);
+      transition: opacity .18s ease, transform .18s ease;
+      border: 0;
+    }
+
+    .seha-back-to-top.show {
+      opacity: 1;
+      pointer-events: auto;
+      transform: translateY(0);
+    }
+
+    /* focus / keyboard visibility */
+    .seha-back-to-top:focus {
+      outline: 3px solid rgba(45,212,191,0.22);
+      outline-offset: 4px;
+    }
+
+    /* inner svg */
+    .seha-back-to-top svg { width: 20px; height: 20px; display:block; }
+
+    /* small responsive tweak so it doesn't overlap on very small screens */
+    @media (max-width: 420px) {
+      .seha-back-to-top { right: 12px; bottom: 16px; width:44px; height:44px; border-radius:10px; }
+    }
+
+    /* optional: hide if user prefers reduced motion */
+    @media (prefers-reduced-motion: reduce) {
+      .seha-back-to-top { transition: none; }
+      html { scroll-behavior: auto; }
+    }
+    /* === Small/tight desktop header patch — only layout + sizing === */
+/* Apply only on desktop so mobile/menu/toggles are untouched */
+@media (min-width: 981px) {
+
+/* tighten header row and flush container edges */
+.site-header { padding: 0; }
+.container.header-inner { padding: 0 6px; max-width: var(--container); }
+
+/* reduce overall header height and gaps */
+.header-inner {
+  height: 52px;            /* slightly shorter */
+  gap: 8px;
+  padding: 0;
+  align-items: center;
+}
+
+/* branding: smaller logo and reduced text sizes */
+.brand { gap: 8px; min-width: 0; }
+.brand .logo { width: 34px; height: 34px; border-radius: 6px; }
+.brand-text .org-name {
+  font-size: 11px;         /* smaller title */
+  font-weight: 700;
+  line-height: 1;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+}
+.brand-text .tagline {
+  font-size: 10px;         /* smaller tagline */
+  margin: 0;
+  opacity: 0.9;
+}
+
+/* navigation: smaller font, tighter padding and smaller gap */
+.main-nav { flex: 1 1 auto; min-width: 0; }
+.main-nav .nav-list {
+  gap: 6px;                /* tighter gap between menu items */
+  padding: 0 6px;
+}
+.main-nav a {
+  font-size: 12px;         /* smaller nav text */
+  padding: 6px 8px;        /* tighter clickable area */
+  border-radius: 6px;
+  font-weight: 700;
+}
+
+/* reduce the hover transform so it looks subtle on small header */
+.main-nav a:hover, .main-nav a:focus {
+  transform: translateY(-1px);
+  background: rgba(15,118,110,0.04);
+}
+
+/* ensure desktop popovers still position correctly (no clipping) */
+.nav-item { position: relative; }
+.nav-subtitle {
+  left: 50%;
+  transform: translateX(-50%) translateY(6px);
+  top: calc(100% + 6px);
+  min-width: 180px;
+  z-index: 2500;
+}
+}
+
+/* Keep mobile rules exactly as before (no changes) */
+@media (max-width: 980px) {
+/* nothing here — mobile behavior unchanged */
+}
+
+/* === ACTIVE NAVIGATION HIGHLIGHT === */
+@media (min-width: 981px) {
+  .main-nav a.active {
+    background: var(--primary-light, rgba(15,118,110,0.10));
+    color: var(--primary, #0f766e);
+    transform: none;       /* don't move up when active */
+  }
+
+  /* optional: keep hover consistent */
+  .main-nav a.active:hover {
+    background: var(--primary-light, rgba(15,118,110,0.12));
+    color: var(--primary, #0f766e);
+  }
+}
+
+  </style>
+  <!-- END: Back-to-top styles -->
+</head>
+<body>
+ <!-- HEADER -->
+<header class="site-header" role="banner">
+  
+  <!-- small, safe header-local CSS to avoid duplicate arrows & show mobile toggle only on small screens -->
+  <style>
+    /* If your global CSS also sets .nav-item.has-sub > a::after, override here so we don't get double arrows */
+    .nav-item.has-sub > a::after { content: ''; }
+
+    /* mobile-only helper: hide by default (desktop) and show only under your mobile breakpoint */
+    .mobile-only { display: none; align-items: center; gap: 8px; }
+    @media (max-width: 880px) {
+      .mobile-only { display: flex; }
+      /* ensure desktop popover remains visible on hover as before */
+      .nav-item.has-sub > .nav-subtitle { display: none; }
+      .nav-item.has-sub:hover > .nav-subtitle,
+      .nav-item.has-sub:focus-within > .nav-subtitle { display: block; }
+    }
+  </style>
+
+  <div class="container header-inner">
+    <div class="brand">
+      <img src="images/logo.png" alt="SEHA logo" class="logo" />
+      <div class="brand-text">
+        <h1 class="org-name">Somali Eye Health Alliance</h1>
+        <p class="tagline">Saving sight • Building local capacity</p>
+      </div>
+    </div>
+
+    <nav class="main-nav" role="navigation" aria-label="Main Navigation">
+      <ul class="nav-list">
+        <li class="nav-item"><a href="index.html">Home</a></li>
+
+        <li class="nav-item has-sub" id="nav-about">
+          <a href="about.html" aria-haspopup="true" aria-expanded="false">About Us ▾</a>
+
+          <!-- desktop popover -->
+          <div class="nav-subtitle" role="dialog" aria-hidden="true" aria-labelledby="about-subtitle">
+            <ul class="subtitle-list">
+              <li><a href="about.html#who" class="subtitle-link">Who we are</a></li>
+              <li><a href="about.html#what-we-do" class="subtitle-link">What we do</a></li>
+              <li><a href="about.html#framework" class="subtitle-link">Operational framework</a></li>
+              <li><a href="about.html#team" class="subtitle-link">Our team & governance</a></li>
+            </ul>
+          </div>
+
+          <!-- mobile submenu (kept for hamburger) -->
+          <ul class="sub" aria-label="About submenu">
+            <li><a href="about.html#who">Who we are</a></li>
+            <li><a href="about.html#what-we-do">What we do</a></li>
+            <li><a href="about.html#framework">Operational framework</a></li>
+            <li><a href="about.html#team">Our team & governance</a></li>
+          </ul>
+        </li>
+
+        <li class="nav-item has-sub" id="nav-ourwork">
+          <a href="our-work.html" aria-haspopup="true" aria-expanded="false">Our Work ▾</a>
+
+          <div class="nav-subtitle" role="dialog" aria-hidden="true" aria-labelledby="ourwork-subtitle">
+            <ul class="subtitle-list">
+              <li><a href="programs.html" class="subtitle-link">Core programs</a></li>
+              <li><a href="our-work.html#consortia" class="subtitle-link">Clinical consortia</a></li>
+              <li><a href="our-work.html#regions" class="subtitle-link">Regional activity</a></li>
+              <li><a href="our-work.html#impact" class="subtitle-link">Impact & results</a></li>
+            </ul>
+          </div>
+
+          <ul class="sub" aria-label="Our Work submenu">
+            <li><a href="programs.html">Programs</a></li>
+            <li><a href="our-work.html#consortia">Consortia</a></li>
+            <li><a href="our-work.html#regions">Regions</a></li>
+          </ul>
+        </li>
+
+        <li class="nav-item"><a href="programs.html">Programs</a></li>
+        <li class="nav-item"><a href="membership.html">Membership</a></li>
+        <li class="nav-item"><a href="resources.html">Resources</a></li>
+        <li class="nav-item"><a href="events.html">Events & Blogs</a></li>
+        <li class="nav-item"><a href="opportunities.html">Opportunities</a></li>
+        <li class="nav-item"><a href="awareness.html">Awareness</a></li>
+        <li class="nav-item"><a href="contact.html">Contact</a></li>
+
+        <!-- SETTINGS (single desktop link + mobile-only toggle + mobile submenu)
+             - Desktop: user sees the "Settings" anchor and the .nav-subtitle popover on hover/focus
+             - Mobile: the .mobile-only toggle (plus symbol) is shown and toggles the submenu;
+               the mobile-only element is hidden on desktop so you do not get two visible "Settings" -->
+        <li class="nav-item has-sub" id="nav-settings">
+          <!-- Desktop link (visible on all widths) -->
+          <!-- <a href="settings.html" aria-haspopup="true" aria-expanded="false" id="settingsDesktopLink">Settings ▾</a> -->
+          <a href="settings.html" aria-haspopup="true" aria-expanded="false">Settings ▾</a>
+
+
+          <!-- desktop popover -->
+          <div class="nav-subtitle" role="dialog" aria-hidden="true" aria-labelledby="settings-subtitle">
+            <ul class="subtitle-list">
+              <li><a href="settings.html#account">Account settings</a></li>
+              <li><a href="settings.html#privacy">Privacy & security</a></li>
+              <li><a href="settings.html#appearance">Appearance</a></li>
+            </ul>
+          </div>
+
+          <!-- Mobile-only toggle: hidden on desktop by .mobile-only rule above
+          <a href="#" class="mobile-toggle mobile-only" data-target="settingsSub" aria-controls="settingsSub" aria-expanded="false" id="settingsMobileToggle" style="justify-content:space-between;width:100%;padding:6px 0;">
+            <span>Settings</span>
+            <span class="toggle-symbol" aria-hidden="true">+</span>
+          </a> -->
+
+          <!-- mobile submenu -->
+          <ul class="sub mobile-sub" id="settingsSub" aria-hidden="true">
+            <li><a href="settings.html#account">Account settings</a></li>
+            <li><a href="settings.html#privacy">Privacy & security</a></li>
+            <li><a href="settings.html#appearance">Appearance</a></li>
+          </ul>
+        </li>
+        <!-- /SETTINGS -->
+
+      </ul>
+    </nav>
+
+    <div class="header-cta">
+      <a class="btn donate" id="donateBtn" href="donate.html" title="Donate">Donate</a>
+      <button class="hamb" id="hambBtn" aria-expanded="false" aria-controls="mobileMenu" aria-label="Open menu">☰</button>
+    </div>
+  </div>
+
+  <div class="mobile-menu" id="mobileMenu" aria-hidden="true"></div>
+</header>
+  <main class="section">
+    <div class="container">
+      <div style="display:flex;align-items:center;gap:12px;">
+        <h1 style="margin:0">Donate to Somali Eye Health Alliance (SEHA)</h1>
+        <!-- Admin-only button (hidden by default) -->
+        <button id="checkDonationsBtn" class="btn" style="display:none;padding:6px 10px;font-size:13px;border-radius:8px;" >
+          Check donations
+        </button>
+      </div>
+            <p class="muted">Your gift helps screen people, provide spectacles, support surgical outreach and grow local eye health capacity across Somalia.</p>
+
+      <div class="two-col" style="margin-top:18px">
+        <!-- Left: donation form -->
+        <div>
+          <div class="card">
+            <h3>Make a donation</h3>
+            <p class="muted">Choose an amount, tell us who to thank, and pick a payment method.</p>
+
+            <form id="donateForm" novalidate>
+              <label for="donorName">Full name</label>
+              <input id="donorName" name="name" type="text" placeholder="Your full name">
+
+              <label for="donorEmail" style="margin-top:8px">Email (optional but recommended)</label>
+              <input id="donorEmail" name="email" type="email" placeholder="you@example.org">
+
+              <label style="margin-top:10px">Choose an amount</label>
+              <div id="presetAmounts" style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">
+                <button type="button" class="btn amt" data-amount="10">US$10</button>
+                <button type="button" class="btn amt" data-amount="25">US$25</button>
+                <button type="button" class="btn amt" data-amount="50">US$50</button>
+                <button type="button" class="btn amt" data-amount="100">US$100</button>
+                <button type="button" class="btn amt" data-amount="250">US$250</button>
+              </div>
+
+              <label for="customAmount" style="margin-top:12px">Or enter custom amount (USD)</label>
+              <input id="customAmount" name="amount" type="number" min="1" step="1" placeholder="e.g. 75">
+
+              <div style="margin-top:12px;display:flex;gap:8px;align-items:center">
+                <label><input type="radio" name="frequency" value="one-time" checked> One-time</label>
+                <label><input type="radio" name="frequency" value="monthly"> Monthly</label>
+              </div>
+
+              <label for="paymentMethod" style="margin-top:12px">Payment method</label>
+              <select id="paymentMethod" name="method">
+                <option value="offline">Offline / bank transfer (preferred for now)</option>
+                <option value="mobile">Local mobile money (Zaad, EVC+, MyBessa etc.)</option>
+                <option value="paypal">PayPal (placeholder)</option>
+                <option value="stripe">Card (Stripe - placeholder)</option>
+              </select>
+
+              <!-- Additional fields shown when offline/mobile is selected -->
+          <!-- Additional fields shown when offline/mobile is selected -->
+<div id="offlineOptions" style="display:none;margin-top:12px">
+  <label for="offlineType">How will you send funds?</label>
+  <select id="offlineType">
+    <option value="bank">Bank transfer</option>
+    <option value="mobile-money">Mobile money (Zaad / EVC+ / MyBessa)</option>
+  </select>
+
+  <div id="bankInfo" style="margin-top:8px;">
+    <p class="muted">Use these bank details to transfer. After transfer, click "Confirm transfer" and provide the account name used and transaction id.</p>
+    <ul class="small-list muted">
+      <li><strong>Bank:</strong> <span id="bankName">Premier Bank</span></li>
+      <li><strong>Account name:</strong> <span id="bankAccountName">Somali Eye Health Alliance</span></li>
+      <li><strong>Account number:</strong> <span id="bankAccountNumber">Loading...</span>
+        <button class="copy-btn" data-copy-target="#bankAccountNumber" title="Copy account number" style="margin-left:8px">📋</button>
+      </li>
+      <li><strong>Finance email:</strong> <span id="bankEmail">finance@somalieyehealthalliance.org</span></li>
+    </ul>
+  </div>
+
+  <div id="mobileProviders" style="display:none;margin-top:8px">
+    <label for="mobileProvider">Mobile provider</label>
+    <select id="mobileProvider">
+      <option value="evc">EVC+</option>
+      <option value="zaad">Zaad</option>
+      <option value="mybessa">MyBessa</option>
+      <option value="other">Other</option>
+    </select>
+    <label for="mobileSenderName" style="margin-top:8px">Sender name / account (as used on mobile money)</label>
+    <input id="mobileSenderName" placeholder="Name on the mobile payment account">
+  </div>
+
+  <!-- Generated instructions (USSD string or bank account) -->
+  <div id="paymentInstructions" style="margin-top:12px;display:none">
+    <!-- JS will populate this -->
+  </div>
+
+  <div style="margin-top:8px">
+    <button id="confirmOfflineBtn" type="button" class="btn">I have transferred / Confirm</button>
+  </div>
+</div>
+
+
+              <label for="donorMessage" style="margin-top:12px">Message (optional)</label>
+              <textarea id="donorMessage" name="message" placeholder="A message to SEHA (for acknowledgement)"></textarea>
+
+              <div style="display:flex;gap:10px;margin-top:12px;align-items:center">
+                <button class="btn btn-primary" type="submit">Donate now (demo)</button>
+                <button type="button" id="clearDonate" class="btn btn-outline">Clear</button>
+              </div>
+
+              <div id="donateMsg" class="muted" style="margin-top:12px" aria-live="polite"></div>
+            </form>
+          </div>
+
+          <!-- Offline quick details card -->
+          <div class="card" style="margin-top:12px">
+            <h4>Offline / bank transfer details</h4>
+            <p class="muted">If you prefer to donate offline, use the details above and confirm transfer on this page so we can verify and issue an official receipt.</p>
+          </div>
+        </div>
+
+        <!-- Right: why donate & impact -->
+        <aside>
+          <div class="card">
+            <h3>Why donate to SEHA?</h3>
+            <ul class="small-list muted">
+              <li><strong>High impact:</strong> donations fund screenings and surgeries with measurable results.</li>
+              <li><strong>Local leadership:</strong> we work through Somali clinics and train local teams for sustainability.</li>
+              <li><strong>Transparency:</strong> program leads produce quarterly summaries and public highlights.</li>
+            </ul>
+            <p style="margin-top:8px"><a href="our-work.html">See our work →</a></p>
+          </div>
+        </aside>
+      </div>
+
+      <p style="margin-top:20px"><a href="index.html">← Back to Home</a></p>
+    </div>
+  </main>
+
+ <!-- FOOTER -->
+ <footer class="site-footer" role="contentinfo">
+  <div class="container footer-inner">
+    <div class="footer-col">
+      <img src="images/logo.png" alt="SEHA logo" class="footer-logo">
+      <p class="muted">© 2026 Somali Eye Health Alliance — All Rights Reserved <a href="/public/admin/developers-contact.html">Developers</a></p>
+    </div>
+
+    <div class="footer-col">
+      <h4>Quick links</h4>
+      <ul class="small-list footer-links">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="about.html">About Us</a></li>
+        <li><a href="programs.html">Programs</a></li>
+        <li><a href="resources.html">Resources</a></li>
+        <li><a href="membership.html">Membership</a></li>
+        <li><a href="contact.html">Contact</a></li>
+      </ul>
+    </div>
+
+    <div class="footer-col">
+      <h4>Contact</h4>
+      <address class="muted">
+        Mogadishu, Somalia<br>
+        info@Somalieyehealthalliance.org <br>
+        +252 61 7000264
+              </address>
+    </div>
+  </div>
+</footer>
+
+  <script src="donate.js"></script>
+</body>
+</html>

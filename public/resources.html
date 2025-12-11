@@ -1,0 +1,489 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Resources — SEHA</title>
+  <link rel="stylesheet" href="style.css">
+
+  <style>
+    /* --- Colour variables for light/dark support --- */
+    :root{
+      --page-bg: #ffffff;
+      --text: #0f1724;
+      --muted: #6b7280;
+      --card-bg: #ffffff;
+      --card-border: #eef2f2;
+      --primary: #0f766e;
+      --link: #0f766e;
+    }
+    @media (prefers-color-scheme: dark){
+      :root{
+        --muted: #9fb0bf;
+        --card-bg: #06202a;
+        --card-border: rgba(255,255,255,0.04);
+        --primary: #2bd0a8;
+        --link: #6be1c0;
+      }
+    }
+
+    /* Basic page adjustments to play nicely with your existing style.css */
+    body { background: var(--page-bg); color: var(--text); -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale; }
+    a { color: var(--link); }
+    .muted { color: var(--muted); }
+
+    /* Card base (keeps visual consistency with other pages) */
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 16px;
+      box-shadow: 0 6px 18px rgba(2,6,23,0.04);
+    }
+
+    /* Responsive grid for the media/video card */
+    .video-card {
+      display: grid;
+      grid-template-columns: 1fr 320px;
+      gap: 18px;
+      align-items: start;
+      padding: 12px;
+      border-radius: 12px;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+    }
+
+    /* On narrower widths stack columns so the video appears below the text */
+    @media (max-width: 820px) {
+      .video-card { grid-template-columns: 1fr; }
+    }
+
+    /* Make video responsive and keep its aspect sensible */
+    .video-card video {
+      width: 100%;
+      height: auto;
+      max-height: 360px;
+      border-radius: 8px;
+      display: block;
+      background: #000;
+    }
+    @media (max-width:420px){
+      .video-card video { max-height: 240px; }
+    }
+
+    /* Ensure headings, links and download look good in both schemes */
+    .video-card h4 { margin: 0 0 8px 0; color: var(--text); }
+    .video-card p { margin: 0 0 10px 0; color: var(--muted); }
+
+    /* Small helper so the download link is visually separate */
+    .video-meta { margin-top: 8px; }
+    .video-download { display:inline-block; margin-top:6px; color:var(--link); font-weight:600; text-decoration:underline; }
+
+    /* Gallery/grid small tweaks */
+    .gallery-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:12px; }
+    .gallery-grid img { width:100%; height:140px; object-fit:cover; border-radius:8px; display:block; }
+
+    /* Filter buttons visual */
+    .filter-bar .filter-btn {
+      background: transparent;
+      border: 1px solid var(--card-border);
+      padding: 6px 10px;
+      border-radius: 8px;
+      cursor: pointer;
+      color: var(--text);
+      font-weight:700;
+    }
+    .filter-bar .filter-btn[aria-pressed="true"] {
+      background: linear-gradient(90deg, rgba(15,118,110,0.08), rgba(15,118,110,0.04));
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+
+    /* Small accessible focus styles */
+    a:focus, button:focus, .filter-btn:focus { outline: 3px solid rgba(15,118,110,0.12); outline-offset: 4px; }
+  </style>
+
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const current = window.location.pathname.split("/").pop(); 
+    document.querySelectorAll(".main-nav a").forEach(a => {
+      const href = a.getAttribute("href");
+      if (href === current) {
+        a.classList.add("active");
+      }
+    });
+  });
+  </script>
+  
+<!-- START: Back-to-top small styles (optional: move into style.css) -->
+<style>
+  /* Floating "back to top" button */
+  .seha-back-to-top {
+    position: fixed;
+    right: 20px;
+    bottom: 24px;
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--primary);
+    color: #fff;
+    box-shadow: 0 10px 30px rgba(2,6,23,0.12);
+    cursor: pointer;
+    z-index: 1600;
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(8px);
+    transition: opacity .18s ease, transform .18s ease;
+    border: 0;
+  }
+
+  .seha-back-to-top.show {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateY(0);
+  }
+
+  /* focus / keyboard visibility */
+  .seha-back-to-top:focus {
+    outline: 3px solid rgba(45,212,191,0.22);
+    outline-offset: 4px;
+  }
+
+  /* inner svg */
+  .seha-back-to-top svg { width: 20px; height: 20px; display:block; }
+
+  /* small responsive tweak so it doesn't overlap on very small screens */
+  @media (max-width: 420px) {
+    .seha-back-to-top { right: 12px; bottom: 16px; width:44px; height:44px; border-radius:10px; }
+  }
+
+  /* optional: hide if user prefers reduced motion */
+  @media (prefers-reduced-motion: reduce) {
+    .seha-back-to-top { transition: none; }
+    html { scroll-behavior: auto; }
+  }
+  /* === Small/tight desktop header patch — only layout + sizing === */
+/* Apply only on desktop so mobile/menu/toggles are untouched */
+@media (min-width: 981px) {
+
+/* tighten header row and flush container edges */
+.site-header { padding: 0; }
+.container.header-inner { padding: 0 6px; max-width: var(--container); }
+
+/* reduce overall header height and gaps */
+.header-inner {
+height: 52px;            /* slightly shorter */
+gap: 8px;
+padding: 0;
+align-items: center;
+}
+
+/* branding: smaller logo and reduced text sizes */
+.brand { gap: 8px; min-width: 0; }
+.brand .logo { width: 34px; height: 34px; border-radius: 6px; }
+.brand-text .org-name {
+font-size: 11px;         /* smaller title */
+font-weight: 700;
+line-height: 1;
+white-space: nowrap;
+text-overflow: ellipsis;
+overflow: hidden;
+}
+.brand-text .tagline {
+font-size: 10px;         /* smaller tagline */
+margin: 0;
+opacity: 0.9;
+}
+
+/* navigation: smaller font, tighter padding and smaller gap */
+.main-nav { flex: 1 1 auto; min-width: 0; }
+.main-nav .nav-list {
+gap: 6px;                /* tighter gap between menu items */
+padding: 0 6px;
+}
+.main-nav a {
+font-size: 12px;         /* smaller nav text */
+padding: 6px 8px;        /* tighter clickable area */
+border-radius: 6px;
+font-weight: 700;
+}
+
+/* reduce the hover transform so it looks subtle on small header */
+.main-nav a:hover, .main-nav a:focus {
+transform: translateY(-1px);
+background: rgba(15,118,110,0.04);
+}
+
+/* ensure desktop popovers still position correctly (no clipping) */
+.nav-item { position: relative; }
+.nav-subtitle {
+left: 50%;
+transform: translateX(-50%) translateY(6px);
+top: calc(100% + 6px);
+min-width: 180px;
+z-index: 2500;
+}
+}
+
+/* Keep mobile rules exactly as before (no changes) */
+@media (max-width: 980px) {
+/* nothing here — mobile behavior unchanged */
+}
+
+/* === ACTIVE NAVIGATION HIGHLIGHT === */
+@media (min-width: 981px) {
+.main-nav a.active {
+  background: var(--primary-light, rgba(15,118,110,0.10));
+  color: var(--primary, #0f766e);
+  transform: none;       /* don't move up when active */
+}
+
+/* optional: keep hover consistent */
+.main-nav a.active:hover {
+  background: var(--primary-light, rgba(15,118,110,0.12));
+  color: var(--primary, #0f766e);
+}
+}
+
+</style>
+<!-- END: Back-to-top styles -->
+</head>
+<body>
+<!-- HEADER -->
+<header class="site-header" role="banner">
+
+<!-- small, safe header-local CSS to avoid duplicate arrows & show mobile toggle only on small screens -->
+<style>
+  /* If your global CSS also sets .nav-item.has-sub > a::after, override here so we don't get double arrows */
+  .nav-item.has-sub > a::after { content: ''; }
+
+  /* mobile-only helper: hide by default (desktop) and show only under your mobile breakpoint */
+  .mobile-only { display: none; align-items: center; gap: 8px; }
+  @media (max-width: 880px) {
+    .mobile-only { display: flex; }
+    /* ensure desktop popover remains visible on hover as before */
+    .nav-item.has-sub > .nav-subtitle { display: none; }
+    .nav-item.has-sub:hover > .nav-subtitle,
+    .nav-item.has-sub:focus-within > .nav-subtitle { display: block; }
+  }
+</style>
+
+<div class="container header-inner">
+  <div class="brand">
+    <img src="images/logo.png" alt="SEHA logo" class="logo" />
+    <div class="brand-text">
+      <h1 class="org-name">Somali Eye Health Alliance</h1>
+      <p class="tagline">Saving sight • Building local capacity</p>
+    </div>
+  </div>
+
+  <nav class="main-nav" role="navigation" aria-label="Main Navigation">
+    <ul class="nav-list">
+      <li class="nav-item"><a href="index.html">Home</a></li>
+
+      <li class="nav-item has-sub" id="nav-about">
+        <a href="about.html" aria-haspopup="true" aria-expanded="false">About Us ▾</a>
+
+        <!-- desktop popover -->
+        <div class="nav-subtitle" role="dialog" aria-hidden="true" aria-labelledby="about-subtitle">
+          <ul class="subtitle-list">
+            <li><a href="about.html#who" class="subtitle-link">Who we are</a></li>
+            <li><a href="about.html#what-we-do" class="subtitle-link">What we do</a></li>
+            <li><a href="about.html#framework" class="subtitle-link">Operational framework</a></li>
+            <li><a href="about.html#team" class="subtitle-link">Our team & governance</a></li>
+          </ul>
+        </div>
+
+        <!-- mobile submenu (kept for hamburger) -->
+        <ul class="sub" aria-label="About submenu">
+          <li><a href="about.html#who">Who we are</a></li>
+          <li><a href="about.html#what-we-do">What we do</a></li>
+          <li><a href="about.html#framework">Operational framework</a></li>
+          <li><a href="about.html#team">Our team & governance</a></li>
+        </ul>
+      </li>
+
+      <li class="nav-item has-sub" id="nav-ourwork">
+        <a href="our-work.html" aria-haspopup="true" aria-expanded="false">Our Work ▾</a>
+
+        <div class="nav-subtitle" role="dialog" aria-hidden="true" aria-labelledby="ourwork-subtitle">
+          <ul class="subtitle-list">
+            <li><a href="programs.html" class="subtitle-link">Core programs</a></li>
+            <li><a href="our-work.html#consortia" class="subtitle-link">Clinical consortia</a></li>
+            <li><a href="our-work.html#regions" class="subtitle-link">Regional activity</a></li>
+            <li><a href="our-work.html#impact" class="subtitle-link">Impact & results</a></li>
+          </ul>
+        </div>
+
+        <ul class="sub" aria-label="Our Work submenu">
+          <li><a href="programs.html">Programs</a></li>
+          <li><a href="our-work.html#consortia">Consortia</a></li>
+          <li><a href="our-work.html#regions">Regions</a></li>
+        </ul>
+      </li>
+
+      <li class="nav-item"><a href="programs.html">Programs</a></li>
+      <li class="nav-item"><a href="membership.html">Membership</a></li>
+      <li class="nav-item"><a href="resources.html">Resources</a></li>
+      <li class="nav-item"><a href="events.html">Events & Blogs</a></li>
+      <li class="nav-item"><a href="opportunities.html">Opportunities</a></li>
+      <li class="nav-item"><a href="awareness.html">Awareness</a></li>
+      <li class="nav-item"><a href="contact.html">Contact</a></li>
+
+      <!-- SETTINGS (single desktop link + mobile-only toggle + mobile submenu)
+           - Desktop: user sees the "Settings" anchor and the .nav-subtitle popover on hover/focus
+           - Mobile: the .mobile-only toggle (plus symbol) is shown and toggles the submenu;
+             the mobile-only element is hidden on desktop so you do not get two visible "Settings" -->
+      <li class="nav-item has-sub" id="nav-settings">
+        <!-- Desktop link (visible on all widths) -->
+        <!-- <a href="settings.html" aria-haspopup="true" aria-expanded="false" id="settingsDesktopLink">Settings ▾</a> -->
+        <a href="settings.html" aria-haspopup="true" aria-expanded="false">Settings ▾</a>
+
+
+        <!-- desktop popover -->
+        <div class="nav-subtitle" role="dialog" aria-hidden="true" aria-labelledby="settings-subtitle">
+          <ul class="subtitle-list">
+            <li><a href="settings.html#account">Account settings</a></li>
+            <li><a href="settings.html#privacy">Privacy & security</a></li>
+            <li><a href="settings.html#appearance">Appearance</a></li>
+          </ul>
+        </div>
+
+        <!-- Mobile-only toggle: hidden on desktop by .mobile-only rule above
+        <a href="#" class="mobile-toggle mobile-only" data-target="settingsSub" aria-controls="settingsSub" aria-expanded="false" id="settingsMobileToggle" style="justify-content:space-between;width:100%;padding:6px 0;">
+          <span>Settings</span>
+          <span class="toggle-symbol" aria-hidden="true">+</span>
+        </a> -->
+
+        <!-- mobile submenu -->
+        <ul class="sub mobile-sub" id="settingsSub" aria-hidden="true">
+          <li><a href="settings.html#account">Account settings</a></li>
+          <li><a href="settings.html#privacy">Privacy & security</a></li>
+          <li><a href="settings.html#appearance">Appearance</a></li>
+        </ul>
+      </li>
+      <!-- /SETTINGS -->
+
+    </ul>
+  </nav>
+
+  <div class="header-cta">
+    <a class="btn donate" id="donateBtn" href="donate.html" title="Donate">Donate</a>
+    <button class="hamb" id="hambBtn" aria-expanded="false" aria-controls="mobileMenu" aria-label="Open menu">☰</button>
+  </div>
+</div>
+
+<div class="mobile-menu" id="mobileMenu" aria-hidden="true"></div>
+</header>
+
+<main class="section">
+  <div class="container">
+    <h1>Resources & Media</h1>
+    <p class="muted">Download reports, view photo galleries, watch project videos and access toolkits produced by Somali Eye Health Alliance and partners.</p>
+
+    <!-- Publications / Reports -->
+    <div class="card" style="margin-top:12px">
+      <h3>Publications & toolkits</h3>
+      <p class="muted">Selected reports, guidance and toolkits from recent projects. Click to download.</p>
+      <ul class="small-list">
+        <li><a href="files/SEHA-Annual-Report-2025.pdf" download>Somali Eye Health Alliance Annual Report 2025 (PDF)</a></li>
+        <li><a href="files/Community-Screening-Toolkit.zip" download>Community Screening Toolkit (ZIP)</a></li>
+        <li><a href="files/Monitoring_Brief_Somali_Eye_Health_Alliance.pdf" download>Program monitoring brief (PDF)</a></li>
+      </ul>
+    </div>
+
+    <!-- Media preview (gallery filter + thumbnails) -->
+    <section id="resources-preview" class="section bg-light" aria-labelledby="resourcesHeading" style="margin-top:18px">
+      <div>
+        <h3 id="resourcesHeading">Photo gallery & media</h3>
+        <p class="muted">Photos, infographics and short videos from field activities — use the filters to find materials. Click thumbnails to enlarge or play.</p>
+
+        <!-- filter bar -->
+        <div id="resourceFilterBar" class="filter-bar" style="margin:10px 0;display:flex;gap:8px;flex-wrap:wrap">
+          <button class="filter-btn" data-filter="All" aria-pressed="true" type="button">All</button>
+          <button class="filter-btn" data-filter="Photo" type="button">Photos</button>
+          <button class="filter-btn" data-filter="Infographic" type="button">Infographics</button>
+          <button class="filter-btn" data-filter="Report" type="button">Reports</button>
+          <button class="filter-btn" data-filter="Video" type="button">Videos</button>
+        </div>
+
+        <!-- gallery grid (populated by script.js) -->
+        <div class="gallery-grid" id="resourceGallery" aria-live="polite" style="margin-top:12px;">
+          <!-- Example thumbnails (script.js can override this) -->
+          <img src="images/resource-thumb1.jpg" alt="Screening in school" />
+          <img src="images/resource-thumb2.jpg" alt="Surgical outreach" />
+          <img src="images/resource-thumb3.jpg" alt="Training workshop" />
+        </div>
+
+        <p style="margin-top:14px"><a href="index.html">← Back to Home</a></p>
+      </div>
+    </section>
+
+    <!-- Video library: uses .video-card. On small screens the video will appear below the text -->
+    <section style="margin-top:20px">
+      <h3>Video library</h3>
+      <p class="muted">Short project videos and highlights. Click play to watch.</p>
+
+      <div class="video-card" role="region" aria-labelledby="videoTitle">
+        <div>
+          <h4 id="videoTitle">Somali Eye Health Alliance Field Highlights — Outreach & Screening</h4>
+          <p class="muted">A short compilation of outreach activities, screening and workshops (video).</p>
+
+          <div class="video-meta">
+            <a class="video-download" href="videos/resource1.mp4" download>Download video (MP4)</a>
+            <!-- extra meta if needed -->
+            <div style="margin-top:8px; color:var(--muted); font-size:13px">Duration: 1:54 — Format: MP4</div>
+          </div>
+        </div>
+
+        <div>
+          <!-- video element (plays videos/resource1.mp4) -->
+          <video id="resourcesVideoPlayer" controls preload="metadata" aria-describedby="videoTitle">
+            <source src="videos/resource1.mp4" type="video/mp4">
+            Your browser does not support the video tag.
+          </video>
+        </div>
+      </div>
+    </section>
+
+  </div>
+</main>
+
+<!-- FOOTER -->
+<footer class="site-footer" role="contentinfo">
+  <div class="container footer-inner">
+    <div class="footer-col">
+      <img src="images/logo.png" alt="SEHA logo" class="footer-logo">
+      <p class="muted">© 2026 Somali Eye Health Alliance — All Rights Reserved <a href="/public/admin/developers-contact.html">Developers</a></p>
+    </div>
+
+    <div class="footer-col">
+      <h4>Quick links</h4>
+      <ul class="small-list footer-links">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="about.html">About Us</a></li>
+        <li><a href="programs.html">Programs</a></li>
+        <li><a href="resources.html">Resources</a></li>
+        <li><a href="membership.html">Membership</a></li>
+        <li><a href="contact.html">Contact</a></li>
+      </ul>
+    </div>
+
+    <div class="footer-col">
+      <h4>Contact</h4>
+      <address class="muted">
+        Mogadishu, Somalia<br>
+        info@Somalieyehealthalliance.org <br>
+        +252 61 7000264
+              </address>
+    </div>
+  </div>
+</footer>
+
+<script src="script.js"></script>
+
+</body>
+</html>

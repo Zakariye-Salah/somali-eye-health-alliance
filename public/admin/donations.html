@@ -1,0 +1,409 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Admin — Donations</title>
+  <meta name="description" content="Admin: view and approve donations" />
+  <link rel="icon" href="/images/logo.png">
+  <style>
+    :root{ --bg:#f7f8fa; --card:#fff; --muted:#6b7280; --accent:#2dd4bf; --danger:#dc2626; --ok:#16a34a; --primary:#0f172a; font-family:Inter,system-ui,Arial; }
+    body{margin:0;background:var(--bg);color:var(--primary);font-size:14px}
+    .container{max-width:1200px;margin:20px auto;padding:18px}
+    header{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
+    header h1{margin:0;font-size:20px}
+    .card{background:var(--card);padding:12px;border-radius:10px;box-shadow:0 6px 18px rgba(2,6,23,0.04)}
+    .filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+    input,select{padding:8px;border-radius:8px;border:1px solid #e6e9ee}
+    button.btn{padding:8px 10px;border-radius:8px;border:0;background:var(--accent);color:#fff;cursor:pointer}
+    button.ghost{background:transparent;border:1px solid #e6e9ee;color:var(--primary)}
+    table{width:100%;border-collapse:collapse;margin-top:12px}
+    th,td{padding:10px;border-bottom:1px solid #f0f0f4;text-align:left}
+    th{background:#fbfcfd}
+    .actions button{margin-right:6px}
+    .muted{color:var(--muted)}
+    .status-pending{color:#b45309} /* amber */
+    .status-approved{color:var(--ok)}
+    .status-rejected{color:var(--danger)}
+    .stats{display:flex;gap:10px;margin-bottom:12px}
+    .stat{flex:1;padding:10px;border-radius:8px;background:#fff;text-align:center}
+    .small{font-size:13px;color:var(--muted)}
+    .center{text-align:center}
+    .notice{padding:8px;border-radius:6px;margin-bottom:12px}
+    .notice.info{background:#eef7f6;color:#054b45}
+    .notice.warn{background:#fff4e5;color:#663c00}
+
+    /* delete button style */
+    .btn.delete { background: transparent; color: #fff; border-radius:8px; padding:6px 8px; border: 1px solid rgba(0,0,0,0.06); background: #fff; box-shadow: 0 1px 0 rgba(0,0,0,0.02); }
+    .btn.delete svg { width: 16px; height:16px; display:inline-block; vertical-align:middle; }
+    .btn.danger { background: var(--danger); color: #fff; }
+    /* small action icon look */
+    .actions button.ghost, .actions button.view { padding:6px 8px; border-radius:6px; }
+    .actions button.approve { background: var(--ok); color:#fff; padding:6px 8px; border-radius:6px; }
+    .actions button.reject { padding:6px 8px; border-radius:6px; }
+  </style>
+</head>
+<body>
+  
+  <div class="container">
+    <header>
+      <div style="display:flex;align-items:center;gap:12px">
+        <h1>Donations — Admin</h1>
+        <a href="/donate.html" class="btn" style="margin-left:12px; text-decoration:none; display:inline-block; padding:8px 10px; border-radius:8px;">
+          ← Back to Donate
+        </a>
+        <div class="small muted">List & approve donations (admin / superadmin only)</div>
+      </div>
+
+      <div>
+        <button id="btnRefresh" class="btn">Refresh</button>
+        <button id="btnExport" class="ghost">Export CSV</button>
+      </div>
+    </header>
+
+    <div id="loginNotice" class="notice info" style="display:none">
+      <strong>Not signed in as admin.</strong> Please login and store token in <code>localStorage.seha_token</code>.
+    </div>
+
+    <div class="stats" id="statsWrap">
+      <div class="stat card">
+        <div class="small muted">Today (approved)</div>
+        <div id="statDaily" style="font-size:18px">—</div>
+      </div>
+      <div class="stat card">
+        <div class="small muted">This week (approved)</div>
+        <div id="statWeekly" style="font-size:18px">—</div>
+      </div>
+      <div class="stat card">
+        <div class="small muted">This month (approved)</div>
+        <div id="statMonthly" style="font-size:18px">—</div>
+      </div>
+      <div class="stat card">
+        <div class="small muted">All time (approved)</div>
+        <div id="statAll" style="font-size:18px">—</div>
+      </div>
+    </div>
+
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+      <div class="filters">
+        <input id="q" placeholder="Search name, email, tx id" />
+        <select id="filterStatus">
+          <option value="">All statuses</option>
+          <option value="initiated">Initiated</option>
+          <option value="pending">Pending</option>
+          <option value="pending_confirmation">Pending confirmation</option>
+          <option value="approved">Approved</option>
+          <option value="rejected">Rejected</option>
+          <option value="failed">Failed</option>
+        </select>
+        <select id="filterMethod">
+          <option value="">All methods</option>
+          <option value="offline">Offline</option>
+          <option value="mobile">Mobile</option>
+          <option value="paypal">PayPal</option>
+          <option value="stripe">Card (Stripe)</option>
+        </select>
+        <label class="small muted">From</label>
+        <input id="from" type="date" />
+        <label class="small muted">To</label>
+        <input id="to" type="date" />
+        <button id="btnFilter" class="ghost">Apply</button>
+      </div>
+
+      <div style="display:flex;gap:8px;align-items:center">
+        <label class="small muted">Per page</label>
+        <select id="limit">
+          <option>20</option><option>50</option><option>100</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="card" id="listWrap">
+      <table id="tbl">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Donor</th>
+            <th>Amount</th>
+            <th>Method</th>
+            <th>Status</th>
+            <th>Created</th>
+            <th class="center">Actions</th>
+          </tr>
+        </thead>
+        <tbody id="tbody">
+          <tr><td colspan="7" class="center muted">Loading…</td></tr>
+        </tbody>
+      </table>
+
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:12px">
+        <div class="small muted" id="pagerInfo"></div>
+        <div>
+          <button id="prevPage" class="ghost">Prev</button>
+          <button id="nextPage" class="ghost">Next</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function(){
+      const API_BASE = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') ? 'http://localhost:4000' : '';
+      const token = localStorage.getItem('seha_token') || '';
+      const tbody = document.getElementById('tbody');
+      const qInput = document.getElementById('q');
+      const filterStatus = document.getElementById('filterStatus');
+      const filterMethod = document.getElementById('filterMethod');
+      const fromInput = document.getElementById('from');
+      const toInput = document.getElementById('to');
+      const limitSel = document.getElementById('limit');
+      const btnFilter = document.getElementById('btnFilter');
+      const btnRefresh = document.getElementById('btnRefresh');
+      const btnExport = document.getElementById('btnExport');
+      const btnPrev = document.getElementById('prevPage');
+      const btnNext = document.getElementById('nextPage');
+      const pagerInfo = document.getElementById('pagerInfo');
+      const loginNotice = document.getElementById('loginNotice');
+
+      let page = 1, limit = Number(limitSel.value || 20), total = 0;
+
+      function headers(){
+        const h = { 'Content-Type': 'application/json' };
+        if (token) h['Authorization'] = 'Bearer ' + token;
+        return h;
+      }
+
+      function showLoginNotice(show){
+        loginNotice.style.display = show ? 'block' : 'none';
+      }
+
+      async function loadStats(){
+        try {
+          const ranges = ['daily','weekly','monthly','all'];
+          const ids = ['statDaily','statWeekly','statMonthly','statAll'];
+          for (let i=0;i<ranges.length;i++){
+            const r = ranges[i];
+            const resp = await fetch(API_BASE + `/api/donations/admin/stats?range=${r}`, { headers: headers() });
+            if (!resp.ok) {
+              document.getElementById(ids[i]).textContent = '—';
+              continue;
+            }
+            const data = await resp.json();
+            document.getElementById(ids[i]).innerHTML = `$${(data.total || 0).toFixed(2)} <div class="small muted">${data.count || 0} donations</div>`;
+          }
+        } catch(err){
+          console.error('stats', err);
+        }
+      }
+
+      async function loadList(){
+        tbody.innerHTML = '<tr><td colspan="7" class="center muted">Loading…</td></tr>';
+        const q = encodeURIComponent(qInput.value || '');
+        const status = encodeURIComponent(filterStatus.value || '');
+        const method = encodeURIComponent(filterMethod.value || '');
+        const from = encodeURIComponent(fromInput.value || '');
+        const to = encodeURIComponent(toInput.value || '');
+        limit = Number(limitSel.value || 20);
+
+        const url = `${API_BASE}/api/donations/admin/list?page=${page}&limit=${limit}${status?`&status=${status}`:''}${method?`&method=${method}`:''}${q?`&q=${q}`:''}${from?`&from=${from}`:''}${to?`&to=${to}`:''}`;
+        try {
+          const resp = await fetch(url, { headers: headers() });
+          if (resp.status === 401 || resp.status === 403) {
+            tbody.innerHTML = '<tr><td colspan="7" class="center muted">Unauthorized — admin token required.</td></tr>';
+            showLoginNotice(true);
+            return;
+          }
+          showLoginNotice(false);
+          if (!resp.ok) {
+            const j = await resp.json().catch(()=>({message:'Fetch failed'}));
+            tbody.innerHTML = `<tr><td colspan="7" class="center muted">Error: ${j.message || resp.statusText}</td></tr>`;
+            return;
+          }
+          const data = await resp.json();
+          const rows = data.donations || [];
+          total = data.total || rows.length;
+          if (!rows.length) {
+            tbody.innerHTML = '<tr><td colspan="7" class="center muted">No donations found for filter.</td></tr>';
+            pagerInfo.textContent = `0 results`;
+            return;
+          }
+          tbody.innerHTML = rows.map(r => {
+            const donor = (r.donorName || r.donorEmail) ? `${r.donorName || ''} ${r.donorEmail?('<' + r.donorEmail + '>') : ''}` : '<span class="muted">Anonymous</span>';
+            const method = r.method || '';
+            const statusClass = r.status === 'approved' ? 'status-approved' : (r.status === 'rejected' ? 'status-rejected' : 'status-pending');
+            const created = new Date(r.createdAt).toLocaleString();
+            return `<tr data-id="${r._id}">
+              <td style="font-family:monospace">${r._id.slice(-8)}</td>
+              <td>${escapeHtml(donor)}</td>
+              <td>$${Number(r.amount).toFixed(2)}</td>
+              <td>${escapeHtml(method)}</td>
+              <td class="${statusClass}">${escapeHtml(r.status)}</td>
+              <td>${escapeHtml(created)}</td>
+              <td class="center actions">
+                <button class="btn approve" data-id="${r._id}">Approve</button>
+                <button class="ghost reject" data-id="${r._id}">Reject</button>
+                <button class="ghost view" data-id="${r._id}">View</button>
+                <button class="delete" title="Delete" data-id="${r._id}" style="background:transparent;border:0;cursor:pointer;margin-left:6px;">
+                  <!-- simple trash icon -->
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false">
+                    <path d="M3 6h18" stroke="#b91c1c" stroke-width="2" stroke-linecap="round"/>
+                    <path d="M8 6l1 14a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2l1-14" stroke="#b91c1c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M10 11v6M14 11v6" stroke="#b91c1c" stroke-width="2" stroke-linecap="round"/>
+                    <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2" stroke="#b91c1c" stroke-width="2" stroke-linecap="round"/>
+                  </svg>
+                </button>
+              </td>
+            </tr>`;
+          }).join('');
+          pagerInfo.textContent = `Showing page ${page} • ${rows.length} items (total approx ${total})`;
+          attachRowListeners();
+        } catch (err){
+          console.error(err);
+          tbody.innerHTML = '<tr><td colspan="7" class="center muted">Network or server error</td></tr>';
+        }
+      }
+
+      function attachRowListeners(){
+        document.querySelectorAll('button.approve').forEach(btn=>{
+          btn.onclick = async (ev)=>{
+            const id = btn.dataset.id;
+            if (!confirm('Approve this donation?')) return;
+            btn.disabled = true;
+            try {
+              const resp = await fetch(API_BASE + `/api/donations/admin/${id}/approve`, { method:'PUT', headers: headers() });
+              const j = await resp.json();
+              if (!resp.ok) alert('Error: ' + (j.message || resp.statusText));
+              else {
+                alert('Approved.');
+                loadList();
+                loadStats();
+              }
+            } catch(err){
+              console.error(err); alert('Network error');
+            } finally { btn.disabled = false; }
+          };
+        });
+
+        document.querySelectorAll('button.reject').forEach(btn=>{
+          btn.onclick = async (ev)=>{
+            const id = btn.dataset.id;
+            const reason = prompt('Optional rejection reason (will appear in log):','');
+            if (!confirm('Reject this donation?')) return;
+            btn.disabled = true;
+            try {
+              const resp = await fetch(API_BASE + `/api/donations/admin/${id}/reject`, { method:'PUT', headers: headers(), body: JSON.stringify({ reason }) });
+              const j = await resp.json();
+              if (!resp.ok) alert('Error: ' + (j.message || resp.statusText));
+              else {
+                alert('Rejected.');
+                loadList();
+                loadStats();
+              }
+            } catch(err){
+              console.error(err); alert('Network error');
+            } finally { btn.disabled = false; }
+          };
+        });
+
+        document.querySelectorAll('button.view').forEach(btn=>{
+          btn.onclick = async (ev)=>{
+            const id = btn.dataset.id;
+            try {
+              const resp = await fetch(API_BASE + `/api/donations/${id}`, { headers: headers() });
+              const j = await resp.json();
+              if (!resp.ok) { alert('Error: ' + (j.message || resp.statusText)); return; }
+              const d = j.donation;
+              openDetailDialog(d);
+            } catch(err){
+              console.error(err); alert('Network error');
+            }
+          };
+        });
+
+        // ---------- DELETE handler ----------
+        document.querySelectorAll('button.delete').forEach(btn=>{
+          btn.onclick = async (ev)=>{
+            const id = btn.dataset.id;
+            if (!id) return;
+            // strong confirmation
+            const ok = confirm('Permanently DELETE this donation? This cannot be undone.');
+            if (!ok) return;
+            btn.disabled = true;
+            try {
+              const resp = await fetch(API_BASE + `/api/donations/admin/${id}`, { method: 'DELETE', headers: headers() });
+              const j = await resp.json().catch(()=>({}));
+              if (!resp.ok) {
+                alert('Delete failed: ' + (j.message || resp.statusText));
+              } else {
+                alert('Donation deleted.');
+                // refresh the list and stats so totals update (approved counts will change)
+                loadList();
+                loadStats();
+              }
+            } catch(err){
+              console.error(err);
+              alert('Network error while deleting.');
+            } finally {
+              btn.disabled = false;
+            }
+          };
+        });
+      }
+
+      function openDetailDialog(d){
+        const payload = JSON.stringify(d, null, 2);
+        const win = window.open('', '_blank', 'width=700,height=600,scrollbars=yes');
+        win.document.write('<pre style="font-family:monospace;padding:12px">'+escapeHtml(payload)+'</pre>');
+        win.document.title = 'Donation ' + (d._id || '');
+      }
+
+      btnFilter.onclick = () => { page = 1; loadList(); };
+      btnRefresh.onclick = () => { loadList(); loadStats(); };
+      limitSel.onchange = () => { page = 1; loadList(); };
+      btnPrev.onclick = () => { if(page>1){ page--; loadList(); } };
+      btnNext.onclick = () => { page++; loadList(); };
+
+      btnExport.onclick = async () => {
+        const q = encodeURIComponent(qInput.value || '');
+        const status = encodeURIComponent(filterStatus.value || '');
+        const method = encodeURIComponent(filterMethod.value || '');
+        const from = encodeURIComponent(fromInput.value || '');
+        const to = encodeURIComponent(toInput.value || '');
+        const url = `${API_BASE}/api/donations/admin/export?${status?`status=${status}&`:''}${method?`method=${method}&`:''}${q?`q=${q}&`:''}${from?`from=${from}&`:''}${to?`to=${to}&`:''}`;
+        try {
+          const resp = await fetch(url, { headers: headers() });
+          if (!resp.ok) {
+            const j = await resp.json().catch(()=>({message:'Export failed'}));
+            alert('Export error: ' + (j.message || resp.statusText));
+            return;
+          }
+          const blob = await resp.blob();
+          const a = document.createElement('a');
+          a.href = URL.createObjectURL(blob);
+          a.download = 'donations-export.csv';
+          document.body.appendChild(a);
+          a.click();
+          a.remove();
+        } catch(err){
+          console.error(err);
+          alert('Export failed: network error');
+        }
+      };
+
+      // small helper
+      function escapeHtml(s){
+        if (s === null || s === undefined) return '';
+        return String(s).replace(/[&<>"]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]));
+      }
+
+      // boot
+      (function init(){
+        if(!token) showLoginNotice(true);
+        loadList();
+        loadStats();
+      })();
+
+    })();
+  </script>
+</body>
+</html>

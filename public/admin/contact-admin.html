@@ -1,0 +1,259 @@
+<!-- public/admin/contact-admin.html -->
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>SEHA Admin — Contacts</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root { --bg:#f6fbfa; --panel:#fff; --muted:#6b7280; --accent:#0f766e; --danger:#d14343; }
+    body{margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial;background:var(--bg);color:#0b1220}
+    .wrap{max-width:1200px;margin:18px auto;padding:18px}
+    .card{background:var(--panel);border-radius:10px;padding:12px;box-shadow:0 8px 30px rgba(2,6,23,0.06)}
+    .list{display:flex;flex-direction:column;gap:8px;margin-top:12px}
+    .item{display:flex;justify-content:space-between;gap:8px;padding:10px;border-radius:8px;border:1px solid #eef2f2;background:#fff;cursor:pointer;align-items:center}
+    .avatar{width:44px;height:44;border-radius:8px;background:#e6f6f4;display:flex;align-items:center;justify-content:center;color:var(--accent);font-weight:700}
+    .meta{color:var(--muted);font-size:13px}
+    .btn{padding:8px 10px;border-radius:8px;border:0;background:#e6f6f4;color:var(--accent);cursor:pointer}
+    .btn.primary{background:var(--accent);color:#fff}
+    .icon-btn { background:transparent;border:0;cursor:pointer;padding:6px;border-radius:6px }
+    .delete-icon { color:var(--danger); font-weight:700 }
+    .empty{padding:18px;text-align:center;color:var(--muted)}
+  </style>
+</head>
+<body>
+  <!-- Shared header -->
+  <div id="siteHeader"></div>
+
+  <div class="wrap">
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">
+      <h1 style="margin:0">Contacts inbox</h1>
+      <div id="countMeta" class="meta">Loading…</div>
+      <div style="margin-left:auto">
+        <button id="refreshBtn" class="btn">Refresh</button>
+        <a href="/public/contact.html" class="btn">Back to Contacts</a>
+      </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:360px 1fr;gap:16px">
+      <div class="card" id="leftPanel">
+        <input id="searchInput" class="search" placeholder="Search by name, email or subject" style="width:100%;padding:10px;border-radius:8px;border:1px solid #eef2f2"/>
+        <div id="list" class="list"></div>
+        <div id="listEmpty" class="empty" style="display:none">No contact messages yet.</div>
+      </div>
+
+      <div class="card" id="detailPanel">
+        <div id="detailEmpty" class="empty">Select a contact to view full details.</div>
+        <div id="detail" style="display:none"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+  (function(){
+    const API_BASE = (location.hostname === 'localhost' || location.hostname === '127.0.0.1') ? 'http://localhost:4000' : '';
+    const token = localStorage.getItem('seha_token');
+    // header injection (same as public contact)
+
+
+    if (!token) {
+      document.querySelector('.wrap').innerHTML = '<div style="padding:30px"><strong>Missing admin token.</strong> Please sign in as admin and set localStorage.seha_token to a valid JWT.</div>';
+      return;
+    }
+
+    const listEl = document.getElementById('list');
+    const listEmpty = document.getElementById('listEmpty');
+    const detail = document.getElementById('detail');
+    const detailEmpty = document.getElementById('detailEmpty');
+    const countMeta = document.getElementById('countMeta');
+    const searchInput = document.getElementById('searchInput');
+    const refreshBtn = document.getElementById('refreshBtn');
+
+    let contacts = [];
+    let currentId = null;
+
+    function authHeaders(){ return { 'Content-Type':'application/json', 'Authorization': 'Bearer ' + token }; }
+
+    async function apiFetchPath(path, opts = {}) {
+      opts.headers = Object.assign({}, opts.headers || {}, authHeaders());
+      try {
+        const res = await fetch((API_BASE || '') + '/api/contact' + path, opts);
+        const data = await res.json().catch(()=>null);
+        return { ok: res.ok, status: res.status, data };
+      } catch (err) { return { ok:false, error:err }; }
+    }
+
+    function escapeHtml(s){ if(!s) return ''; return String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
+
+    function makeDeleteBtn(id){
+      return `<button class="icon-btn delete-btn" data-id="${id}" title="Delete message" aria-label="Delete message">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <path d="M3 6h18" stroke="#d14343" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M8 6v12a2 2 0 0 0 2 2h4a2 2 0 0 0 2-2V6" stroke="#d14343" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </button>`;
+    }
+
+    function renderList(filter='') {
+      listEl.innerHTML = '';
+      const f = (filter || '').toLowerCase();
+      const items = contacts.filter(c => {
+        if (!f) return true;
+        return (c.name && c.name.toLowerCase().includes(f)) ||
+               (c.email && c.email.toLowerCase().includes(f)) ||
+               (c.subject && c.subject.toLowerCase().includes(f)) ||
+               (c.message && c.message.toLowerCase().includes(f));
+      });
+      if (items.length === 0) { listEmpty.style.display = 'block'; return; }
+      listEmpty.style.display = 'none';
+      items.forEach(c => {
+        const el = document.createElement('div');
+        el.className = 'item';
+        el.dataset.id = c._id;
+        el.innerHTML = `
+          <div style="display:flex;gap:10px;align-items:center">
+            <div class="avatar">${c.name ? escapeHtml(c.name.split(' ').map(x=>x[0]).slice(0,2).join('').toUpperCase()) : 'C'}</div>
+            <div>
+              <div style="font-weight:700">${escapeHtml(c.name || c.email)}</div>
+              <div class="meta">${escapeHtml(c.subject || (c.message||'').slice(0,60))}</div>
+            </div>
+          </div>
+          <div style="display:flex;gap:8px;align-items:center">
+            <div class="meta" style="white-space:nowrap;margin-right:6px">${new Date(c.createdAt).toLocaleString()}</div>
+            ${makeDeleteBtn(c._id)}
+          </div>
+        `;
+
+        el.addEventListener('click', (ev) => {
+          if (ev.target.closest('.delete-btn')) return;
+          loadDetail(c._id);
+        });
+
+        listEl.appendChild(el);
+      });
+
+      // delete wiring
+      document.querySelectorAll('.delete-btn').forEach(btn => {
+        btn.addEventListener('click', async (e) => {
+          e.stopPropagation();
+          const id = btn.dataset.id;
+          if (!id) return;
+          if (!confirm('Delete this contact message? This action cannot be undone.')) return;
+          btn.disabled = true;
+          try {
+            const r = await apiFetchPath('/' + encodeURIComponent(id), { method: 'DELETE' });
+            if (!r.ok) {
+              alert((r.data && r.data.message) ? r.data.message : 'Failed to delete');
+            } else {
+              contacts = contacts.filter(c => String(c._id) !== String(id));
+              renderList(searchInput.value || '');
+              countMeta.textContent = `${contacts.length} total messages`;
+              if (currentId && String(currentId) === String(id)) {
+                detail.innerHTML = ''; detail.style.display='none'; detailEmpty.style.display='block';
+              }
+            }
+          } catch (err) {
+            console.error(err);
+            alert('Network error deleting message');
+          } finally {
+            btn.disabled = false;
+          }
+        });
+      });
+    }
+
+    async function loadList() {
+      const r = await apiFetchPath('/admin/list?limit=200', { method: 'GET' });
+      if (!r.ok || !r.data) { console.warn('fetch failed', r); return; }
+      contacts = r.data.contacts || [];
+      countMeta.textContent = (r.data.total || contacts.length) + ' total messages';
+      renderList(searchInput.value || '');
+    }
+
+    async function loadDetail(id) {
+      currentId = id;
+      detail.style.display = 'none'; detailEmpty.style.display = 'block'; detailEmpty.textContent = 'Loading…';
+      const r = await apiFetchPath('/' + encodeURIComponent(id), { method: 'GET' });
+      if (!r.ok || !r.data || !r.data.contact) { detailEmpty.textContent = 'Failed to load'; return; }
+      const c = r.data.contact;
+      detailEmpty.style.display = 'none'; detail.style.display = '';
+      detail.innerHTML = `
+        <h3>${escapeHtml(c.subject || 'Contact message')}</h3>
+        <div class="meta">Sent: ${new Date(c.createdAt).toLocaleString()}</div>
+        <div style="margin-top:12px"><strong>Name:</strong> ${escapeHtml(c.name || '')}</div>
+        <div><strong>Email:</strong> ${escapeHtml(c.email || '')}</div>
+        <div><strong>Phone:</strong> ${escapeHtml(c.phone || '')}</div>
+        <div style="margin-top:12px"><strong>Message</strong><div style="white-space:pre-wrap;margin-top:8px">${escapeHtml(c.message)}</div></div>
+        <div style="margin-top:12px" class="meta">IP: ${escapeHtml(c.ip||'')} • Source: ${escapeHtml(c.source||'')}</div>
+        <div style="margin-top:12px;display:flex;gap:8px;align-items:center">
+          <button id="closeBtn" class="btn primary">Mark closed</button>
+          <button id="deleteDetailBtn" class="btn" style="background:#fff;border:1px solid #f3d6d6;color:var(--danger)">Delete</button>
+        </div>
+      `;
+
+      document.getElementById('closeBtn').addEventListener('click', async ()=> {
+        const rr = await apiFetchPath('/' + encodeURIComponent(id) + '/close', { method: 'PUT' });
+        if (rr.ok) {
+          await loadList();
+          detailEmpty.style.display = 'block'; detail.style.display = 'none';
+        } else alert('Failed to close');
+      });
+
+      document.getElementById('deleteDetailBtn').addEventListener('click', async ()=> {
+        if (!confirm('Delete this contact message? This action cannot be undone.')) return;
+        const rr = await apiFetchPath('/' + encodeURIComponent(id), { method: 'DELETE' });
+        if (!rr.ok) {
+          alert((rr.data && rr.data.message) ? rr.data.message : 'Failed to delete');
+          return;
+        }
+        contacts = contacts.filter(c => String(c._id) !== String(id));
+        renderList(searchInput.value || '');
+        countMeta.textContent = `${contacts.length} total messages`;
+        detailEmpty.style.display = 'block'; detail.style.display = 'none';
+      });
+    }
+
+    // socket realtime updates
+    function initSocket() {
+      if (!window.io) {
+        const s = document.createElement('script');
+        s.src = (API_BASE ? (API_BASE + '/socket.io/socket.io.js') : '') || 'https://cdn.socket.io/4.6.1/socket.io.min.js';
+        s.onload = initSocket;
+        s.onerror = ()=> console.warn('socket load failed');
+        document.head.appendChild(s);
+        return;
+      }
+      const socket = io(API_BASE || '/', { auth: { token }, transports: ['websocket','polling'] });
+      socket.on('connect', ()=> socket.emit('identify', { role: 'admin' }));
+      socket.on('contacts.new', (d) => {
+        if (d && d.contact) {
+          contacts.unshift(d.contact);
+          countMeta.textContent = (d.total || contacts.length) + ' total messages';
+          renderList(searchInput.value || '');
+        } else { loadList(); }
+      });
+      socket.on('contacts.deleted', (d) => {
+        if (!d) return;
+        contacts = contacts.filter(c => String(c._id) !== String(d.id));
+        countMeta.textContent = (d.total != null) ? (d.total + ' total messages') : (contacts.length + ' total messages');
+        renderList(searchInput.value || '');
+      });
+      socket.on('disconnect', ()=> console.warn('socket disconnected'));
+    }
+
+    // UI wiring
+    searchInput.addEventListener('input', ()=> renderList(searchInput.value || ''));
+    refreshBtn.addEventListener('click', ()=> loadList());
+
+    (async function init(){
+      await loadList();
+      initSocket();
+      setInterval(()=> loadList(), 20000); // polling fallback
+    })();
+
+    window.__admin_contacts = { loadList, loadDetail };
+  })();
+  </script>
+</body>
+</html>
