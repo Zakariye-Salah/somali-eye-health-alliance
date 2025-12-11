@@ -611,8 +611,9 @@
             source: 'developer-contact'
           };
 
-          const API_BASE = (location.hostname === '127.0.0.1' || location.hostname === 'localhost') ? 'http://localhost:4000' : '';
-          const res = await fetch((API_BASE || '') + '/api/developer-contacts', {
+          const API_BASE = (location.hostname === 'localhost' || location.hostname === '127.0.0.1') 
+  ? 'http://localhost:4000' 
+  : 'https://somali-eye-health-alliance.onrender.com';          const res = await fetch((API_BASE || '') + '/api/developer-contacts', {
             method:'POST',
             headers:{'Content-Type':'application/json'},
             body: JSON.stringify(payload)
