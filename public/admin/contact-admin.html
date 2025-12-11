@@ -52,7 +52,9 @@
 
   <script>
   (function(){
-    const API_BASE = (location.hostname === 'localhost' || location.hostname === '127.0.0.1') ? 'http://localhost:4000' : '';
+    const API_BASE = (location.hostname === 'localhost' || location.hostname === '127.0.0.1') 
+  ? 'http://localhost:4000' 
+  : 'https://somali-eye-health-alliance.onrender.com';
     const token = localStorage.getItem('seha_token');
     // header injection (same as public contact)
 
