@@ -1,9 +1,8 @@
 // donate.js
 (() => {
-const API_BASE = (location.hostname === 'localhost' || location.hostname === '127.0.0.1') 
+  const API_BASE = (location.hostname === 'localhost' || location.hostname === '127.0.0.1') 
   ? 'http://localhost:4000' 
-  : 'https://somali-eye-health-alliance.onrender.com';
-  const donateForm = document.getElementById('donateForm');
+  : 'https://somali-eye-health-alliance.onrender.com';  const donateForm = document.getElementById('donateForm');
   const donateMsg = document.getElementById('donateMsg');
   const presetBtns = Array.from(document.querySelectorAll('.amt'));
   const customInput = document.getElementById('customAmount');
