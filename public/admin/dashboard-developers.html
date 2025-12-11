@@ -76,9 +76,10 @@
 
 <script>
 (async function(){
-  const API_BASE = (location.hostname === 'localhost' || location.hostname === '127.0.0.1') 
-  ? 'http://localhost:4000' 
-  : 'https://somali-eye-health-alliance.onrender.com';
+  const API_BASE = (location.hostname === 'localhost' || location.hostname === '127.0.0.1')
+  ? 'http://localhost:4000'
+  : 'https://somali-eye-health-alliance-biaj.onrender.com';
+
   // prefer authoritative stored user when possible
   const ADMIN_TOKEN = localStorage.getItem('seha_token');
   const storedUser = (function(){ try { return JSON.parse(localStorage.getItem('seha_user') || 'null'); } catch(e){ return null } })();
