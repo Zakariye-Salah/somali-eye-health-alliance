@@ -435,9 +435,10 @@
 <script>
 (function(){
   // remove server usage: use local only
-  const API_BASE = (location.hostname === 'localhost' || location.hostname === '127.0.0.1') 
-  ? 'http://localhost:4000' 
-  : 'https://somali-eye-health-alliance.onrender.com';
+  const API_BASE = (location.hostname === 'localhost' || location.hostname === '127.0.0.1')
+  ? 'http://localhost:4000'
+  : 'https://somali-eye-health-alliance-biaj.onrender.com';
+
   // LOCAL_OPPS only — the page will not request the server for listings
   const LOCAL_OPPS = [
     {
