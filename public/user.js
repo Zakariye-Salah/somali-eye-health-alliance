@@ -1,9 +1,10 @@
 /* user.js — core UI/auth helpers (improved, backoff-aware) */
 
 /* CONFIG */
-const API_BASE = (location.hostname === 'localhost' || location.hostname === '127.0.0.1') 
-? 'http://localhost:4000' 
-: 'https://somali-eye-health-alliance.onrender.com';
+const API_BASE = (location.hostname === 'localhost' || location.hostname === '127.0.0.1')
+  ? 'http://localhost:4000'
+  : 'https://somali-eye-health-alliance-biaj.onrender.com';
+
 
 /* Global backoff state (shared with help widget) */
 window.__seha_backoffUntil = window.__seha_backoffUntil || 0;
