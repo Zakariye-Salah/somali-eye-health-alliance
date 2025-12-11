@@ -787,9 +787,10 @@ z-index: 2500;
 <!-- Your JS (keeps behavior: admin badge insertion, socket updates, form submit). -->
 <script>
 (function(){
-  const API_BASE = (location.hostname === 'localhost' || location.hostname === '127.0.0.1') 
-  ? 'http://localhost:4000' 
-  : 'https://somali-eye-health-alliance.onrender.com';  const token = localStorage.getItem('seha_token');
+  const API_BASE = (location.hostname === 'localhost' || location.hostname === '127.0.0.1')
+  ? 'http://localhost:4000'
+  : 'https://somali-eye-health-alliance-biaj.onrender.com';
+const token = localStorage.getItem('seha_token');
 
   // Highlight nav active (if you have a dedicated link id)
   try {
