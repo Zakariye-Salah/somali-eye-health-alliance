@@ -1229,16 +1229,16 @@ const hambBtn = document.getElementById('hambBtn');
   // list of resources (images, infographics, reports, videos)
   // update these filenames to match your real files.
   const RESOURCES = [
-    { id: 1, type: 'Photo', src: 'images/resource1.png', title: 'Outreach day — Hargeisa', file: 'images/resource1.png' },
-    { id: 2, type: 'Photo', src: 'images/resource2.png', title: 'Community screening — Borama', file: 'images/resource2.png' },
+    { id: 1, type: 'Photo', src: 'images/mamo.jpeg', title: 'Outreach day — Hargeisa', file: 'images/resource1.png' },
+    { id: 2, type: 'Photo', src: 'images/screening3.jpeg', title: 'Community screening — Borama', file: 'images/screening3.jpeg' },
     { id: 3, type: 'Photo', src: 'images/resource3.png', title: 'Volunteer training', file: 'images/resource3.png' },
     { id: 4, type: 'Infographic', src: 'images/resource4.png', title: 'Vision week infographic', file: 'images/resource4.png' },
     { id: 5, type: 'Report', src: 'images/resource5.png', title: 'Annual report snapshot', file: 'files/SEHA-Annual-Report-2025.pdf', download: true },
-    { id: 6, type: 'Photo', src: 'images/resource6.png', title: 'School screening', file: 'images/resource6.png' },
+    { id: 6, type: 'Photo', src: 'images/schoolscreen1.jpeg', title: 'School screening', file: 'images/schoolscreen1.jpeg' },
     { id: 7, type: 'Photo', src: 'images/resource7.png', title: 'Optical workshop setup', file: 'images/resource7.png' },
     { id: 8, type: 'Infographic', src: 'images/resource8.png', title: 'Referral pathway', file: 'images/resource8.png' },
     { id: 9, type: 'Video', src: 'images/video1-thumb.png', title: 'Field highlights (video)', file: 'videos/resource1.mp4', video: true },
-    { id:10, type: 'Photo', src: 'images/resource10.png', title: 'Surgical mentorship', file: 'images/resource10.png' },
+    { id:10, type: 'Photo', src: 'images/surgerical2.jpeg', title: 'Surgical mentorship', file: 'images/resource10.png' },
     { id:11, type: 'Photo', src: 'images/resource11.png', title: 'Community Eye Day', file: 'images/resource11.png' },
     { id:12, type: 'Report', src: 'images/resource12.png', title: 'Screening toolkit', file: 'files/Community-Screening-Toolkit.zip', download: true }
   ];
