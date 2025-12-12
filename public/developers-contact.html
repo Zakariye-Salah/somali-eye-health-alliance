@@ -1,0 +1,699 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Contact Developer — Sahan Soft</title>
+
+  <!-- favicon (use your provided image) -->
+  <link rel="icon" href="images/sahansoft_favicon.png" />
+
+  <style>
+    :root{
+      --primary:#0f766e;
+      --accent:#2dd4bf;
+      --bg:#f6f8fb;
+      --panel:#ffffff;
+      --muted:#6b7280;
+      --text:#0b1220;
+      --glass: rgba(15,118,110,0.06);
+      --glass-2: rgba(11,18,32,0.04);
+      --card-radius:12px;
+      --max-width:1180px;
+    }
+    [data-theme="dark"]{
+      --bg: #071025;
+      --panel: #08121a;
+      --muted: #9aa4ad;
+      --text: #e6eef6;
+      --glass: rgba(255,255,255,0.04);
+      --glass-2: rgba(255,255,255,0.03);
+    }
+
+    *{box-sizing:border-box}
+    html,body{height:100%;margin:0;background:var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Arial;-webkit-font-smoothing:antialiased}
+    .container{max-width:var(--max-width);margin:28px auto;padding:20px}
+
+    /* header */
+    header.site-header{display:flex;align-items:center;justify-content:space-between;background:var(--panel);padding:12px 18px;border-radius:var(--card-radius);box-shadow:0 10px 30px rgba(2,6,23,0.06);gap:12px}
+    .brand{display:flex;gap:14px;align-items:center}
+    .logo{width:64px;height:64px;border-radius:12px;object-fit:cover;display:block}
+    .org-name{font-weight:900;font-size:20px;margin:0}
+    .org-sub{font-size:13px;color:var(--muted)}
+    .header-controls{display:flex;gap:8px;align-items:center}
+
+    .btn{padding:10px 14px;border-radius:10px;border:0;cursor:pointer;font-weight:800;background:linear-gradient(90deg,var(--primary),var(--accent));color:#fff;transition:transform .18s ease,opacity .18s;box-shadow:0 6px 18px rgba(15,118,110,0.08)}
+    .btn.ghost{background:transparent;color:var(--text);border:1px solid var(--glass);box-shadow:none}
+    .icon-btn{background:transparent;border:0;color:var(--muted);cursor:pointer;padding:8px;border-radius:8px}
+    .pill{background:var(--glass);padding:6px 8px;border-radius:999px;font-weight:700;color:var(--text)}
+
+    /* Rotator (flip-top) */
+    .rotator { display:inline-block; height:28px; overflow:hidden; vertical-align:middle; perspective:800px; margin-left:8px; }
+    .rotator-item { display:block; transform-origin: 50% 0%; backface-visibility: hidden; will-change: transform, opacity; font-weight:900; color:var(--primary); font-size:14px; line-height:28px; }
+    .flip-in { animation: flipIn .45s ease forwards; }
+    .flip-out { animation: flipOut .45s ease forwards; }
+    @keyframes flipIn { 0%{ transform: rotateX(90deg) translateY(6px); opacity:0 } 60%{ transform: rotateX(-6deg) translateY(-4px); opacity:1 } 100%{ transform: rotateX(0deg) translateY(0); opacity:1 } }
+    @keyframes flipOut { 0%{ transform: rotateX(0deg) translateY(0); opacity:1 } 100%{ transform: rotateX(-90deg) translateY(-8px); opacity:0 } }
+
+    /* layout */
+    .hero{display:grid;grid-template-columns:1fr 420px;gap:20px;margin-top:18px;align-items:start}
+    @media (max-width:980px){ .hero{grid-template-columns:1fr} }
+
+    .card{background:var(--panel);padding:20px;border-radius:var(--card-radius);box-shadow:0 16px 40px rgba(2,6,23,0.06);transition:transform .22s ease,box-shadow .22s}
+    .card:hover{transform:translateY(-6px);box-shadow:0 32px 60px rgba(2,6,23,.08)}
+
+    h1.page-title{margin:0 0 8px 0;font-size:22px;display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+    p.lead{color:var(--muted);margin:8px 0 18px 0;line-height:1.45}
+
+    form.dev-form{display:flex;flex-direction:column;gap:10px}
+    .row{display:flex;gap:10px}
+    .col{flex:1;min-width:0}
+    label{font-size:13px;font-weight:700;margin-bottom:6px;display:block}
+    input,select,textarea{ width:100%;padding:12px;border-radius:10px;border:1px solid var(--glass-2);background:transparent;color:var(--text);outline:none;font-size:14px; transition:box-shadow .12s,transform .12s; }
+    input:focus,select:focus,textarea:focus{box-shadow:0 6px 18px rgba(15,118,110,0.06);transform:translateY(-1px)}
+    textarea{min-height:140px;resize:vertical}
+
+    .form-actions{display:flex;align-items:center;gap:12px;margin-top:6px}
+    .status{min-height:20px;font-weight:700;color:var(--muted);margin-left:6px}
+    .inline-error{color:#ff7b7b;display:none;font-size:13px;margin-top:6px}
+
+    /* dev card */
+    .dev-card{display:flex;flex-direction:column;gap:10px;align-items:center;padding:18px;border-radius:12px;background:linear-gradient(180deg,var(--panel),rgba(0,0,0,0));text-align:center;position:relative;overflow:visible}
+    .dev-photo-wrap{width:140px;height:140px;border-radius:18px;padding:6px;background:linear-gradient(90deg,#e6fffa,#ecfeff);display:flex;align-items:center;justify-content:center;margin-top:-64px;box-shadow:0 18px 50px rgba(2,6,23,0.08)}
+    .dev-card img{width:100%;height:100%;border-radius:14px;object-fit:cover;display:block;transform:translateY(0);transition:transform .45s ease, box-shadow .45s ease;box-shadow:0 10px 28px rgba(2,6,23,0.08)}
+    .dev-card img:hover{transform:translateY(-6px) rotate(-1deg);box-shadow:0 28px 70px rgba(2,6,23,0.14)}
+    .dev-name{font-weight:900;font-size:16px;margin:0}
+    .dev-role{color:var(--muted);font-size:13px}
+    .socials{display:flex;gap:8px;margin-top:6px}
+    .socials a{display:inline-flex;align-items:center;justify-content:center;width:44px;height:44px;border-radius:10px;background:var(--glass);text-decoration:none;border:1px solid var(--glass-2)}
+    .socials img{width:22px;height:22px;display:block;object-fit:contain}
+
+    /* counters */
+    .counters{display:flex;gap:10px;width:100%;justify-content:space-between;margin-top:8px}
+    .counter{flex:1;padding:12px;border-radius:10px;background:linear-gradient(180deg,rgba(15,118,110,0.04),transparent);text-align:center}
+    .counter .num{font-weight:900;font-size:20px}
+    .counter .label{font-size:12px;color:var(--muted);margin-top:6px}
+
+    /* FAQ slide down */
+    .faq-item{border-radius:8px;padding:10px;background:var(--glass);cursor:pointer;overflow:hidden}
+    .faq-q{display:flex;justify-content:space-between;align-items:center;gap:12px;font-weight:800;border:0;background:transparent;width:100%;text-align:left;padding:0}
+    .faq-q .sign{display:inline-block;width:26px;height:26;border-radius:6px;background:transparent;border:1px solid rgba(0,0,0,0.06);display:flex;align-items:center;justify-content:center;font-weight:900}
+    .faq-a{max-height:0;overflow:hidden;padding-top:0;opacity:0;transition: max-height .36s ease, opacity .2s ease, padding-top .2s ease}
+    .faq-a.open{max-height:600px;padding-top:8px;opacity:1}
+
+    /* modal */
+    .modal-wrap{display:none;position:fixed;inset:0;align-items:center;justify-content:center;background:rgba(2,6,23,0.46);z-index:2200;padding:20px}
+    .modal{width:100%;max-width:920px;background:var(--panel);border-radius:12px;padding:18px;box-shadow:0 30px 80px rgba(2,6,23,0.25);color:var(--text);outline:none}
+    .modal .top-center{text-align:center}
+    .modal .modal-content{margin-top:14px}
+    .modal .modal-content .muted{color:var(--muted)}
+
+    /* footer */
+    .seha-footer{margin-top:28px;background:transparent;padding-top:18px}
+    .seha-footer-inner{display:flex;gap:18px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+    .seha-brand{display:flex;gap:12px;align-items:center}
+    .seha-footer-logo{height:40px;border-radius:8px}
+    .seha-copy{font-size:14px}
+    .seha-org{font-weight:800}
+    .seha-muted{color:var(--muted)}
+    .seha-contact{display:flex;flex-direction:column;gap:6px;align-items:flex-end}
+    .contact-icons{display:flex;gap:8px}
+    .contact-icons .icon-btn img{width:28px;height:28px;display:block}
+
+    /* responsiveness */
+    @media (max-width:760px){
+      .hero{grid-template-columns:1fr}
+      .seha-contact{align-items:center}
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header class="site-header" id="siteHeader">
+      <div class="brand">
+        <!-- primary logo for light; JS will swap to dark logo on dark mode -->
+        <img class="logo" id="brandLogo" src="images/sahansoft_primary.png" alt="Sahan Soft logo">
+        <div>
+          <div class="org-name">Sahan Soft</div>
+          <div class="org-sub">Developer contact — <span id="rotatorContainer"><span id="rotator" class="rotator" aria-hidden="true"><span class="rotator-item" id="rotatorItem"></span></span></span></div>
+        </div>
+      </div>
+
+      <div class="header-controls">
+        <div id="headerActions" class="nav-placeholder"></div>
+
+        <button id="themeToggle" class="btn ghost" title="Toggle theme" aria-pressed="false" style="display:flex;align-items:center;gap:8px">
+          <span id="themeIcon">🌙</span>
+          <span id="themeLabel" style="font-weight:800">Dark</span>
+        </button>
+      </div>
+    </header>
+
+    <main style="margin-top:18px">
+      <div class="hero">
+        <!-- left column -->
+        <div class="card">
+          <h1 class="page-title">Contact the developer <a href="/public/index.html">Back to Home</a></h1>
+          <p class="lead">Briefly describe what you need (features, timeline, budget). We reply quickly via email or WhatsApp with a scoped plan & estimate.</p>
+
+          <form id="devForm" class="dev-form" aria-label="Developer contact form" novalidate>
+            <div class="row">
+              <div class="col">
+                <label for="name">Full name</label>
+                <input id="name" name="name" placeholder="Your full name" autocomplete="name" required>
+                <div class="inline-error" id="err-name">Name required</div>
+              </div>
+              <div class="col">
+                <label for="email">Email</label>
+                <input id="email" name="email" type="email" placeholder="you@example.com" autocomplete="email" required>
+                <div class="inline-error" id="err-email">Valid email required</div>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col">
+                <label for="phone">Phone</label>
+                <input id="phone" name="phone" placeholder="+252 61 ..." autocomplete="tel">
+              </div>
+              <div class="col">
+                <label for="whatsapp">WhatsApp</label>
+                <input id="whatsapp" name="whatsapp" placeholder="+252 61 ...">
+              </div>
+            </div>
+
+            <label for="project">Type of project</label>
+            <select id="project" name="project">
+              <option>Website</option>
+              <option>Web application / dashboard</option>
+              <option>Mobile app (Android/iOS)</option>
+              <option>Integration / API</option>
+              <option>Monitoring & Evaluation</option>
+              <option>Other</option>
+            </select>
+
+            <label for="message">Short description</label>
+            <textarea id="message" name="message" placeholder="Describe features, target users, timeline, budget..."></textarea>
+
+            <div class="form-actions">
+              <button class="btn" id="sendBtn" type="submit">Send to developer</button>
+              <button class="btn ghost" type="button" id="clearBtn">Clear</button>
+              <div id="formStatus" class="status" aria-live="polite"></div>
+            </div>
+          </form>
+
+          <!-- FAQ -->
+          <section style="margin-top:18px">
+            <h3 style="margin:0 0 10px 0">FAQ</h3>
+            <div style="display:grid;gap:8px" id="mainFaq">
+              <div class="faq-item" data-target="faq1">
+                <button class="faq-q" type="button">What services do you offer? <span class="sign">+</span></button>
+                <div id="faq1" class="faq-a">Websites, dashboards, mobile apps, integrations, hosting, maintenance and staff training.</div>
+              </div>
+
+              <div class="faq-item" data-target="faq2">
+                <button class="faq-q" type="button">How long does a project take? <span class="sign">+</span></button>
+                <div id="faq2" class="faq-a">Small sites: 1–3 weeks. Dashboards/apps: 2–8 weeks depending on complexity.</div>
+              </div>
+
+              <div class="faq-item" data-target="faq3">
+                <button class="faq-q" type="button">Do you support data migration? <span class="sign">+</span></button>
+                <div id="faq3" class="faq-a">Yes — CSV/Excel/JSON imports and scripted migrations with verification checks.</div>
+              </div>
+
+              <div class="faq-item" data-target="faq4">
+                <button class="faq-q" type="button">What about security & privacy? <span class="sign">+</span></button>
+                <div id="faq4" class="faq-a">We follow secure defaults, HTTPS, role-based access, input validation, and can sign NDAs.</div>
+              </div>
+            </div>
+          </section>
+        </div>
+
+        <!-- right column -->
+        <aside>
+          <div class="card dev-card" aria-label="Developer profile">
+            <div class="dev-photo-wrap" aria-hidden="true">
+              <img id="devPhoto" src="images/developer.png" alt="Developer photo" loading="lazy">
+            </div>
+            <div class="dev-name">Zakariye Salah Ali</div>
+            <div class="dev-role">Full-stack developer — Web & Mobile</div>
+            <div style="font-size:14px;color:var(--muted);text-align:center">I build accessible, secure dashboards and apps for health programmes. Prototype fast, then scale — hosting, maintenance, and training included.</div>
+
+            <div class="socials" style="width:100%;justify-content:center">
+              <a href="https://wa.me/252617125558" title="WhatsApp" target="_blank" rel="noopener"><img src="images/whatsapp.png" alt="WhatsApp"></a>
+              <a href="https://www.facebook.com/share/17ekgm22nj/" title="Facebook" target="_blank" rel="noopener"><img src="images/facebook.png" alt="Facebook"></a>
+              <a href="https://x.com/EngZaki373545" title="X / Twitter" target="_blank" rel="noopener"><img src="images/x.png" alt="X / Twitter"></a>
+              <a href="mailto:Devloperloop@gmail.com" title="Email"><img src="images/gmail.png" alt="Email"></a>
+            </div>
+
+            <div class="counters" style="margin-top:10px">
+              <div class="counter"><div class="num" data-target="124" aria-hidden="true">0</div><div class="label">Projects built</div></div>
+              <div class="counter"><div class="num" data-target="120">0</div><div class="label">Happy clients</div></div>
+              <div class="counter"><div class="num" data-target="6">0</div><div class="label">Years experience</div></div>
+            </div>
+
+            <div style="display:flex;gap:82px;margin-top:10px">
+              <a class="btn ghost" href="https://wa.me/252617125558" target="_blank" rel="noopener">WhatsApp</a>
+              <a class="btn" href="mailto:Devloperloop@gmail.com">Email</a>
+            </div>
+
+            <p style="margin-top:10px;font-size:13px;color:var(--muted)">Prefer WhatsApp for quick responses: <a href="https://wa.me/252617125558" target="_blank">+252 61 7125558</a></p>
+            <p style="margin-top:6px"><a href="#" id="openDevProfile">Full profile & FAQ</a></p>
+          </div>
+        </aside>
+      </div>
+
+      <!-- footer -->
+      <footer class="seha-footer" role="contentinfo">
+        <div class="seha-footer-inner">
+          <div class="seha-brand">
+            <img id="footerLogo" src="images/sahansoft_primary.png" alt="Sahan Soft" class="seha-footer-logo">
+            <div class="seha-copy">
+              <div class="seha-org">Sahan Soft</div>
+              <div class="seha-muted">© 2026 Sahan Soft</div>
+            </div>
+          </div>
+
+          <div class="seha-contact" aria-label="Get in touch">
+            <div class="contact-label seha-muted">Get in touch</div>
+            <div class="contact-icons" role="list">
+              <a class="icon-btn" role="listitem" href="https://wa.me/252617125558" target="_blank" rel="noopener" aria-label="WhatsApp">
+                <img src="images/whatsapp.png" alt="WhatsApp">
+              </a>
+
+              <a class="icon-btn" role="listitem" href="mailto:Devloperloop@gmail.com" aria-label="Email">
+                <img src="images/gmail.png" alt="Email">
+              </a>
+
+              <a class="icon-btn" role="listitem" href="https://www.facebook.com/share/17ekgm22nj/" target="_blank" rel="noopener" aria-label="Facebook">
+                <img src="images/facebook.png" alt="Facebook">
+              </a>
+
+              <a class="icon-btn" role="listitem" href="https://x.com/EngZaki373545" target="_blank" rel="noopener" aria-label="X / Twitter">
+                <img src="images/x.png" alt="X">
+              </a>
+            </div>
+          </div>
+        </div>
+      </footer>
+    </main>
+  </div>
+
+  <!-- profile modal (expanded) -->
+  <div id="devModal" class="modal-wrap" role="dialog" aria-modal="true" aria-hidden="true">
+    <div class="modal" role="document" tabindex="-1">
+      <div class="top-center">
+        <div class="dev-photo-wrap" style="margin:0 auto 8px">
+          <img src="images/developer.png" alt="Developer" style="width:120px;height:120px;border-radius:12px;object-fit:cover">
+        </div>
+        <div style="font-weight:900">Zakariye Salah Ali</div>
+        <div class="muted" style="font-size:13px">Full-stack developer</div>
+        <div style="margin-top:8px">
+          <button id="modalCloseBtn" class="btn ghost" style="margin-top:8px">Close</button>
+        </div>
+      </div>
+
+      <div class="modal-content">
+        <h4 style="margin-top:10px">About</h4>
+        <p class="muted">I build production-ready sites and admin dashboards — accessible, mobile-first and secure. Hosting and maintenance available.</p>
+
+        <h4 style="margin-top:12px">FAQ</h4>
+        <div id="modalFaq" style="display:grid;gap:8px">
+          <div class="faq-item" data-target="mf1">
+            <button class="faq-q" type="button">What services? <span class="sign">+</span></button>
+            <div id="mf1" class="faq-a">Websites, dashboards, mobile apps, integrations, hosting & maintenance, training.</div>
+          </div>
+          <div class="faq-item" data-target="mf2">
+            <button class="faq-q" type="button">How long? <span class="sign">+</span></button>
+            <div id="mf2" class="faq-a">2–8 weeks depending on features; prototypes in 3–7 days.</div>
+          </div>
+          <div class="faq-item" data-target="mf3">
+            <button class="faq-q" type="button">Costs? <span class="sign">+</span></button>
+            <div id="mf3" class="faq-a">Prototypes USD 400–1,200; small apps 2k–6k; dashboards 3k–10k.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function(){
+      // --------------------------
+      // ROTATOR (flip-top)
+      // --------------------------
+      // pairs: [Somali, English] -> display Somali then English for each pair
+      const pairs = [
+        ["La Xiriir","Contact Us"],
+        ["Na Wac","Call Us"],
+        ["Bilow Hadda","Start Now"],
+        ["Codso Qiime","Request Quote"],
+        ["Nala Shaqee","Work Together"],
+        ["Na Xulo","Choose Us"],
+        ["Amaan Leh","Secure"],
+        ["Kalsooni Leh","Trusted"],
+        ["Badbaado Wanaagsan","Safe Service"],
+        ["Ilaali Nidaam","Protect System"],
+        ["Xog Qarsoodi","Private Data"],
+        ["Adeeg Wacan","Excellent Service"],
+        ["Xirfad Leh","Professional"],
+        ["Hirgelin Degdeg","Fast Launch"],
+        ["Xal Dhammeystiran","Complete Solution"],
+        ["Taageero Joogto","Ongoing Support"],
+        ["Horumar Joogto","Continuous Growth"],
+        ["Xawaare Sare","High Speed"],
+        ["Naqshad Casri","Modern Design"],
+        ["Isticmaal Fudud","Easy Use"],
+        ["Awood Leh","Powerful"],
+        ["Guul Wadajir","Success Together"],
+        ["Fursad Cusub","New Opportunity"],
+        ["Sumcad Sare","Strong Reputation"]
+      ];
+
+      const rotatorItem = document.getElementById('rotatorItem');
+      let pairIndex = 0;
+      let showEnglish = false; // show Somali first, then english
+      const intervalMs = 1500;
+
+      function setRotatorText(text){
+        // animate: if currently visible flip-out then flip-in new
+        if (rotatorItem.classList.contains('flip-in')) {
+          rotatorItem.classList.remove('flip-in');
+          rotatorItem.classList.add('flip-out');
+          setTimeout(()=> {
+            rotatorItem.classList.remove('flip-out');
+            rotatorItem.textContent = text;
+            rotatorItem.classList.add('flip-in');
+          }, 260);
+        } else {
+          rotatorItem.textContent = text;
+          rotatorItem.classList.add('flip-in');
+        }
+      }
+
+      // start rotator loop
+      setRotatorText(pairs[0][0]);
+      let rotatorTimer = setInterval(()=> {
+        const currentPair = pairs[pairIndex % pairs.length] || ["",""];
+        const text = showEnglish ? currentPair[1] : currentPair[0];
+        setRotatorText(text);
+        if (showEnglish) {
+          pairIndex++;
+          showEnglish = false;
+        } else {
+          showEnglish = true;
+        }
+      }, intervalMs);
+
+      // --------------------------
+      // THEME handling + logo swapping
+      // --------------------------
+      const root = document.documentElement;
+      const themeToggle = document.getElementById('themeToggle');
+      const themeIcon = document.getElementById('themeIcon');
+      const themeLabel = document.getElementById('themeLabel');
+      const brandLogo = document.getElementById('brandLogo');
+      const footerLogo = document.getElementById('footerLogo');
+
+      function applyTheme(t){
+        if(t === 'dark'){
+          root.setAttribute('data-theme','dark');
+          themeToggle.setAttribute('aria-pressed','true');
+          themeIcon.textContent='☀️';
+          themeLabel.textContent='Light';
+          // swap to dark logo if available
+          brandLogo.src = 'images/sahansoft_dark.png';
+          footerLogo.src = 'images/sahansoft_dark.png';
+        } else {
+          root.removeAttribute('data-theme');
+          themeToggle.setAttribute('aria-pressed','false');
+          themeIcon.textContent='🌙';
+          themeLabel.textContent='Dark';
+          brandLogo.src = 'images/sahansoft_primary.png';
+          footerLogo.src = 'images/sahansoft_primary.png';
+        }
+        localStorage.setItem('seha_theme', t);
+      }
+
+      const savedTheme = localStorage.getItem('seha_theme');
+      if(savedTheme) applyTheme(savedTheme);
+      else {
+        const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+        applyTheme(prefersDark ? 'dark' : 'light');
+      }
+      themeToggle.addEventListener('click', ()=> applyTheme(root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark'));
+
+      // --------------------------
+      // ADMIN BUTTON (superadmin only)
+      // Uses window.__ADMIN_CONTACTS_ROOT if set
+      // --------------------------
+      (function insertAdminBtn(){
+        const token = localStorage.getItem('seha_token');
+        const storedUser = (function(){ try { return JSON.parse(localStorage.getItem('seha_user') || 'null'); } catch(e){ return null } })();
+        const role = storedUser && storedUser.role ? storedUser.role : localStorage.getItem('seha_role');
+        if (!token || role !== 'superadmin') return;
+        const container = document.getElementById('headerActions');
+        if (!container) return;
+        if (document.getElementById('adminContactsBtn')) return;
+        const btn = document.createElement('button');
+        btn.id = 'adminContactsBtn';
+        btn.className = 'btn ghost';
+        btn.textContent = 'Contacts (Developer)';
+        btn.style.border = '1px solid rgba(15,118,110,0.12)';
+        btn.style.background = 'transparent';
+        btn.addEventListener('click', (e)=>{
+          e.preventDefault();
+          // allow caller to set root path
+          const rootPath = window.__ADMIN_CONTACTS_ROOT || 'dashboard-developers.html';
+          window.location.href = rootPath;
+        });
+        container.appendChild(btn);
+      })();
+
+      // --------------------------
+      // Accordion logic: main FAQ and modal FAQ (only one open at a time)
+      // --------------------------
+      function wireAccordion(containerSelector){
+        const container = document.querySelector(containerSelector);
+        if (!container) return;
+        const items = Array.from(container.querySelectorAll('.faq-item'));
+        items.forEach(item => {
+          const btn = item.querySelector('.faq-q');
+          const sign = item.querySelector('.sign');
+          const targetId = item.dataset.target;
+          const ans = targetId ? document.getElementById(targetId) : item.querySelector('.faq-a');
+          if (!btn || !ans) return;
+          btn.setAttribute('aria-expanded','false');
+          ans.setAttribute('aria-hidden','true');
+
+          btn.addEventListener('click', (ev) => {
+            ev.preventDefault();
+            const isOpen = ans.classList.contains('open');
+            // close all
+            items.forEach(i => {
+              const aId = i.dataset.target;
+              const aEl = aId ? document.getElementById(aId) : i.querySelector('.faq-a');
+              const qBtn = i.querySelector('.faq-q');
+              const qSign = i.querySelector('.sign');
+              if (aEl) { aEl.classList.remove('open'); aEl.setAttribute('aria-hidden','true'); }
+              if (qBtn) qBtn.setAttribute('aria-expanded','false');
+              if (qSign) qSign.textContent = '+';
+            });
+            if (!isOpen) {
+              ans.classList.add('open');
+              ans.setAttribute('aria-hidden','false');
+              btn.setAttribute('aria-expanded','true');
+              if (sign) sign.textContent = '−';
+              // scroll into view slightly for mobile
+              if (window.innerWidth < 700) ans.scrollIntoView({behavior:'smooth', block:'center'});
+            }
+          });
+        });
+      }
+      wireAccordion('#mainFaq');
+      wireAccordion('#modalFaq');
+
+      // --------------------------
+      // Modal: open/close + focus trap + Esc handler
+      // --------------------------
+      const devModalWrap = document.getElementById('devModal');
+      const modalEl = devModalWrap.querySelector('.modal');
+      const openProfileBtn = document.getElementById('openDevProfile');
+      const modalCloseBtn = document.getElementById('modalCloseBtn');
+
+      let lastFocusedBeforeModal = null;
+      let cleanupFocusTrap = null;
+
+      function trapFocus(modal){
+        const focusable = modal.querySelectorAll('a[href], button:not([disabled]), textarea, input, select, [tabindex]:not([tabindex="-1"])');
+        const focusableArr = Array.prototype.slice.call(focusable);
+        if (focusableArr.length === 0) return function(){};
+        const first = focusableArr[0];
+        const last = focusableArr[focusableArr.length - 1];
+
+        function handleKey(e){
+          if (e.key === 'Tab') {
+            if (e.shiftKey) {
+              if (document.activeElement === first) {
+                e.preventDefault();
+                last.focus();
+              }
+            } else {
+              if (document.activeElement === last) {
+                e.preventDefault();
+                first.focus();
+              }
+            }
+          } else if (e.key === 'Escape') {
+            e.preventDefault();
+            closeModal();
+          }
+        }
+        modal.addEventListener('keydown', handleKey);
+        return function cleanup(){ modal.removeEventListener('keydown', handleKey); };
+      }
+
+      function openModal(){
+        lastFocusedBeforeModal = document.activeElement;
+        devModalWrap.style.display = 'flex';
+        devModalWrap.setAttribute('aria-hidden','false');
+        // close all modal FAQ answers and set plus signs
+        document.querySelectorAll('#modalFaq .faq-a').forEach(a => a.classList.remove('open'));
+        document.querySelectorAll('#modalFaq .sign').forEach(s => s.textContent = '+');
+        // focus close button (keyboard users can tab)
+        modalCloseBtn.focus();
+        cleanupFocusTrap = trapFocus(modalEl);
+      }
+
+      function closeModal(){
+        devModalWrap.style.display = 'none';
+        devModalWrap.setAttribute('aria-hidden','true');
+        if (cleanupFocusTrap) cleanupFocusTrap();
+        if (lastFocusedBeforeModal && lastFocusedBeforeModal.focus) lastFocusedBeforeModal.focus();
+      }
+
+      if (openProfileBtn) openProfileBtn.addEventListener('click', function(e){ e.preventDefault(); openModal(); });
+      if (modalCloseBtn) modalCloseBtn.addEventListener('click', function(){ closeModal(); });
+
+      // close when clicking backdrop
+      devModalWrap.addEventListener('click', function(e){
+        if (e.target === devModalWrap) closeModal();
+      });
+
+      // --------------------------
+      // Form handling (validation + POST)
+      // --------------------------
+      const form = document.getElementById('devForm');
+      const status = document.getElementById('formStatus');
+      const sendBtn = document.getElementById('sendBtn');
+
+      function resetErrors(){ document.querySelectorAll('.inline-error').forEach(e=>e.style.display='none'); }
+      function validate(){
+        resetErrors();
+        let ok = true;
+        if (!form.name.value.trim()){ document.getElementById('err-name').style.display='block'; ok=false; }
+        const emailVal = (form.email.value||'').trim();
+        if (!emailVal || !/^\S+@\S+\.\S+$/.test(emailVal)){ document.getElementById('err-email').style.display='block'; ok=false; }
+        return ok;
+      }
+
+      form.addEventListener('submit', async (e)=>{
+        e.preventDefault();
+        if (!validate()){ status.textContent = 'Please fix fields.'; status.style.color = '#ff7b7b'; return; }
+        status.textContent = 'Sending…'; status.style.color = ''; sendBtn.disabled = true;
+
+        try {
+          const payload = {
+            name: form.name.value.trim(),
+            email: form.email.value.trim(),
+            phone: form.phone.value.trim() || null,
+            whatsapp: form.whatsapp.value.trim() || null,
+            project: form.project.value,
+            message: form.message.value.trim(),
+            source: 'developer-contact'
+          };
+
+          const API_BASE = (location.hostname === 'localhost' || location.hostname === '127.0.0.1')
+  ? 'http://localhost:4000'
+  : 'https://somali-eye-health-alliance-biaj.onrender.com';
+
+  const res = await fetch((API_BASE || '') + '/api/developer-contacts', {
+            method:'POST',
+            headers:{'Content-Type':'application/json'},
+            body: JSON.stringify(payload)
+          });
+
+          const json = await res.json().catch(()=>null);
+
+          if (!res.ok) {
+            status.textContent = (json && (json.message || (json.errors && json.errors.map(x => x.msg).join(', ')))) ? (json.message || json.errors.map(x=>x.msg).join(', ')) : 'Failed to send';
+            status.style.color = '#ff7b7b';
+            sendBtn.disabled = false;
+            return;
+          }
+
+          status.textContent = 'Sent — thank you! We will reply shortly.';
+          status.style.color = '';
+          form.classList.add('pulse-ok');
+          setTimeout(()=> form.classList.remove('pulse-ok'), 900);
+          form.reset();
+          setTimeout(()=> status.textContent = '', 6000);
+        } catch (err) {
+          console.error(err);
+          status.textContent = 'Network error — please try later';
+          status.style.color = '#ff7b7b';
+        } finally { sendBtn.disabled = false; }
+      });
+
+      document.getElementById('clearBtn').addEventListener('click', ()=> { form.reset(); resetErrors(); status.textContent = ''; });
+
+      // --------------------------
+      // Counters animation
+      // --------------------------
+      const counters = document.querySelectorAll('.num[data-target]');
+      const easeOut = t => 1 - Math.pow(1 - t, 3);
+      const runCounter = (el, to, duration=1400) => {
+        const start = performance.now();
+        const from = 0;
+        const tick = (ts) => {
+          const elapsed = Math.min(1, (ts - start) / duration);
+          const v = Math.round(from + (to - from) * easeOut(elapsed));
+          el.textContent = v.toLocaleString();
+          if (elapsed < 1) requestAnimationFrame(tick);
+        };
+        requestAnimationFrame(tick);
+      };
+
+      if ('IntersectionObserver' in window) {
+        const io = new IntersectionObserver((entries, obs) => {
+          entries.forEach(entry => {
+            if (!entry.isIntersecting) return;
+            const els = entry.target.querySelectorAll('.num[data-target]');
+            els.forEach(el => {
+              const target = parseInt(el.dataset.target || '0', 10);
+              runCounter(el, target);
+            });
+            obs.unobserve(entry.target);
+          });
+        }, { threshold: 0.4 });
+        const devCard = document.querySelector('.dev-card');
+        if (devCard) io.observe(devCard);
+      } else {
+        counters.forEach(c => runCounter(c, parseInt(c.dataset.target||'0',10)));
+      }
+
+      // entrance animation
+      document.querySelectorAll('.card').forEach((c,i)=> {
+        c.style.opacity = 0;
+        c.style.transform = 'translateY(8px)';
+        setTimeout(()=> { c.style.transition = 'opacity .5s ease,transform .5s ease'; c.style.opacity=1; c.style.transform='translateY(0)'; }, 120 + i*80);
+      });
+
+      // Cleanup on unload
+      window.addEventListener('beforeunload', () => {
+        clearInterval(rotatorTimer);
+      });
+    })();
+  </script>
+
+  <script src="script.js"></script>
+</body>
+</html>
