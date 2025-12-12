@@ -311,11 +311,12 @@
               <label style="margin-top:10px">Choose an amount</label>
               <div id="presetAmounts" style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">
                 <button type="button" class="btn amt" data-amount="10">US$10</button>
-                <button type="button" class="btn amt" data-amount="25">US$25</button>
+                <button type="button" class="btn amt" data-amount="30">US$30</button> <!-- DEFAULT -->
                 <button type="button" class="btn amt" data-amount="50">US$50</button>
                 <button type="button" class="btn amt" data-amount="100">US$100</button>
                 <button type="button" class="btn amt" data-amount="250">US$250</button>
               </div>
+              
 
               <label for="customAmount" style="margin-top:12px">Or enter custom amount (USD)</label>
               <input id="customAmount" name="amount" type="number" min="1" step="1" placeholder="e.g. 75">
@@ -414,37 +415,38 @@
     </div>
   </main>
 
- <!-- FOOTER -->
- <footer class="site-footer" role="contentinfo">
-  <div class="container footer-inner">
-    <div class="footer-col">
-      <img src="images/logo.png" alt="SEHA logo" class="footer-logo">
-      <p class="muted">© 2026 Somali Eye Health Alliance — All Rights Reserved <a href="/public/admin/developers-contact.html">Developers</a></p>
-    </div>
+  <!-- FOOTER -->
+  <footer class="site-footer" role="contentinfo">
+    <div class="container footer-inner">
+      <div class="footer-col">
+        <img src="images/logo.png" alt="SEHA logo" class="footer-logo">
+        <p class="muted">© 2026 Somali Eye Health Alliance — All Rights Reserved <a href="developers-contact.html">Developers</a></p>
+      </div>
 
-    <div class="footer-col">
-      <h4>Quick links</h4>
-      <ul class="small-list footer-links">
-        <li><a href="index.html">Home</a></li>
-        <li><a href="about.html">About Us</a></li>
-        <li><a href="programs.html">Programs</a></li>
-        <li><a href="resources.html">Resources</a></li>
-        <li><a href="membership.html">Membership</a></li>
-        <li><a href="contact.html">Contact</a></li>
-      </ul>
-    </div>
+      <div class="footer-col">
+        <h4>Quick links</h4>
+        <ul class="small-list footer-links">
+          <li><a href="index.html">Home</a></li>
+          <li><a href="about.html">About Us</a></li>
+          <li><a href="programs.html">Programs</a></li>
+          <li><a href="resources.html">Resources</a></li>
+          <li><a href="membership.html">Membership</a></li>
+          <li><a href="contact.html">Contact</a></li>
+        </ul>
+      </div>
 
-    <div class="footer-col">
-      <h4>Contact</h4>
-      <address class="muted">
-        Mogadishu, Somalia<br>
-        info@Somalieyehealthalliance.org <br>
-        +252 61 7000264
-              </address>
+      <div class="footer-col">
+        <h4>Contact</h4>
+        <address class="muted">
+          Mogadishu, Somalia<br>
+          info@Somalieyehealthalliance.org <br>
+          +252 61 7000264
+                </address>
+      </div>
     </div>
-  </div>
-</footer>
+  </footer>
 
   <script src="donate.js"></script>
+  <script src="script.js"></script>
 </body>
 </html>
