@@ -1,0 +1,223 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Developer Contacts — Admin</title>
+<link rel="stylesheet" href="../style.css">
+<style>
+  /* (your original CSS — unchanged) */
+  body{font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial;margin:0;background:#f5f7fb;color:#0b1220}
+  header { background: #071026; color:#fff; padding:12px 16px; display:flex; align-items:center; justify-content:space-between;}
+  header h1{font-size:18px;margin:0}
+  .container{max-width:1100px;margin:18px auto;padding:0 16px}
+  .controls{display:flex;gap:12px;align-items:center;margin-bottom:12px}
+  .search { padding:8px 12px;border-radius:10px;border:1px solid #e6e9ee; width:320px }
+  .btn { padding:8px 12px;border-radius:10px;border:0;cursor:pointer;font-weight:700 }
+  .btn.primary{ background:linear-gradient(90deg,#0f766e,#2dd4bf); color:#fff }
+  .cards{ display:grid; grid-template-columns: repeat(auto-fill,minmax(280px,1fr)); gap:12px; }
+
+  .card { background:#fff;border-radius:12px;padding:12px;box-shadow:0 8px 26px rgba(2,6,23,0.06);transform-origin:center; transition:transform .18s ease, box-shadow .18s; }
+  .card:hover { transform: translateY(-6px); box-shadow:0 22px 44px rgba(2,6,23,0.12); }
+
+  .card .meta { font-size:13px; color:#6b7280; margin-top:8px }
+  .card .actions { display:flex; gap:8px; margin-top:10px }
+  .action-btn { padding:8px 10px;border-radius:8px;border:0;cursor:pointer;font-weight:800 }
+  .view { background:linear-gradient(90deg,#085f54,#2dd4bf); color:#fff }
+  .del { background:#ef4444;color:#fff }
+
+  .muted{ color:#6b7280 }
+
+  /* modal */
+  .overlay{ position:fixed; inset:0; background:rgba(2,6,23,0.5); display:none; align-items:center; justify-content:center; z-index:2200; padding:18px }
+  .dialog{ width:100%; max-width:780px; background:#fff; border-radius:12px; padding:18px; box-shadow:0 30px 80px rgba(2,6,23,0.3) }
+  .dialog pre{ white-space:pre-wrap; background:#f8fafc;padding:12px;border-radius:8px; }
+
+  /* small helper */
+  .pill { background:#f1f5f4; padding:6px 8px; border-radius:999px; font-weight:800; font-size:13px }
+  .empty { text-align:center; color:#6b7280; margin-top:18px }
+  .nav-placeholder { display:flex; gap:8px; align-items:center; }
+</style>
+</head>
+<body>
+  <header>
+    <div style="display:flex;gap:12px;align-items:center">
+      <img src="images/sahansoft_dark.png" alt="logo" style="height:40px;border-radius:8px">
+      <h1>Developer Contacts — Admin</h1>
+    </div>
+    <div style="display:flex;gap:12px;align-items:center">
+      <div id="headerActions" class="nav-placeholder"></div>
+      <button id="signOut" class="btn">Sign out</button>
+    </div>
+  </header>
+
+  <div class="container">
+    <div class="controls">
+      <input id="q" class="search" placeholder="Search name, email, phone, project..." />
+      <button id="refreshBtn" class="btn">Refresh</button>
+      <div style="margin-left:auto;display:flex;gap:8px;align-items:center">
+        <div class="pill" id="countPill">Loading…</div>
+       <a href="/public/admin/developers-contact.html"> <button class="btn primary" id="newDev">Back</button></a>
+      </div>
+    </div>
+
+    <div id="cards" class="cards" aria-live="polite"></div>
+    <div id="empty" class="empty" style="display:none">No contacts yet.</div>
+  </div>
+
+  <div id="overlay" class="overlay" role="dialog" aria-modal="true">
+    <div class="dialog">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <h3 id="vmTitle">Contact</h3>
+        <button id="closeVm" style="background:none;border:0;font-size:20px;cursor:pointer">✕</button>
+      </div>
+      <div id="vmBody" style="margin-top:12px"></div>
+    </div>
+  </div>
+
+<script>
+(async function(){
+  const API_BASE = (location.hostname === 'localhost' || location.hostname === '127.0.0.1')
+  ? 'http://localhost:4000'
+  : 'https://somali-eye-health-alliance-biaj.onrender.com';
+
+  // prefer authoritative stored user when possible
+  const ADMIN_TOKEN = localStorage.getItem('seha_token');
+  const storedUser = (function(){ try { return JSON.parse(localStorage.getItem('seha_user') || 'null'); } catch(e){ return null } })();
+  const role = storedUser && storedUser.role ? storedUser.role : localStorage.getItem('seha_role');
+
+  if (!ADMIN_TOKEN || role !== 'superadmin') {
+    document.querySelector('.container').innerHTML = '<div style="padding:28px;background:#fff;border-radius:12px;box-shadow:0 12px 40px rgba(2,6,23,0.06)">Access denied — superadmin required.</div>';
+    if (typeof window.__seha_updateAdminBtn === 'function') window.__seha_updateAdminBtn();
+    return;
+  }
+
+  const headers = { 'Authorization': 'Bearer ' + ADMIN_TOKEN, 'Content-Type':'application/json' };
+
+  const cards = document.getElementById('cards');
+  const countPill = document.getElementById('countPill');
+  const q = document.getElementById('q');
+  const empty = document.getElementById('empty');
+
+  async function load(){
+    cards.innerHTML = 'Loading…';
+    try {
+      const res = await fetch((API_BASE || '') + '/api/developer-contacts?limit=500', { headers });
+      if (!res.ok) throw new Error('Unauthorized or server error');
+      const list = await res.json();
+      render(list);
+    } catch (err) {
+      cards.innerHTML = '<div style="padding:12px;background:#fff;border-radius:10px">Failed to load: '+err.message+'</div>';
+      console.error(err);
+    }
+  }
+
+  function render(list){
+    cards.innerHTML = '';
+    if (!list || list.length === 0) {
+      empty.style.display = 'block';
+      countPill.textContent = '0';
+      return;
+    } else {
+      empty.style.display = 'none';
+    }
+    countPill.textContent = list.length + ' total';
+    window.__DEV_CONTACTS = list;
+
+    list.forEach(item=>{
+      const id = item._id || item.id || item._id || '';
+      const d = document.createElement('div');
+      d.className = 'card';
+      d.innerHTML = `
+        <div style="display:flex;gap:12px;align-items:center">
+          <div style="width:56px;height:56px;border-radius:8px;background:linear-gradient(90deg,#e6fffa,#ecfeff);display:flex;align-items:center;justify-content:center;font-weight:900">${(item.name||'')[0] || 'U'}</div>
+          <div style="flex:1;min-width:0">
+            <div style="display:flex;gap:8px;align-items:center;justify-content:space-between">
+              <strong style="font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escapeHtml(item.name||'–')}</strong>
+              <span class="muted" style="font-size:13px">${new Date(item.createdAt).toLocaleString()}</span>
+            </div>
+            <div class="meta">${escapeHtml(item.email||'')} • ${escapeHtml(item.phone||'')} • <span class="muted">${escapeHtml(item.project||'')}</span></div>
+          </div>
+        </div>
+        <div class="actions">
+          <button class="action-btn view" data-id="${id}">View</button>
+          <button class="action-btn del" data-id="${id}">Delete</button>
+        </div>
+      `;
+      cards.appendChild(d);
+    });
+  }
+
+  cards.addEventListener('click', async (ev) => {
+    const v = ev.target.closest('.view');
+    if (v) {
+      const id = v.dataset.id;
+      const res = await fetch((API_BASE || '') + '/api/developer-contacts/' + id, { headers });
+      const data = await res.json();
+      openViewModal(data);
+    }
+    const d = ev.target.closest('.del');
+    if (d) {
+      if (!confirm('Delete contact?')) return;
+      const id = d.dataset.id;
+      await fetch((API_BASE || '') + '/api/developer-contacts/' + id, { method: 'DELETE', headers });
+      await load();
+    }
+  });
+
+  q.addEventListener('input', ()=>{
+    const term = q.value.trim().toLowerCase();
+    if (!window.__DEV_CONTACTS) return;
+    if (!term) return render(window.__DEV_CONTACTS);
+    const f = window.__DEV_CONTACTS.filter(i=>{
+      return (i.name||'').toLowerCase().includes(term) ||
+             (i.email||'').toLowerCase().includes(term) ||
+             (i.phone||'').toLowerCase().includes(term) ||
+             (i.project||'').toLowerCase().includes(term) ||
+             (i.whatsapp||'').toLowerCase().includes(term);
+    });
+    render(f);
+  });
+
+  const overlay = document.getElementById('overlay');
+  const vmTitle = document.getElementById('vmTitle');
+  const vmBody = document.getElementById('vmBody');
+  document.getElementById('closeVm').addEventListener('click', ()=> overlay.style.display='none');
+  overlay.addEventListener('click', e => { if (e.target === overlay) overlay.style.display='none'; });
+
+  function openViewModal(data){
+    vmTitle.textContent = data.name || 'Contact';
+    vmBody.innerHTML = `
+      <p><strong>Email:</strong> ${escapeHtml(data.email||'')}</p>
+      <p><strong>Phone:</strong> ${escapeHtml(data.phone||'')}</p>
+      <p><strong>WhatsApp:</strong> ${escapeHtml(data.whatsapp||'')}</p>
+      <p><strong>Project:</strong> ${escapeHtml(data.project||'')}</p>
+      <p><strong>Message:</strong></p>
+      <pre>${escapeHtml(data.message||'')}</pre>
+      <p class="muted">Submitted: ${new Date(data.createdAt).toLocaleString()}</p>
+    `;
+    overlay.style.display = 'flex';
+  }
+
+  function escapeHtml(s){ if (!s) return ''; return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+  document.getElementById('refreshBtn').addEventListener('click', load);
+  document.getElementById('newDev').addEventListener('click', ()=> window.location.href = 'developers-contact.html');
+
+  document.getElementById('signOut').addEventListener('click', ()=>{
+    localStorage.removeItem('seha_token'); localStorage.removeItem('seha_role'); localStorage.removeItem('seha_user');
+    if (typeof window.__seha_updateAdminBtn === 'function') window.__seha_updateAdminBtn();
+    location.href = 'index.html';
+  });
+
+  await load();
+
+  if (typeof window.__seha_updateAdminBtn === 'function') {
+    try { window.__seha_updateAdminBtn(); } catch(e){ console.warn('updateAdminBtn error', e); }
+  }
+
+})();
+</script>
+
+<script src="script.js"></script>
+</body>
+</html>
