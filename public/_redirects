@@ -1,0 +1,6 @@
+# Force canonical www and HTTPS (Netlify _redirects)
+http://somalieyehealthalliance.org/*    https://www.somalieyehealthalliance.org/:splat    301!
+https://somalieyehealthalliance.org/*   https://www.somalieyehealthalliance.org/:splat    301!
+
+# Redirect Netlify preview domain (optional)
+https://somali-eye-health-alliance.netlify.app/*  https://www.somalieyehealthalliance.org/:splat  301!
