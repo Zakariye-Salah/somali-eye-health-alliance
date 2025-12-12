@@ -407,7 +407,7 @@
     <div class="container footer-inner">
       <div class="footer-col">
         <img src="images/logo.png" alt="SEHA logo" class="footer-logo">
-        <p class="muted">© 2026 Somali Eye Health Alliance — All Rights Reserved <a href="/public/admin/developers-contact.html">Developers</a></p>
+        <p class="muted">© 2026 Somali Eye Health Alliance — All Rights Reserved <a href="developers-contact.html">Developers</a></p>
       </div>
 
       <div class="footer-col">
@@ -926,7 +926,7 @@ applyForm.addEventListener('submit', async (e) => {
       const role = user && user.role ? String(user.role).toLowerCase() : null;
       if (role === 'admin' || role === 'superadmin') {
         adminCheckAppsBtn.style.display = 'inline-block';
-        adminCheckAppsBtn.addEventListener('click', ()=> { window.location.href = 'admin/opportunities-applications.html'; });
+        adminCheckAppsBtn.addEventListener('click', ()=> { window.location.href = 'opportunities-applications.html'; });
       }
     } catch (err) {
       console.warn('admin check failed', err);
