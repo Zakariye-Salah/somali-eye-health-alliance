@@ -1407,172 +1407,172 @@ if (eventsGrid) {
 }
 
 
-  // ---------- OPPORTUNITIES & AWARENESS ----------
-  if (oppList) {
-    const OPPS = [
-      { id: 1, title: 'Volunteer Ophthalmic Nurse - Boorama', location: 'Boorama', type: 'Volunteer', duration: '6 months', stipend: 'Basic stipend & accommodation', excerpt: 'Support outreach and theatre lists; assist with refraction and postoperative follow-up.' },
-      { id: 2, title: 'Research Assistant (part-time) - Mogadishu', location: 'Mogadishu', type: 'Part-time', duration: '6 months', stipend: 'Monthly honorarium', excerpt: 'Support monitoring & evaluation, data collection and report writing.' },
-      { id: 3, title: 'Optical Technician (short contract) - Hargeisa', location: 'Hargeisa', type: 'Short-term contract', duration: '3 months', stipend: 'Paid contract', excerpt: 'Set up small optical dispensing workshop and train local staff.' },
-      { id: 4, title: 'Community Outreach Coordinator - Beledweyne', location: 'Beledweyne', type: 'Employment', duration: '12 months', stipend: 'Salary (competitive)', excerpt: 'Lead community mobilization, partner liaison and vendor logistics for outreach days.' },
-      { id: 5, title: 'CPD Trainer (voluntary) - National', location: 'Multiple', type: 'Volunteer', duration: 'Ongoing', stipend: 'Travel covered', excerpt: 'Deliver short CPD sessions and mentorship to nurses and optometrists in regions.' },
-      { id: 6, title: 'Communications Intern - Remote', location: 'Remote', type: 'Internship', duration: '3 months', stipend: 'Small stipend', excerpt: 'Support communications, social media and simple reporting for campaigns.' }
-    ];
+  // // ---------- OPPORTUNITIES & AWARENESS ----------
+  // if (oppList) {
+  //   const OPPS = [
+  //     { id: 1, title: 'Volunteer Ophthalmic Nurse - Boorama', location: 'Boorama', type: 'Volunteer', duration: '6 months', stipend: 'Basic stipend & accommodation', excerpt: 'Support outreach and theatre lists; assist with refraction and postoperative follow-up.' },
+  //     { id: 2, title: 'Research Assistant (part-time) - Mogadishu', location: 'Mogadishu', type: 'Part-time', duration: '6 months', stipend: 'Monthly honorarium', excerpt: 'Support monitoring & evaluation, data collection and report writing.' },
+  //     { id: 3, title: 'Optical Technician (short contract) - Hargeisa', location: 'Hargeisa', type: 'Short-term contract', duration: '3 months', stipend: 'Paid contract', excerpt: 'Set up small optical dispensing workshop and train local staff.' },
+  //     { id: 4, title: 'Community Outreach Coordinator - Beledweyne', location: 'Beledweyne', type: 'Employment', duration: '12 months', stipend: 'Salary (competitive)', excerpt: 'Lead community mobilization, partner liaison and vendor logistics for outreach days.' },
+  //     { id: 5, title: 'CPD Trainer (voluntary) - National', location: 'Multiple', type: 'Volunteer', duration: 'Ongoing', stipend: 'Travel covered', excerpt: 'Deliver short CPD sessions and mentorship to nurses and optometrists in regions.' },
+  //     { id: 6, title: 'Communications Intern - Remote', location: 'Remote', type: 'Internship', duration: '3 months', stipend: 'Small stipend', excerpt: 'Support communications, social media and simple reporting for campaigns.' }
+  //   ];
 
-    // render grid
-    oppList.innerHTML = '';
-    oppList.classList.add('opportunities-grid');
-    OPPS.forEach(o => {
-      const d = document.createElement('article');
-      d.className = 'card opp-card';
-      d.innerHTML = `
-        <h4>${o.title}</h4>
-        <div class="opp-meta">
-          <div>${o.location}</div>
-          <div>•</div>
-          <div>${o.type}</div>
-          <div>•</div>
-          <div>${o.duration}</div>
-        </div>
-        <p class="opp-excerpt">${o.excerpt}</p>
-        <div style="margin-top:auto;display:flex;gap:8px;align-items:center">
-          <a href="opportunity-detail-${o.id}.html" class="btn secondary" style="text-decoration:none;padding:8px 10px">Details</a>
-          <button class="apply-btn" data-oppid="${o.id}" type="button">Apply now →</button>
-        </div>
-      `;
-      oppList.appendChild(d);
-    });
+  //   // render grid
+  //   oppList.innerHTML = '';
+  //   oppList.classList.add('opportunities-grid');
+  //   OPPS.forEach(o => {
+  //     const d = document.createElement('article');
+  //     d.className = 'card opp-card';
+  //     d.innerHTML = `
+  //       <h4>${o.title}</h4>
+  //       <div class="opp-meta">
+  //         <div>${o.location}</div>
+  //         <div>•</div>
+  //         <div>${o.type}</div>
+  //         <div>•</div>
+  //         <div>${o.duration}</div>
+  //       </div>
+  //       <p class="opp-excerpt">${o.excerpt}</p>
+  //       <div style="margin-top:auto;display:flex;gap:8px;align-items:center">
+  //         <a href="opportunity-detail-${o.id}.html" class="btn secondary" style="text-decoration:none;padding:8px 10px">Details</a>
+  //         <button class="apply-btn" data-oppid="${o.id}" type="button">Apply now →</button>
+  //       </div>
+  //     `;
+  //     oppList.appendChild(d);
+  //   });
 
-    // modal elements (may be absent on some pages) — guard each reference
-    const applyModal = document.getElementById('applyModal');
-    const applyJobTitle = document.getElementById('applyJobTitle');
-    const applyForm = document.getElementById('applyForm');
-    const appName = document.getElementById('appName');
-    const appEmail = document.getElementById('appEmail');
-    const appStatement = document.getElementById('appStatement');
-    const appCV = document.getElementById('appCV');
-    const appCVName = document.getElementById('appCVName');
-    const applyMsg = document.getElementById('applyMsg');
-    const modalClose = document.getElementById('modalClose');
-    const applyCancel = document.getElementById('applyCancel');
+  //   // modal elements (may be absent on some pages) — guard each reference
+  //   const applyModal = document.getElementById('applyModal');
+  //   const applyJobTitle = document.getElementById('applyJobTitle');
+  //   const applyForm = document.getElementById('applyForm');
+  //   const appName = document.getElementById('appName');
+  //   const appEmail = document.getElementById('appEmail');
+  //   const appStatement = document.getElementById('appStatement');
+  //   const appCV = document.getElementById('appCV');
+  //   const appCVName = document.getElementById('appCVName');
+  //   const applyMsg = document.getElementById('applyMsg');
+  //   const modalClose = document.getElementById('modalClose');
+  //   const applyCancel = document.getElementById('applyCancel');
 
-    let lastOpener = null;
-    let currentOpp = null;
+  //   let lastOpener = null;
+  //   let currentOpp = null;
   
-    function openModalForOpp(opp, openerEl = null) {
-      // If modal doesn't exist on this page, go to detail page (fallback)
-      if (!applyModal) {
-        // navigate to the detail page and indicate intent to open the modal via hash
-        window.location.href = `opportunity-detail-${opp.id}.html#apply`;
-        return;
-      }
+  //   function openModalForOpp(opp, openerEl = null) {
+  //     // If modal doesn't exist on this page, go to detail page (fallback)
+  //     if (!applyModal) {
+  //       // navigate to the detail page and indicate intent to open the modal via hash
+  //       window.location.href = `opportunity-detail-${opp.id}.html#apply`;
+  //       return;
+  //     }
     
-      currentOpp = opp;
-      if (applyJobTitle) applyJobTitle.textContent = opp.title;
+  //     currentOpp = opp;
+  //     if (applyJobTitle) applyJobTitle.textContent = opp.title;
     
-      // safer: find the <strong> node and update if present
-      const meta = document.getElementById('applyJobMeta');
-      if (meta) {
-        const strong = meta.querySelector('strong');
-        if (strong) strong.textContent = opp.title;
-      }
+  //     // safer: find the <strong> node and update if present
+  //     const meta = document.getElementById('applyJobMeta');
+  //     if (meta) {
+  //       const strong = meta.querySelector('strong');
+  //       if (strong) strong.textContent = opp.title;
+  //     }
     
-      if (applyMsg) applyMsg.textContent = '';
-      if (applyForm) applyForm.reset();
-      if (appCVName) appCVName.textContent = '';
+  //     if (applyMsg) applyMsg.textContent = '';
+  //     if (applyForm) applyForm.reset();
+  //     if (appCVName) appCVName.textContent = '';
     
-      // show modal
-      applyModal.classList.add('open');
-      applyModal.setAttribute('aria-hidden','false');
+  //     // show modal
+  //     applyModal.classList.add('open');
+  //     applyModal.setAttribute('aria-hidden','false');
     
-      // remember opener for focus restoration
-      lastOpener = openerEl || lastOpener;
-      setTimeout(() => { if (appName) appName.focus(); }, 50);
-    }
+  //     // remember opener for focus restoration
+  //     lastOpener = openerEl || lastOpener;
+  //     setTimeout(() => { if (appName) appName.focus(); }, 50);
+  //   }
     
-    function closeModal() {
-      if (!applyModal) return;
-      applyModal.classList.remove('open');
-      applyModal.setAttribute('aria-hidden','true');
-      if (applyMsg) applyMsg.textContent = '';
-      if (lastOpener && typeof lastOpener.focus === 'function') lastOpener.focus();
-      lastOpener = null;
-      currentOpp = null;
-    }
+  //   function closeModal() {
+  //     if (!applyModal) return;
+  //     applyModal.classList.remove('open');
+  //     applyModal.setAttribute('aria-hidden','true');
+  //     if (applyMsg) applyMsg.textContent = '';
+  //     if (lastOpener && typeof lastOpener.focus === 'function') lastOpener.focus();
+  //     lastOpener = null;
+  //     currentOpp = null;
+  //   }
     
 
-    // open on apply button click inside oppList
-    oppList.addEventListener('click', (e) => {
-      const btn = e.target.closest('.apply-btn');
-      if (!btn) return;
-      const id = Number(btn.dataset.oppid);
-      const opp = OPPS.find(x => x.id === id);
-      if (!opp) return;
-      lastOpener = btn;
-      openModalForOpp(opp, btn);
-    });
+  //   // open on apply button click inside oppList
+  //   oppList.addEventListener('click', (e) => {
+  //     const btn = e.target.closest('.apply-btn');
+  //     if (!btn) return;
+  //     const id = Number(btn.dataset.oppid);
+  //     const opp = OPPS.find(x => x.id === id);
+  //     if (!opp) return;
+  //     lastOpener = btn;
+  //     openModalForOpp(opp, btn);
+  //   });
 
-    // FILE PREVIEW — only wire if element exists
-    if (appCV) {
-      appCV.addEventListener('change', (e) => {
-        const f = e.target.files && e.target.files[0];
-        if (f && appCVName) {
-          appCVName.textContent = `${f.name} (${Math.round(f.size / 1024)} KB)`;
-        } else if (appCVName) {
-          appCVName.textContent = '';
-        }
-      });
-    }
+  //   // FILE PREVIEW — only wire if element exists
+  //   if (appCV) {
+  //     appCV.addEventListener('change', (e) => {
+  //       const f = e.target.files && e.target.files[0];
+  //       if (f && appCVName) {
+  //         appCVName.textContent = `${f.name} (${Math.round(f.size / 1024)} KB)`;
+  //       } else if (appCVName) {
+  //         appCVName.textContent = '';
+  //       }
+  //     });
+  //   }
 
-    // close handlers (only if modal exists)
-    if (modalClose) modalClose.addEventListener('click', closeModal);
-    if (applyCancel) applyCancel.addEventListener('click', closeModal);
-    if (applyModal) {
-      applyModal.addEventListener('click', (e) => { if (e.target === applyModal) closeModal(); });
-      document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && applyModal.classList.contains('open')) closeModal(); });
-    }
+  //   // close handlers (only if modal exists)
+  //   if (modalClose) modalClose.addEventListener('click', closeModal);
+  //   if (applyCancel) applyCancel.addEventListener('click', closeModal);
+  //   if (applyModal) {
+  //     applyModal.addEventListener('click', (e) => { if (e.target === applyModal) closeModal(); });
+  //     document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && applyModal.classList.contains('open')) closeModal(); });
+  //   }
 
-    // FORM SUBMIT (only if form exists)
-    if (applyForm) {
-      applyForm.addEventListener('submit', (e) => {
-        e.preventDefault();
-        if (!applyMsg) return;
-        applyMsg.style.color = 'var(--muted)';
-        applyMsg.textContent = '';
+  //   // FORM SUBMIT (only if form exists)
+  //   if (applyForm) {
+  //     applyForm.addEventListener('submit', (e) => {
+  //       e.preventDefault();
+  //       if (!applyMsg) return;
+  //       applyMsg.style.color = 'var(--muted)';
+  //       applyMsg.textContent = '';
 
-        const nameVal = appName && appName.value && appName.value.trim();
-        const emailVal = appEmail && appEmail.value && appEmail.value.trim();
-        const statementVal = appStatement && appStatement.value && appStatement.value.trim();
+  //       const nameVal = appName && appName.value && appName.value.trim();
+  //       const emailVal = appEmail && appEmail.value && appEmail.value.trim();
+  //       const statementVal = appStatement && appStatement.value && appStatement.value.trim();
 
-        if (!nameVal || !emailVal || !statementVal) {
-          applyMsg.style.color = '#d9534f';
-          applyMsg.textContent = 'Please complete name, email and short statement before submitting.';
-          return;
-        }
+  //       if (!nameVal || !emailVal || !statementVal) {
+  //         applyMsg.style.color = '#d9534f';
+  //         applyMsg.textContent = 'Please complete name, email and short statement before submitting.';
+  //         return;
+  //       }
 
-        // demo payload (client-side only)
-        const payload = {
-          opportunityId: currentOpp ? currentOpp.id : null,
-          name: nameVal,
-          email: emailVal,
-          statement: statementVal,
-          availableFrom: document.getElementById('appStart') ? document.getElementById('appStart').value : '',
-          type: document.getElementById('appType') ? document.getElementById('appType').value : '',
-        };
+  //       // demo payload (client-side only)
+  //       const payload = {
+  //         opportunityId: currentOpp ? currentOpp.id : null,
+  //         name: nameVal,
+  //         email: emailVal,
+  //         statement: statementVal,
+  //         availableFrom: document.getElementById('appStart') ? document.getElementById('appStart').value : '',
+  //         type: document.getElementById('appType') ? document.getElementById('appType').value : '',
+  //       };
 
-        applyMsg.style.color = 'var(--primary)';
-        applyMsg.textContent = 'Sending application...';
+  //       applyMsg.style.color = 'var(--primary)';
+  //       applyMsg.textContent = 'Sending application...';
 
-        // simulate network
-        setTimeout(() => {
-          applyMsg.style.color = 'var(--primary)';
-          applyMsg.textContent = 'Application received — thank you! We will contact you by email if shortlisted.';
-          applyForm.reset();
-          if (appCVName) appCVName.textContent = '';
-          setTimeout(() => closeModal(), 1400);
-        }, 900);
-      });
-    }
-  } // end oppList block
+  //       // simulate network
+  //       setTimeout(() => {
+  //         applyMsg.style.color = 'var(--primary)';
+  //         applyMsg.textContent = 'Application received — thank you! We will contact you by email if shortlisted.';
+  //         applyForm.reset();
+  //         if (appCVName) appCVName.textContent = '';
+  //         setTimeout(() => closeModal(), 1400);
+  //       }, 900);
+  //     });
+  //   }
+  // } // end oppList block
 
   if (awarenessGrid) {
     // Data for 6 campaigns (id 1..6). Categories must match filter names below.
