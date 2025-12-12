@@ -984,37 +984,37 @@ const hambBtn = document.getElementById('hambBtn');
 
   const HERO_DATA = [
     {
-      img: "images/here7.png",
+      img: "images/schoolscreen3.jpeg",
       title: "Community screening & spectacles",
       description: "Large school and community screening campaigns detect refractive errors and provide low-cost spectacles.",
       extra: "Local optical workshops are trained and follow-up pathways established with district clinics."
     },
     {
-      img: "images/here2.png",
+      img: "images/surgerical1.jpeg",
       title: "Surgical mentorship & camps",
       description: "Mobile surgical campaigns and mentorship strengthen cataract services and surgical safety.",
       extra: "Visiting specialists work alongside Somali surgeons to transfer skills and best practice."
     },
     {
-      img: "images/here8.png",
+      img: "images/screening6.jpeg",
       title: "Workforce training & CPD",
       description: "Continuous professional development for nurses, optometrists and mid-level eye workers.",
       extra: "Hands-on training, practical triage and local trainer development are emphasised."
     },
     {
-      img: "images/here4.png",
+      img: "images/screening.jpeg",
       title: "Research & operational learning",
       description: "Operational research to test low-cost screening workflows and data collection systems for Somalia.",
       extra: "Findings are shared through toolkits and summaries with partners and ministries."
     },
     {
-      img: "images/here3.png",
+      img: "images/maamo qaliin.jpeg",
       title: "Diagnostics & tele-referral pilots",
       description: "Pilot basic imaging and remote consultation to expand specialist support to remote clinics.",
       extra: "Tele-referral reduces travel burden and speeds decisions for urgent cases."
     },
     {
-      img: "images/image2.png",
+      img: "images/screening3.jpeg",
       title: "Finance & small-grants support",
       description: "Support clinics to run small optical workshops and manage grants for sustainability.",
       extra: "We build simple financial tools and procurement guidance with local teams."
@@ -1196,7 +1196,7 @@ const hambBtn = document.getElementById('hambBtn');
       { id: 1, title: 'Strengthening Emergency Obstetric & Newborn Care', img: 'images/program1.png', thumb: 'images/program1.png', excerpt: 'Capacity building in referral hospitals and clinical mentoring.' },
       { id: 2, title: 'Health Investment & Finance', img: 'images/program2.png', thumb: 'images/program2.png', excerpt: 'Sustainable financing models and public-private collaboration.' },
       { id: 3, title: 'Research & Innovation', img: 'images/program3.png', thumb: 'images/program3.png', excerpt: 'Operational research and evidence translation for eye health.' },
-      { id: 4, title: 'Human Resources for Health (HRH)', img: 'images/program4.png', thumb: 'images/program4.png', excerpt: 'Training, exchange programs and workforce planning.' },
+      { id: 4, title: 'Human Resources for Health (HRH)', img: 'images/mamo.jpeg', thumb: 'images/program4.png', excerpt: 'Training, exchange programs and workforce planning.' },
       { id: 5, title: 'Eye Screening & Outreach', img: 'images/program5.png', thumb: 'images/program5.png', excerpt: 'Community-level screening campaigns and referrals.' },
       { id: 6, title: 'Surgical Partnerships', img: 'images/program6.png', thumb: 'images/program6.png', excerpt: 'Specialist campaigns and mentorship.' },
       { id: 7, title: 'Telemedicine & Diagnostics', img: 'images/program7.png', thumb: 'images/program7.png', excerpt: 'Pilots linking remote clinics with specialist advice and imaging.' },
@@ -1574,85 +1574,85 @@ if (eventsGrid) {
   //   }
   // } // end oppList block
 
-  if (awarenessGrid) {
-    // Data for 6 campaigns (id 1..6). Categories must match filter names below.
-    const CAMPAIGNS = [
-      { id: 1, title: 'School Vision Screening — Borama', category: 'School screening', img: IMAGE(1), excerpt: 'Toolkit and checklist for high-quality school screening events.' },
-      { id: 2, title: 'Community Outreach — Afgooye', category: 'Community outreach', img: IMAGE(2), excerpt: 'Mobile outreach campaign bringing screening and spectacles to rural communities.' },
-      { id: 3, title: 'Campaign Toolkit: Vision Week', category: 'Campaign toolkit', img: IMAGE(3), excerpt: 'A full toolkit for running a Vision Week campaign — posters, checklists and outreach scripts.' },
-      { id: 4, title: 'Poster Pack: Child Vision', category: 'Poster', img: IMAGE(4), excerpt: 'Printable posters targeted at schoolchildren and parents — multilingual assets.' },
-      { id: 5, title: 'School Screening — Hargeisa pilot', category: 'School screening', img: IMAGE(5), excerpt: 'Pilot materials and evaluation summary from Hargeisa pilot screenings.' },
-      { id: 6, title: 'Community Eye Day — Beledweyne', category: 'Community outreach', img: IMAGE(6), excerpt: 'Community Eye Day resources and follow-up pathways for district clinics.' }
-    ];
+  // if (awarenessGrid) {
+  //   // Data for 6 campaigns (id 1..6). Categories must match filter names below.
+  //   const CAMPAIGNS = [
+  //     { id: 1, title: 'School Vision Screening — Borama', category: 'School screening', img: IMAGE(1), excerpt: 'Toolkit and checklist for high-quality school screening events.' },
+  //     { id: 2, title: 'Community Outreach — Afgooye', category: 'Community outreach', img: IMAGE(2), excerpt: 'Mobile outreach campaign bringing screening and spectacles to rural communities.' },
+  //     { id: 3, title: 'Campaign Toolkit: Vision Week', category: 'Campaign toolkit', img: IMAGE(3), excerpt: 'A full toolkit for running a Vision Week campaign — posters, checklists and outreach scripts.' },
+  //     { id: 4, title: 'Poster Pack: Child Vision', category: 'Poster', img: IMAGE(4), excerpt: 'Printable posters targeted at schoolchildren and parents — multilingual assets.' },
+  //     { id: 5, title: 'School Screening — Hargeisa pilot', category: 'School screening', img: IMAGE(5), excerpt: 'Pilot materials and evaluation summary from Hargeisa pilot screenings.' },
+  //     { id: 6, title: 'Community Eye Day — Beledweyne', category: 'Community outreach', img: IMAGE(6), excerpt: 'Community Eye Day resources and follow-up pathways for district clinics.' }
+  //   ];
 
-    // Filter set & default
-    const FILTERS = ['All', 'School screening', 'Community outreach', 'Campaign toolkit', 'Poster'];
-    let currentFilter = 'All';
+  //   // Filter set & default
+  //   const FILTERS = ['All', 'School screening', 'Community outreach', 'Campaign toolkit', 'Poster'];
+  //   let currentFilter = 'All';
 
-    // Build filter bar (insert above awarenessGrid if not already present)
-    let filterBar = document.querySelector('.filter-bar--awareness');
-    if (!filterBar) {
-      filterBar = document.createElement('div');
-      filterBar.className = 'filter-bar filter-bar--awareness';
-      FILTERS.forEach(f => {
-        const btn = document.createElement('button');
-        btn.className = 'filter-btn';
-        btn.type = 'button';
-        btn.textContent = f;
-        btn.dataset.filter = f;
-        btn.setAttribute('aria-pressed', 'false');
-        btn.addEventListener('click', () => {
-          // set active
-          filterBar.querySelectorAll('.filter-btn').forEach(b => {
-            b.classList.remove('active'); b.setAttribute('aria-pressed','false');
-          });
-          btn.classList.add('active'); btn.setAttribute('aria-pressed','true');
-          currentFilter = f;
-          renderAwarenessGrid();
-          // focus for keyboard users
-          btn.focus();
-        });
-        filterBar.appendChild(btn);
-      });
-      // insert filter bar before the grid
-      awarenessGrid.parentNode.insertBefore(filterBar, awarenessGrid);
-    }
+  //   // Build filter bar (insert above awarenessGrid if not already present)
+  //   let filterBar = document.querySelector('.filter-bar--awareness');
+  //   if (!filterBar) {
+  //     filterBar = document.createElement('div');
+  //     filterBar.className = 'filter-bar filter-bar--awareness';
+  //     FILTERS.forEach(f => {
+  //       const btn = document.createElement('button');
+  //       btn.className = 'filter-btn';
+  //       btn.type = 'button';
+  //       btn.textContent = f;
+  //       btn.dataset.filter = f;
+  //       btn.setAttribute('aria-pressed', 'false');
+  //       btn.addEventListener('click', () => {
+  //         // set active
+  //         filterBar.querySelectorAll('.filter-btn').forEach(b => {
+  //           b.classList.remove('active'); b.setAttribute('aria-pressed','false');
+  //         });
+  //         btn.classList.add('active'); btn.setAttribute('aria-pressed','true');
+  //         currentFilter = f;
+  //         renderAwarenessGrid();
+  //         // focus for keyboard users
+  //         btn.focus();
+  //       });
+  //       filterBar.appendChild(btn);
+  //     });
+  //     // insert filter bar before the grid
+  //     awarenessGrid.parentNode.insertBefore(filterBar, awarenessGrid);
+  //   }
 
-    // ensure correct styling class on awarenessGrid
-    awarenessGrid.classList.add('awareness-grid');
+  //   // ensure correct styling class on awarenessGrid
+  //   awarenessGrid.classList.add('awareness-grid');
 
-    // Render function
-    function renderAwarenessGrid() {
-      awarenessGrid.innerHTML = '';
-      const filtered = CAMPAIGNS.filter(c => (currentFilter === 'All' ? true : c.category === currentFilter));
-      if (!filtered.length) {
-        const p = document.createElement('p'); p.className = 'muted'; p.textContent = 'No items found for this filter.';
-        awarenessGrid.appendChild(p); return;
-      }
-      filtered.forEach(c => {
-        const card = document.createElement('article');
-        card.className = 'card';
-        card.setAttribute('data-category', c.category);
-        card.innerHTML = `
-          <img src="${c.img}" alt="${c.title}" loading="lazy" onerror="this.classList.add('broken');this.src='images/image1.png'">
-          <div style="padding:6px 0 2px;">
-            <h4 style="margin:0 0 6px;font-size:16px">${c.title}</h4>
-            <div class="muted" style="font-size:13px;margin-bottom:6px">${c.category}</div>
-            <p class="muted" style="margin:0 0 8px">${c.excerpt}</p>
-            <p style="margin:0"><a href="campaign-detail-${c.id}.html" aria-label="Read more about ${c.title}">Read more →</a></p>
-          </div>
-        `;
-        awarenessGrid.appendChild(card);
-      });
-    }
+  //   // Render function
+  //   function renderAwarenessGrid() {
+  //     awarenessGrid.innerHTML = '';
+  //     const filtered = CAMPAIGNS.filter(c => (currentFilter === 'All' ? true : c.category === currentFilter));
+  //     if (!filtered.length) {
+  //       const p = document.createElement('p'); p.className = 'muted'; p.textContent = 'No items found for this filter.';
+  //       awarenessGrid.appendChild(p); return;
+  //     }
+  //     filtered.forEach(c => {
+  //       const card = document.createElement('article');
+  //       card.className = 'card';
+  //       card.setAttribute('data-category', c.category);
+  //       card.innerHTML = `
+  //         <img src="${c.img}" alt="${c.title}" loading="lazy" onerror="this.classList.add('broken');this.src='images/image1.png'">
+  //         <div style="padding:6px 0 2px;">
+  //           <h4 style="margin:0 0 6px;font-size:16px">${c.title}</h4>
+  //           <div class="muted" style="font-size:13px;margin-bottom:6px">${c.category}</div>
+  //           <p class="muted" style="margin:0 0 8px">${c.excerpt}</p>
+  //           <p style="margin:0"><a href="campaign-detail-${c.id}.html" aria-label="Read more about ${c.title}">Read more →</a></p>
+  //         </div>
+  //       `;
+  //       awarenessGrid.appendChild(card);
+  //     });
+  //   }
 
-    // Activate default filter button ("All")
-    const defaultBtn = filterBar.querySelector('.filter-btn[data-filter="All"]');
-    if (defaultBtn) { defaultBtn.classList.add('active'); defaultBtn.setAttribute('aria-pressed','true'); }
+  //   // Activate default filter button ("All")
+  //   const defaultBtn = filterBar.querySelector('.filter-btn[data-filter="All"]');
+  //   if (defaultBtn) { defaultBtn.classList.add('active'); defaultBtn.setAttribute('aria-pressed','true'); }
 
-    // initial render
-    renderAwarenessGrid();
-  }
+  //   // initial render
+  //   renderAwarenessGrid();
+  // }
 
   // ----------------------------
   // Mobile menu builder with nested toggles (+ / −)
