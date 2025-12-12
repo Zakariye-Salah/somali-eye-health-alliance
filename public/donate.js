@@ -499,7 +499,7 @@
        btn.style.display = 'inline-block';
        btn.addEventListener('click', (e) => {
          // navigate to admin donations page - adjust path if your admin UI lives elsewhere
-         window.location.href = 'admin/donations.html';
+         window.location.href = 'donations.html';
        });
      }
    } catch (err) {
