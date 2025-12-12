@@ -1,0 +1,575 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>SEHA Admin — Help Inbox</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root { --bg:#f8fafc; --panel:#fff; --muted:#6b7280; --accent:#0f766e; --card:#ffffff; }
+    body { font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, Arial; margin:0; background:var(--bg); color:#0b1220; }
+    .wrap { display:flex; height:100vh; gap:12px; padding:16px; box-sizing:border-box; }
+    .sidebar { width:320px; max-width:100%; height: 100%;margin-bottom: 50px;
+    background:var(--panel); border-radius:10px; box-shadow:0 6px 20px rgba(2,6,23,0.06); padding:12px; transition: all .18s ease; display:flex; flex-direction:column; }
+    .sidebar .topbar { margin-bottom:8px; display:flex; justify-content:space-between; align-items:center; gap:8px; }
+    .sidebar .adminBox { display:flex; gap:8px; align-items:center; margin-bottom:10px; }
+    .adminAvatar { width:40px;height:40px;border-radius:8px;background:#e6f6f4;color:var(--accent);display:flex;align-items:center;justify-content:center;font-weight:700; }
+    .list-wrap { overflow:auto; flex:1; padding-right:6px; } /* scroll area for mobile */
+    .list-item { padding:10px; border-radius:8px; display:flex; gap:10px; align-items:center; cursor:pointer; }
+    .list-item:hover { background:#f1f7f6; }
+    .list-item.active { background: rgba(15,118,110,0.06); border-left:3px solid var(--accent); }
+    .avatar { width:40px; height:40px; border-radius:8px; display:flex; align-items:center; justify-content:center; background:#e6f6f4; color:var(--accent); font-weight:700; }
+    .meta { font-size:13px; color:var(--muted); margin-top:4px; white-space:normal; }
+    .pane { flex:1; background:var(--panel); border-radius:10px; box-shadow:0 6px 20px rgba(2,6,23,0.06); display:flex; flex-direction:column; overflow:hidden; transition: all .18s ease; }
+    .pane-header { padding:12px; border-bottom:1px solid #f0f3f5; display:flex; align-items:center; gap:12px; }
+    .pane-body { padding:12px; overflow:auto; flex:1; background:linear-gradient(#fff,#fbfdfe); display:flex; flex-direction:column; gap:8px; }
+    .msg { max-width:75%; padding:10px 12px; border-radius:10px; background:#f3f9f8; color:#033; box-shadow:0 2px 6px rgba(2,6,23,0.04) }
+    .msg.user { background:var(--accent); color:#fff; align-self:flex-end; border-radius:10px 10px 6px 10px; }
+    .msg .meta { font-size:12px; color:var(--muted); margin-top:6px; }
+    .pane-footer { padding:10px; border-top:1px solid #f0f3f5; display:flex; gap:8px; align-items:center; }
+    .input { flex:1; padding:10px 12px; border-radius:8px; border:1px solid #eef2f2; }
+    .btn { padding:8px 12px; border-radius:8px; border:0; background: #e6f6f4; color:var(--accent); cursor:pointer; }
+    .btn.primary { background:var(--accent); color:#fff; }
+    .search { width:100%; padding:8px 10px; border-radius:8px; border:1px solid #eef2f2; margin-bottom:8px; }
+    .muted { color:var(--muted); font-size:13px; }
+    .topic { font-size:12px; color:#065f46; background:#ecfdf5; padding:4px 8px; border-radius:999px; display:inline-block; margin-left:6px; }
+    .msg-row { display:flex; flex-direction:column; gap:6px; }
+    .msg-controls { display:flex; gap:8px; }
+    .msg-controls.left { justify-content:flex-start; }
+    .msg-controls.right { justify-content:flex-end; }
+    .msg-delete { background:transparent;border:0;padding:6px 10px;border-radius:6px; cursor:pointer; font-size:13px; color:#b91c1c; }
+    .pane .pane-actions { margin-left:auto; display:flex; gap:8px; align-items:center; }
+    .mobile-back { display:none; }
+    @media (max-width:900px) {
+      .wrap { flex-direction:column; padding:8px; }
+      .sidebar { width:100%; max-height:42vh; order:1; }
+      .pane { order:2; height:calc(100vh - 46vh); }
+      .mobile-back { display:inline-flex; margin-right:8px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <aside class="sidebar" id="convoList">
+      <div class="topbar">
+        <div>
+          <strong>Help inbox</strong>
+          <div class="muted">Realtime visitor & user conversations</div>
+        </div>
+        <div>
+          <button id="refreshBtn" class="btn" title="Refresh">↻</button>
+        </div>
+      </div>
+
+      <!-- admin greeting in the sidebar (shows admin name and quick avatar) -->
+      <div class="adminBox" id="adminBox" style="display:flex;align-items:center;">
+        <div class="adminAvatar" id="adminAvatar">A</div>
+        <div>
+          <div style="font-weight:700" id="adminName">Admin</div>
+          <div class="muted" style="font-size:13px">Signed in</div>
+        </div>
+      </div>
+
+      <input id="searchInput" class="search" placeholder="Search by email, name or topic" />
+
+      <div class="list-wrap" id="listWrap">
+        <div id="listInner" style="margin-top:8px; display:flex; flex-direction:column; gap:6px;"></div>
+        <div id="listEmpty" class="muted" style="margin-top:10px; display:none">No conversations yet.</div>
+      </div>
+    </aside>
+
+    <section class="pane" id="convPane">
+      <div class="pane-header" id="paneHeader">
+        <a href="index.html"><button class="btn" title="Home">🏠 Home</button></a>
+        <button id="mobileBackBtn" class="btn mobile-back" title="Back" style="display:none">←</button>
+
+        <div style="display:flex;gap:10px;align-items:center">
+          <div id="convAvatar" class="avatar">?</div>
+          <div>
+            <div id="convTitle"><strong>Select a conversation</strong></div>
+            <div id="convSub" class="muted"></div>
+          </div>
+        </div>
+
+        <div class="pane-actions" id="paneActions">
+          <div id="adminGreeting" class="muted" style="margin-right:8px">Welcome, Admin</div>
+          <button id="toggleAdminMsgs" class="btn" title="Show/hide admin messages">Show admin msgs</button>
+        </div>
+      </div>
+
+      <div class="pane-body" id="convBody">
+        <div class="muted">No conversation selected.</div>
+      </div>
+
+      <div class="pane-footer" id="convFooter" style="display:none">
+        <input id="replyInput" class="input" placeholder="Type reply to user..." />
+        <button id="replyBtn" class="btn primary">Send</button>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    (function(){
+      const API_BASE = (location.hostname === 'localhost' || location.hostname === '127.0.0.1')
+  ? 'http://localhost:4000'
+  : 'https://somali-eye-health-alliance-biaj.onrender.com';
+const token = localStorage.getItem('seha_token'); // admin token expected
+
+      // DOM
+      const listInner = document.getElementById('listInner');
+      const listEmpty = document.getElementById('listEmpty');
+      const convBody = document.getElementById('convBody');
+      const convTitle = document.getElementById('convTitle');
+      const convSub = document.getElementById('convSub');
+      const convAvatar = document.getElementById('convAvatar');
+      const replyInput = document.getElementById('replyInput');
+      const replyBtn = document.getElementById('replyBtn');
+      const convFooter = document.getElementById('convFooter');
+      const searchInput = document.getElementById('searchInput');
+      const refreshBtn = document.getElementById('refreshBtn');
+      const mobileBackBtn = document.getElementById('mobileBackBtn');
+      const sidebarEl = document.getElementById('convoList');
+      const adminNameEl = document.getElementById('adminName');
+      const adminAvatarEl = document.getElementById('adminAvatar');
+      const adminGreetingEl = document.getElementById('adminGreeting');
+      const toggleAdminMsgsBtn = document.getElementById('toggleAdminMsgs');
+
+      let conversations = [];
+      let activeConv = null;
+      let socket = null;
+      let pollIntervalId = null;
+
+      // show only user messages by default
+      let showAdminMessages = false;
+
+      function authHeaders() {
+        return token ? { 'Content-Type':'application/json', 'Authorization':'Bearer ' + token } : { 'Content-Type':'application/json' };
+      }
+
+      async function apiFetch(url, opts={}) {
+        opts.headers = Object.assign({}, opts.headers || {}, authHeaders());
+        if (opts.body && !opts.headers['Content-Type']) opts.headers['Content-Type'] = 'application/json';
+        try {
+          const res = await fetch((API_BASE || '') + url, opts);
+          const data = await res.json().catch(()=>null);
+          return { ok: res.ok, status: res.status, data };
+        } catch(err) { console.error('apiFetch error', err); return { ok:false, error:err }; }
+      }
+
+      function escapeHtml(s) { if (!s) return ''; return String(s).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
+      function formatWhen(ts) { if (!ts) return ''; const d = new Date(ts); return d.toLocaleString(); }
+
+      // admin info from localStorage (expected shape: { fullName, name, email, role } stored as 'seha_user')
+      function safeGetAdmin() {
+        try { const s = localStorage.getItem('seha_user'); if (!s) return null; return JSON.parse(s); } catch(e){ return null; }
+      }
+
+      // compute display name for a conversation; used for avatars and titles
+      function displayNameFor(conv) {
+        if (!conv) return 'Anonymous';
+        if (conv.user && conv.user.fullName) return conv.user.fullName;
+        if (conv.name) return conv.name;
+        if (conv.anonId) return 'Anonymous ' + String(conv.anonId).slice(-4);
+        return 'Anonymous';
+      }
+
+      function avatarForName(name) {
+        if (!name) return '?';
+        return String(name).split(' ').map(x=>x[0]).slice(0,2).join('').toUpperCase();
+      }
+
+      // compute numbered anonymous/display names and dedupe duplicates
+      function computeDisplayNames(list) {
+        const bases = list.map(conv => {
+          if (conv.user && conv.user.fullName) return conv.user.fullName;
+          if (conv.name) return conv.name;
+          return 'Anonymous';
+        });
+        const counts = {};
+        bases.forEach(b => counts[b] = (counts[b]||0) + 1);
+        const nameIndex = {};
+        const anonOrder = {};
+        let anonSeq = 0;
+        return list.map((conv, i) => {
+          const base = bases[i];
+          if (base === 'Anonymous') {
+            const aid = conv.anonId || ('anon-' + (i+1));
+            if (!anonOrder[aid]) anonOrder[aid] = ++anonSeq;
+            return `Anonymous ${anonOrder[aid]}`;
+          } else {
+            if (counts[base] > 1) {
+              nameIndex[base] = (nameIndex[base] || 0) + 1;
+              const idx = nameIndex[base];
+              return idx === 1 ? base : `${base} (${idx})`;
+            }
+            return base;
+          }
+        });
+      }
+
+      function renderList(filter='') {
+        listInner.innerHTML = '';
+        const f = (filter||'').toLowerCase();
+        let list = conversations.filter(c => (c.messages && c.messages.length > 0));
+        if (f) {
+          list = list.filter(c => {
+            const inTopic = (c.meta && c.meta.topic && String(c.meta.topic).toLowerCase().includes(f));
+            const inName = ((c.name || (c.user && c.user.fullName) || '').toLowerCase().includes(f));
+            const inEmail = (c.user && c.user.email && c.user.email.toLowerCase().includes(f));
+            const inText = (c.messages && c.messages[0] && c.messages[0].text && c.messages[0].text.toLowerCase().includes(f));
+            return inTopic || inName || inEmail || inText;
+          });
+        }
+        if (!list.length) {
+          listEmpty.style.display = 'block';
+          return;
+        }
+        listEmpty.style.display = 'none';
+        const labels = computeDisplayNames(list);
+        list.forEach((c, idx) => {
+          const row = document.createElement('div');
+          row.className = 'list-item';
+          if (activeConv && String(activeConv._id) === String(c._id)) row.classList.add('active');
+          row.dataset.cid = c._id;
+          const nameLabel = labels[idx] || displayNameFor(c);
+          const lastMsg = (c.messages && c.messages.length ? c.messages[c.messages.length -1] : null);
+          // show a longer preview (140 chars) so admin can read more from list
+          const preview = (c.meta && c.meta.topic) ? c.meta.topic : (lastMsg ? (lastMsg.text||'').slice(0,140) : '');
+          const topicHtml = (c.meta && c.meta.topic) ? `<span class="topic">${escapeHtml(c.meta.topic)}</span>` : '';
+          row.innerHTML = `
+            <div class="avatar">${escapeHtml(avatarForName(nameLabel))}</div>
+            <div style="flex:1">
+              <div style="display:flex;justify-content:space-between;align-items:center">
+                <div><strong>${escapeHtml(nameLabel)}</strong>${topicHtml}</div>
+                <div style="display:flex;align-items:center;gap:8px">
+                  <div class="muted" style="font-size:12px">${formatWhen(c.updatedAt)}</div>
+                </div>
+              </div>
+              <div class="meta">${escapeHtml(preview)}</div>
+            </div>
+          `;
+          row.addEventListener('click', () => loadConversation(c._id));
+
+          listInner.appendChild(row);
+        });
+      }
+
+      async function fetchConversations() {
+        const adminListPath = '/api/help/conversations/admin/list?limit=200';
+        const fallbackListPath = '/api/help/conversations?limit=200';
+        let r = await apiFetch(adminListPath, { method:'GET' });
+        if (!r.ok && r.status === 404) r = await apiFetch(fallbackListPath, { method:'GET' });
+        if (!r.ok) {
+          console.warn('fetchConversations failed', r);
+          return;
+        }
+        const summaries = r.data.conversations || r.data.list || r.data || [];
+        const ids = (summaries||[]).map(s => s._id).filter(Boolean);
+        if (!ids.length) { conversations = []; renderList(searchInput.value||''); return; }
+        try {
+          const fetches = ids.map(id => apiFetch('/api/help/conversations/' + encodeURIComponent(id), { method: 'GET' }));
+          const results = await Promise.all(fetches);
+          const full = [];
+          for (let i=0;i<results.length;i++) {
+            const res = results[i];
+            if (res.ok && res.data && res.data.conversation) full.push(res.data.conversation);
+            else {
+              const s = summaries.find(x => String(x._id) === String(ids[i]));
+              if (s) {
+                full.push({
+                  _id: s._id,
+                  title: s.title || s.name || (s.anonId ? ('Anonymous-'+String(s.anonId).slice(-6)) : 'Anonymous'),
+                  name: s.name || null,
+                  anonId: s.anonId || null,
+                  user: s.user || null,
+                  messages: [], // unknown
+                  unreadCount: s.unreadCount || 0,
+                  updatedAt: s.lastMessageAt || s.updatedAt || new Date().toISOString(),
+                  meta: { topic: s.lastMessageText ? s.lastMessageText.slice(0,80) : '' }
+                });
+              }
+            }
+          }
+          // hide empty conversations
+          const nonEmpty = full.filter(c => (c.messages && c.messages.length > 0));
+          nonEmpty.sort((a,b)=> new Date(b.updatedAt) - new Date(a.updatedAt));
+          conversations = nonEmpty;
+          renderList(searchInput.value || '');
+        } catch (err) { console.warn('error loading full conversations', err); }
+      }
+
+      // Safe helper to join parts with bullet only when present
+      function buildHeaderSubtitle(topic, unreadCount) {
+        const parts = [];
+        if (topic) parts.push(topic);
+        if (unreadCount && Number(unreadCount) > 0) parts.push(`${unreadCount} unread`);
+        return parts.join(' • ');
+      }
+
+      async function loadConversation(id, opts={scroll:true}) {
+        if (!id) return;
+        const r = await apiFetch('/api/help/conversations/' + encodeURIComponent(id), { method:'GET' });
+        if (!r.ok || !r.data || !r.data.conversation) { console.warn('failed load conv', r); return; }
+        activeConv = r.data.conversation;
+
+        document.querySelectorAll('.list-item').forEach(el => el.classList.remove('active'));
+        const sel = document.querySelector('.list-item[data-cid="'+id+'"]');
+        if (sel) sel.classList.add('active');
+
+        // populate header: visitor name
+        const visitorName = displayNameFor(activeConv);
+        convAvatar.textContent = avatarForName(visitorName);
+        convTitle.innerHTML = `<strong>${escapeHtml(visitorName)}</strong>`;
+
+        // use helper to avoid stray bullet when empty
+        const subtitle = buildHeaderSubtitle(activeConv.meta && activeConv.meta.topic ? activeConv.meta.topic : '', activeConv.unreadCount);
+        convSub.textContent = subtitle;
+
+        renderActiveMessages();
+
+        convFooter.style.display = 'flex';
+
+        if (window.innerWidth <= 900) {
+          // mobile: hide list to focus on messages (back button will show)
+          sidebarEl.style.display = 'none';
+          mobileBackBtn.style.display = 'inline-flex';
+        }
+
+        if (opts.scroll) convBody.scrollTop = convBody.scrollHeight;
+      }
+
+      function renderActiveMessages() {
+        if (!activeConv) { convBody.innerHTML = '<div class="muted">No conversation selected.</div>'; return; }
+        convBody.innerHTML = '';
+        const convDiv = document.createElement('div');
+        convDiv.style.display='flex'; convDiv.style.flexDirection='column'; convDiv.style.gap='10px';
+
+        // By default we show user messages only; showAdminMessages toggles inclusion of admin messages
+        const msgs = (activeConv.messages || []).filter(m => showAdminMessages ? true : (m.sender === 'user'));
+
+        if (!msgs.length) {
+          convDiv.innerHTML = '<div class="muted">No messages to display (admin messages are hidden). Toggle "Show admin msgs" to view admin replies.</div>';
+          convBody.appendChild(convDiv);
+          return;
+        }
+
+        msgs.forEach(m => {
+          const row = document.createElement('div');
+          row.className = 'msg-row';
+          const msgWrap = document.createElement('div');
+          msgWrap.className = 'msg' + (m.sender === 'user' ? ' user' : '');
+          const p = document.createElement('div'); p.textContent = m.text || '';
+          const meta = document.createElement('div'); meta.className = 'meta';
+          const who = m.senderName || (m.sender === 'user' ? (activeConv.name || (activeConv.user && activeConv.user.email) || 'Anonymous') : 'Admin');
+          meta.textContent = who + ' • ' + (m.createdAt ? new Date(m.createdAt).toLocaleString() : '');
+          msgWrap.appendChild(p);
+          msgWrap.appendChild(meta);
+
+          const controls = document.createElement('div');
+          controls.className = 'msg-controls ' + (m.sender === 'user' ? 'right' : 'left');
+
+          const delBtn = document.createElement('button');
+          delBtn.className = 'msg-delete';
+          delBtn.type = 'button';
+          delBtn.title = 'Delete message';
+          delBtn.innerHTML = '🗑 Delete';
+          delBtn.addEventListener('click', async () => {
+            if (!confirm('Delete this message entirely? This cannot be undone.')) return;
+            delBtn.disabled = true;
+            const r = await apiFetch('/api/help/conversations/' + encodeURIComponent(activeConv._id) + '/messages/' + encodeURIComponent(m._id), { method: 'DELETE' });
+            delBtn.disabled = false;
+            if (!r.ok) {
+              const msg = (r.data && r.data.message) ? r.data.message : (r.error ? String(r.error) : 'Failed to delete message');
+              alert('Delete failed: ' + msg);
+              console.warn('delete message failed', r);
+              return;
+            }
+            activeConv = r.data.conversation || activeConv;
+            if (!activeConv.messages || activeConv.messages.length === 0) {
+              // remove conv from list and clear view
+              conversations = conversations.filter(c => String(c._id) !== String(activeConv._id));
+              activeConv = null;
+              convBody.innerHTML = '<div class="muted">No conversation selected.</div>';
+              convFooter.style.display = 'none';
+              convTitle.innerHTML = '<strong>Select a conversation</strong>';
+              convSub.textContent = '';
+              renderList(searchInput.value || '');
+              return;
+            }
+            await fetchConversations();
+            renderActiveMessages();
+          });
+
+          controls.appendChild(delBtn);
+
+          row.appendChild(msgWrap);
+          row.appendChild(controls);
+          convDiv.appendChild(row);
+        });
+
+        convBody.appendChild(convDiv);
+        convBody.scrollTop = convBody.scrollHeight;
+      }
+
+      async function sendAdminReply() {
+        if (!activeConv || !activeConv._id) return alert('Select a conversation first');
+        const text = (replyInput.value || '').trim();
+        if (!text) return;
+        replyBtn.disabled = true;
+        const r = await apiFetch('/api/help/conversations/' + encodeURIComponent(activeConv._id) + '/messages', {
+          method: 'POST',
+          body: JSON.stringify({ text })
+        });
+        replyBtn.disabled = false;
+        if (!r.ok) {
+          const msg = (r.data && r.data.message) ? r.data.message : (r.error ? String(r.error) : 'Failed to send reply');
+          return alert(msg);
+        }
+        activeConv = r.data.conversation || activeConv;
+        replyInput.value = '';
+        await fetchConversations();
+        loadConversation(activeConv._id);
+      }
+
+      function loadSocketIoClient(cb) {
+        if (window.io) return cb(null);
+        const tryUrls = [];
+        if (API_BASE) tryUrls.push(API_BASE + '/socket.io/socket.io.js');
+        tryUrls.push('https://cdn.socket.io/4.6.1/socket.io.min.js');
+        let i=0;
+        function next() {
+          if (i >= tryUrls.length) return cb(new Error('socket client failed'));
+          const s = document.createElement('script'); s.src = tryUrls[i++]; s.async = true;
+          s.onload = () => { if (window.io) cb(null); else next(); };
+          s.onerror = () => next();
+          document.head.appendChild(s);
+        }
+        next();
+      }
+
+      function initSocket() {
+        if (!window.io) return;
+        socket = io(API_BASE || '/', { auth: token ? { token } : undefined, transports: ['websocket','polling'] });
+
+        socket.on('connect', ()=> {
+          if (pollIntervalId) { clearInterval(pollIntervalId); pollIntervalId = null; }
+          socket.emit('identify', { role: 'admin' });
+        });
+
+        socket.on('help.new', (data) => {
+          if (data && data.conversation) {
+            if (data.conversation.messages && data.conversation.messages.length > 0) {
+              conversations = conversations.filter(c => String(c._id) !== String(data.conversation._id));
+              conversations.unshift(data.conversation);
+              renderList(searchInput.value || '');
+            } else fetchConversations();
+          } else fetchConversations();
+        });
+
+        socket.on('help.updated', (data) => {
+          if (!data) return;
+          if (data.conversation) {
+            if (!data.conversation.messages || data.conversation.messages.length === 0) {
+              conversations = conversations.filter(c => String(c._id) !== String(data.conversation._id));
+              if (activeConv && String(activeConv._id) === String(data.conversation._id)) {
+                activeConv = null;
+                convBody.innerHTML = '<div class="muted">No conversation selected.</div>';
+                convFooter.style.display = 'none';
+                convTitle.innerHTML = '<strong>Select a conversation</strong>';
+                convSub.textContent = '';
+              }
+              renderList(searchInput.value || '');
+              return;
+            }
+            const idx = conversations.findIndex(c=>String(c._id)===String(data.conversation._id));
+            if (idx === -1) conversations.unshift(data.conversation); else conversations[idx] = data.conversation;
+            if (activeConv && String(activeConv._id) === String(data.conversation._id)) {
+              activeConv = data.conversation;
+              loadConversation(activeConv._id);
+            } else renderList(searchInput.value || '');
+          } else {
+            fetchConversations();
+            if (activeConv && String(activeConv._id) === String(data.conversationId)) loadConversation(activeConv._id);
+          }
+        });
+
+        socket.on('help.message', (d) => {
+          if (!d || !d.conversationId) return;
+          const idx = conversations.findIndex(c=>String(c._id)===String(d.conversationId));
+          if (idx !== -1 && d.message) {
+            conversations[idx].messages = conversations[idx].messages || [];
+            conversations[idx].messages.push(d.message);
+            conversations[idx].updatedAt = d.updatedAt || (new Date()).toISOString();
+          }
+          if (activeConv && String(activeConv._id) === String(d.conversationId)) {
+            activeConv.messages = activeConv.messages || [];
+            activeConv.messages.push(d.message);
+            renderActiveMessages();
+          } else renderList(searchInput.value || '');
+        });
+
+        socket.on('disconnect', ()=> console.warn('socket disconnected'));
+      }
+
+      (async function init(){
+        // set admin greeting (from localStorage.seha_user)
+        const admin = safeGetAdmin();
+        const adminName = admin && (admin.fullName || admin.name) ? (admin.fullName || admin.name) : 'Admin';
+        adminNameEl.textContent = adminName;
+        adminGreetingEl.textContent = `Welcome, ${adminName}`;
+        adminAvatarEl.textContent = avatarForName(adminName);
+
+        // wire UI
+        searchInput.addEventListener('input', ()=> renderList(searchInput.value || ''));
+        refreshBtn.addEventListener('click', ()=> fetchConversations());
+        replyBtn.addEventListener('click', sendAdminReply);
+
+        mobileBackBtn.addEventListener('click', ()=> {
+          sidebarEl.style.display = '';
+          mobileBackBtn.style.display = 'none';
+          activeConv = null;
+          convBody.innerHTML = '<div class="muted">No conversation selected.</div>';
+          convFooter.style.display = 'none';
+          convTitle.innerHTML = '<strong>Select a conversation</strong>';
+          convSub.textContent = '';
+          renderList(searchInput.value || '');
+        });
+
+        toggleAdminMsgsBtn.addEventListener('click', () => {
+          showAdminMessages = !showAdminMessages;
+          toggleAdminMsgsBtn.textContent = showAdminMessages ? 'Hide admin msgs' : 'Show admin msgs';
+          // re-render messages (if a conversation is open)
+          if (activeConv) renderActiveMessages();
+        });
+        toggleAdminMsgsBtn.textContent = showAdminMessages ? 'Hide admin msgs' : 'Show admin msgs';
+
+        // initial fetch + polling
+        await fetchConversations();
+
+        // polling fallback (stopped on socket connect)
+        pollIntervalId = setInterval(() => {
+          fetchConversations();
+          if (activeConv && activeConv._id) loadConversation(activeConv._id, { scroll: false });
+        }, 3000);
+
+        loadSocketIoClient((err) => {
+          if (!err) initSocket(); else console.warn('socket.io client failed to load, using polling fallback');
+        });
+
+        window.addEventListener('beforeunload', ()=> {
+          if (pollIntervalId) clearInterval(pollIntervalId);
+          if (socket) socket.disconnect();
+        });
+
+        // ensure on small screens the list area is visible initially
+        if (window.innerWidth <= 900) {
+          sidebarEl.style.display = '';
+          mobileBackBtn.style.display = 'none';
+          // ensure the pane header doesn't show stray subtitle or dot
+          convSub.textContent = '';
+        }
+      })();
+    })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,319 @@
+<!-- public/admin/contact-admin.html -->
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>SEHA Admin — Contacts</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg:#f6fbfa; --panel:#fff; --muted:#6b7280; --accent:#0f766e; --danger:#d14343;
+    }
+    html,body{height:100%}
+    body{margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial;background:var(--bg);color:#0b1220}
+    .wrap{max-width:920px;margin:18px auto;padding:18px}
+    .card{background:var(--panel);border-radius:10px;padding:12px;box-shadow:0 8px 30px rgba(2,6,23,0.06)}
+    .list{display:flex;flex-direction:column;gap:8px;margin-top:12px}
+    /* list item simplified: name / email / phone + view button */
+    .item{display:flex;justify-content:space-between;gap:8px;padding:12px;border-radius:8px;border:1px solid #eef2f2;background:#fff;align-items:center}
+    .left { display:flex; gap:12px; align-items:center; min-width:0; }
+    .avatar{width:44px;height:44;border-radius:8px;background:#e6f6f4;display:flex;align-items:center;justify-content:center;color:var(--accent);font-weight:700;flex:0 0 44px}
+    .meta{color:var(--muted);font-size:13px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+    .info { min-width:0; }
+    .name { font-weight:700; font-size:15px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis }
+    .small { font-size:13px; color:var(--muted) }
+    .btn{padding:8px 10px;border-radius:8px;border:0;background:#e6f6f4;color:var(--accent);cursor:pointer}
+    .btn.primary{background:var(--accent);color:#fff}
+    .btn.ghost{background:transparent;border:1px solid #eef2f2;color:var(--muted)}
+    .empty{padding:18px;text-align:center;color:var(--muted)}
+    input.search{width:100%;padding:10px;border-radius:8px;border:1px solid #eef2f2;box-sizing:border-box}
+
+    /* centered modal */
+    .modal-backdrop {
+      position: fixed; inset: 0; display: none; align-items: center; justify-content: center;
+      background: rgba(2,6,23,0.45); z-index: 2200;
+    }
+    .modal-backdrop.show { display: flex; }
+    .modal {
+      width: 100%; max-width: 760px; background: var(--panel); border-radius: 12px; padding: 18px;
+      box-shadow: 0 12px 48px rgba(2,6,23,0.24); transform: translateY(0); opacity: 1;
+    }
+    .modal-header { display:flex; align-items:center; justify-content:space-between; gap:12px }
+    .modal-title { margin:0; font-size:18px; font-weight:700 }
+    .modal-close { background:transparent; border:0; font-size:20px; cursor:pointer }
+    .muted-line { color:var(--muted); font-size:13px }
+
+    /* responsive */
+    @media (max-width:560px) {
+      .item { padding:10px; gap:8px; flex-direction:column; align-items:stretch }
+      .left { width:100%; }
+      .avatar { flex:0 0 44px; }
+      .btn { width:100%; }
+      .info { margin-top:8px }
+    }
+  </style>
+</head>
+<body>
+  <!-- Shared header -->
+  <div id="siteHeader"></div>
+
+  <div class="wrap">
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">
+      <h1 style="margin:0">Contacts inbox</h1>
+      <div id="countMeta" class="meta muted-line">Loading…</div>
+      <div style="margin-left:auto">
+        <button id="refreshBtn" class="btn">Refresh</button>
+        <a href="contact.html" class="btn">Back to Contacts</a>
+      </div>
+    </div>
+
+    <div class="card">
+      <input id="searchInput" class="search" placeholder="Search by name, email, subject or message"/>
+      <div id="list" class="list" aria-live="polite" style="margin-top:12px"></div>
+      <div id="listEmpty" class="empty" style="display:none">No contact messages yet.</div>
+    </div>
+  </div>
+
+  <!-- Centered modal for viewing details -->
+  <div id="modalBackdrop" class="modal-backdrop" role="dialog" aria-hidden="true" aria-modal="true">
+    <div class="modal" role="document" id="modalPanel">
+      <div class="modal-header">
+        <h3 class="modal-title" id="modalTitle">Contact message</h3>
+        <button class="modal-close" id="modalCloseBtn" aria-label="Close">✕</button>
+      </div>
+      <div id="modalBody" style="margin-top:12px"></div>
+      <div style="margin-top:12px;display:flex;gap:8px;justify-content:flex-end">
+        <button id="deleteModalBtn" class="btn" style="background:#fff;border:1px solid #f3d6d6;color:var(--danger)">Delete</button>
+        <button id="closeModalBtn" class="btn ghost">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+  (function(){
+    const API_BASE = (location.hostname === 'localhost' || location.hostname === '127.0.0.1')
+      ? 'http://localhost:4000'
+      : 'https://somali-eye-health-alliance-biaj.onrender.com';
+
+    const token = localStorage.getItem('seha_token');
+    if (!token) {
+      document.querySelector('.wrap').innerHTML = '<div style="padding:30px"><strong>Missing admin token.</strong> Please sign in as admin and set localStorage.seha_token to a valid JWT.</div>';
+      return;
+    }
+
+    const listEl = document.getElementById('list');
+    const listEmpty = document.getElementById('listEmpty');
+    const countMeta = document.getElementById('countMeta');
+    const searchInput = document.getElementById('searchInput');
+    const refreshBtn = document.getElementById('refreshBtn');
+
+    const modalBackdrop = document.getElementById('modalBackdrop');
+    const modalBody = document.getElementById('modalBody');
+    const modalTitle = document.getElementById('modalTitle');
+    const modalCloseBtn = document.getElementById('modalCloseBtn');
+    const closeModalBtn = document.getElementById('closeModalBtn');
+    const deleteModalBtn = document.getElementById('deleteModalBtn');
+
+    let contacts = [];
+    let currentId = null;
+
+    function authHeaders(){ return { 'Content-Type':'application/json', 'Authorization': 'Bearer ' + token }; }
+
+    async function apiFetchPath(path, opts = {}) {
+      opts.headers = Object.assign({}, opts.headers || {}, authHeaders());
+      try {
+        const res = await fetch((API_BASE || '') + '/api/contact' + path, opts);
+        const data = await res.json().catch(()=>null);
+        return { ok: res.ok, status: res.status, data };
+      } catch (err) { return { ok:false, error:err }; }
+    }
+
+    function escapeHtml(s){ if(!s) return ''; return String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
+
+    function makeListItem(contact) {
+      const d = new Date(contact.createdAt);
+      const displayDate = isNaN(d) ? '' : d.toLocaleString();
+      // show name / email / phone in the row and a View button
+      const wrapper = document.createElement('div');
+      wrapper.className = 'item';
+      wrapper.dataset.id = contact._id;
+      wrapper.innerHTML = `
+        <div class="left">
+          <div class="avatar">${contact.name ? escapeHtml(contact.name.split(' ').map(x=>x[0]).slice(0,2).join('').toUpperCase()) : 'C'}</div>
+          <div class="info">
+            <div class="name">${escapeHtml(contact.name || contact.email || '—')}</div>
+            <div class="meta small">${escapeHtml(contact.email || '')} ${contact.phone ? ' • ' + escapeHtml(contact.phone) : ''}</div>
+            <div class="meta small" style="margin-top:6px">${escapeHtml(contact.subject || (contact.message||'').slice(0,60))}</div>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <div class="meta small" style="white-space:nowrap">${displayDate}</div>
+          <button class="btn" data-action="view" data-id="${contact._id}" aria-label="View message">View</button>
+        </div>
+      `;
+      return wrapper;
+    }
+
+    function renderList(filter='') {
+      listEl.innerHTML = '';
+      const q = (filter || '').toLowerCase();
+      const items = contacts.filter(c => {
+        if (!q) return true;
+        return (c.name && c.name.toLowerCase().includes(q)) ||
+               (c.email && c.email.toLowerCase().includes(q)) ||
+               (c.subject && c.subject.toLowerCase().includes(q)) ||
+               (c.message && c.message.toLowerCase().includes(q));
+      });
+
+      if (items.length === 0) { listEmpty.style.display = 'block'; return; }
+      listEmpty.style.display = 'none';
+      items.forEach(c => {
+        listEl.appendChild(makeListItem(c));
+      });
+
+      // wire view buttons (delegation would also work; we wire per-render for clarity)
+      listEl.querySelectorAll('button[data-action="view"]').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          const id = btn.dataset.id;
+          if (!id) return;
+          e.stopPropagation();
+          openModalWith(id);
+        });
+      });
+
+      // clicking a row also opens view (except when pressing button—button stops propagation)
+      listEl.querySelectorAll('.item').forEach(it => {
+        it.addEventListener('click', (ev) => {
+          const id = it.dataset.id;
+          openModalWith(id);
+        });
+      });
+    }
+
+    async function loadList() {
+      const r = await apiFetchPath('/admin/list?limit=200', { method: 'GET' });
+      if (!r.ok || !r.data) { console.warn('fetch failed', r); return; }
+      contacts = r.data.contacts || [];
+      countMeta.textContent = (r.data.total || contacts.length) + ' total messages';
+      renderList(searchInput.value || '');
+    }
+
+    async function loadDetailForModal(id) {
+      const r = await apiFetchPath('/' + encodeURIComponent(id), { method: 'GET' });
+      if (!r.ok || !r.data || !r.data.contact) {
+        return { ok:false };
+      }
+      return { ok:true, contact: r.data.contact };
+    }
+
+    // Modal open/close & render
+    async function openModalWith(id) {
+      if (!id) return;
+      modalBackdrop.setAttribute('aria-hidden','false');
+      modalBackdrop.classList.add('show');
+      modalBody.innerHTML = '<div class="empty">Loading…</div>';
+      currentId = id;
+      // fetch latest contact details
+      const res = await loadDetailForModal(id);
+      if (!res.ok) {
+        modalBody.innerHTML = '<div class="empty">Failed to load details</div>';
+        return;
+      }
+      const c = res.contact;
+      modalTitle.textContent = escapeHtml(c.subject || 'Contact message');
+      modalBody.innerHTML = `
+        <div class="muted-line">Sent: ${new Date(c.createdAt).toLocaleString()}</div>
+        <div style="margin-top:12px"><strong>Full name:</strong> ${escapeHtml(c.name || '')}</div>
+        <div style="margin-top:6px"><strong>Email:</strong> ${escapeHtml(c.email || '')}</div>
+        <div style="margin-top:6px"><strong>Phone:</strong> ${escapeHtml(c.phone || '')}</div>
+        <div style="margin-top:12px"><strong>Message</strong>
+          <div style="white-space:pre-wrap;margin-top:8px">${escapeHtml(c.message)}</div>
+        </div>
+        <div style="margin-top:12px" class="muted-line">IP: ${escapeHtml(c.ip||'')} • Source: ${escapeHtml(c.source||'')}</div>
+      `;
+    }
+
+    function closeModal() {
+      modalBackdrop.classList.remove('show');
+      modalBackdrop.setAttribute('aria-hidden','true');
+      currentId = null;
+    }
+
+    // delete from modal
+    deleteModalBtn.addEventListener('click', async () => {
+      if (!currentId) return;
+      if (!confirm('Delete this contact message? This action cannot be undone.')) return;
+      deleteModalBtn.disabled = true;
+      try {
+        const r = await apiFetchPath('/' + encodeURIComponent(currentId), { method: 'DELETE' });
+        if (!r.ok) {
+          alert((r.data && r.data.message) ? r.data.message : 'Failed to delete');
+          return;
+        }
+        // remove locally and re-render
+        contacts = contacts.filter(c => String(c._id) !== String(currentId));
+        renderList(searchInput.value || '');
+        countMeta.textContent = `${contacts.length} total messages`;
+        closeModal();
+      } catch (err) {
+        console.error(err);
+        alert('Network error deleting message');
+      } finally {
+        deleteModalBtn.disabled = false;
+      }
+    });
+
+    // close buttons / backdrop
+    modalCloseBtn.addEventListener('click', closeModal);
+    closeModalBtn.addEventListener('click', closeModal);
+    modalBackdrop.addEventListener('click', (e) => {
+      if (e.target === modalBackdrop) closeModal();
+    });
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeModal(); });
+
+    // socket realtime updates (kept from your original)
+    function initSocket() {
+      if (!window.io) {
+        const s = document.createElement('script');
+        s.src = (API_BASE ? (API_BASE + '/socket.io/socket.io.js') : '') || 'https://cdn.socket.io/4.6.1/socket.io.min.js';
+        s.onload = initSocket;
+        s.onerror = ()=> console.warn('socket load failed');
+        document.head.appendChild(s);
+        return;
+      }
+      const socket = io(API_BASE || '/', { auth: { token }, transports: ['websocket','polling'] });
+      socket.on('connect', ()=> socket.emit('identify', { role: 'admin' }));
+      socket.on('contacts.new', (d) => {
+        if (d && d.contact) {
+          contacts.unshift(d.contact);
+          countMeta.textContent = (d.total || contacts.length) + ' total messages';
+          renderList(searchInput.value || '');
+        } else { loadList(); }
+      });
+      socket.on('contacts.deleted', (d) => {
+        if (!d) return;
+        contacts = contacts.filter(c => String(c._id) !== String(d.id));
+        countMeta.textContent = (d.total != null) ? (d.total + ' total messages') : (contacts.length + ' total messages');
+        renderList(searchInput.value || '');
+        // if modal showed this deleted id, close it
+        if (currentId && String(currentId) === String(d.id)) closeModal();
+      });
+      socket.on('disconnect', ()=> console.warn('socket disconnected'));
+    }
+
+    // wiring
+    searchInput.addEventListener('input', ()=> renderList(searchInput.value || ''));
+    refreshBtn.addEventListener('click', ()=> loadList());
+
+    (async function init(){
+      await loadList();
+      initSocket();
+      setInterval(()=> loadList(), 20000); // polling fallback
+    })();
+
+    window.__admin_contacts = { loadList };
+  })();
+  </script>
+</body>
+</html>

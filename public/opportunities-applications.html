@@ -1,0 +1,231 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Admin — Opportunity Applications</title> 
+  <style>
+    :root{ --bg:#f6f7fb; --card:#fff; --muted:#6b7280; --accent:#06b6d4; --danger:#dc2626; --text:#0f172a; font-family:Inter,system-ui,Arial; }
+    body{margin:0;background:var(--bg);color:var(--text);font-size:14px}
+    .container{max-width:1200px;margin:20px auto;padding:18px}
+    header{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
+    .card{background:var(--card);padding:12px;border-radius:10px;box-shadow:0 6px 18px rgba(2,6,23,0.04)}
+    table{width:100%;border-collapse:collapse;margin-top:12px}
+    th,td{padding:10px;border-bottom:1px solid #f0f0f4;text-align:left}
+    th{background:#fbfcfd}
+    .muted{color:var(--muted)}
+    .center{text-align:center}
+    .ghost{background:transparent;border:1px solid #e6e9ee;padding:6px 8px;border-radius:6px;cursor:pointer}
+    .btn{background:var(--accent);color:#fff;border:0;padding:8px 10px;border-radius:8px;cursor:pointer}
+    .danger{background:transparent;border:1px solid #f3c1c1;color:var(--danger);padding:6px 8px;border-radius:6px;cursor:pointer}
+    .modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,0.5)}
+    .modal.open{display:flex}
+    .modal-card{background:#fff;padding:16px;border-radius:8px;max-width:800px;width:96%}
+    .small{font-size:13px;color:var(--muted)}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div>
+        <h1 
+        opportu
+        style="margin:0">Opportunity applications 
+        
+        <a href="opportunities.html">Back to Opportunities</a> </h1>
+        <div class="small muted">List of submissions (admin only)</div>
+      </div>
+      <div style="display:flex;gap:8px">
+        <button id="btnRefresh" class="btn">Refresh</button>
+        <button id="btnExport" class="ghost">Export CSV</button>
+      </div>
+    </header>
+
+    <div id="loginNotice" class="card" style="display:none"><strong>Not signed in as admin.</strong> Please login and store token in <code>localStorage.seha_token</code></div>
+
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div style="display:flex;gap:8px;align-items:center">
+          <input id="q" placeholder="Search name, email, opportunity" />
+          <button id="btnFilter" class="ghost">Apply</button>
+          <select id="limit"><option>20</option><option>50</option><option>100</option></select>
+        </div>
+        <div class="small muted" id="pagerInfo">—</div>
+      </div>
+
+      <table>
+        <thead>
+          <tr><th>ID</th><th>Name</th><th>Email</th><th>Opportunity</th><th>CV</th><th>Status</th><th>Submitted</th><th class="center">Actions</th></tr>
+        </thead>
+        <tbody id="tbody"><tr><td colspan="8" class="center muted">Loading…</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div id="viewModal" class="modal" aria-hidden="true">
+    <div class="modal-card">
+      <h3 id="viewTitle">Application</h3>
+      <div id="viewBody" style="white-space:pre-wrap;font-family:monospace"></div>
+      <div style="text-align:right;margin-top:12px"><button id="viewClose" class="ghost">Close</button> <button id="delBtn" class="danger">Delete</button></div>
+    </div>
+  </div>
+
+<script>
+(function(){
+  const API_BASE = (location.hostname === 'localhost' || location.hostname === '127.0.0.1')
+  ? 'http://localhost:4000'
+  : 'https://somali-eye-health-alliance-biaj.onrender.com';
+  const token = () => localStorage.getItem('seha_token') || '';
+  const headers = () => ({ 'Content-Type': 'application/json', ...(token() ? { Authorization: 'Bearer ' + token() } : {}) });
+
+  const tbody = document.getElementById('tbody');
+  const qEl = document.getElementById('q');
+  const btnFilter = document.getElementById('btnFilter');
+  const btnRefresh = document.getElementById('btnRefresh');
+  const btnExport = document.getElementById('btnExport');
+  const limitEl = document.getElementById('limit');
+  const pagerInfo = document.getElementById('pagerInfo');
+  const loginNotice = document.getElementById('loginNotice');
+
+  const viewModal = document.getElementById('viewModal');
+  const viewBody = document.getElementById('viewBody');
+  const viewTitle = document.getElementById('viewTitle');
+  const viewClose = document.getElementById('viewClose');
+  const delBtn = document.getElementById('delBtn');
+
+  let page = 1, total = 0, currentId = null;
+
+  function showLogin(show){ loginNotice.style.display = show ? 'block' : 'none'; }
+
+  async function loadApplications(){
+    tbody.innerHTML = '<tr><td colspan="8" class="center muted">Loading…</td></tr>';
+    const q = encodeURIComponent(qEl.value || '');
+    const limit = Number(limitEl.value || 20);
+    const url = `${API_BASE}/api/opportunities/admin/applications?page=${page}&limit=${limit}${q?`&q=${q}`:''}`;
+    try {
+      const resp = await fetch(url, { headers: headers() });
+      if (resp.status === 401 || resp.status === 403) { showLogin(true); tbody.innerHTML = '<tr><td colspan="8" class="center muted">Unauthorized — admin token required.</td></tr>'; return; }
+      showLogin(false);
+      if (!resp.ok) { const j = await resp.json().catch(()=>({message:'Fetch failed'})); tbody.innerHTML = `<tr><td colspan="8" class="center muted">Error: ${j.message||resp.statusText}</td></tr>`; return; }
+      const j = await resp.json();
+      const rows = j.applications || [];
+      total = j.total || rows.length;
+      if (!rows.length) { tbody.innerHTML = '<tr><td colspan="8" class="center muted">No applications found.</td></tr>'; return; }
+
+      tbody.innerHTML = rows.map(a => {
+        return `<tr data-id="${a._id}">
+          <td style="font-family:monospace">${a._id.slice(-8)}</td>
+          <td>${escapeHtml(a.name || '')}</td>
+          <td>${escapeHtml(a.email || '')}</td>
+          <td>${escapeHtml(a.opportunityTitle || a.opportunityId || '')}</td>
+          <td>${a.cvUrl ? `<a href="${escapeHtml(a.cvUrl)}" target="_blank" rel="noopener">Download</a>` : ''}</td>
+          <td>${escapeHtml(a.status || '')}</td>
+          <td>${escapeHtml(new Date(a.createdAt).toLocaleString())}</td>
+          <td class="center">
+            <button class="ghost view" data-id="${a._id}">View</button>
+            <button class="danger delete" data-id="${a._id}">Delete</button>
+          </td>
+        </tr>`;
+      }).join('');
+
+      pagerInfo.textContent = `Page ${page} • ${Math.min(limit, total)} items (total ${total})`;
+      attachListeners();
+    } catch (err) {
+      console.error(err);
+      tbody.innerHTML = '<tr><td colspan="8" class="center muted">Network error</td></tr>';
+    }
+  }
+
+  function attachListeners(){
+    document.querySelectorAll('button.view').forEach(b => {
+      b.onclick = async () => {
+        const id = b.dataset.id;
+        currentId = id;
+        try {
+          const resp = await fetch(API_BASE + '/api/opportunities/admin/application/' + id, { headers: headers() });
+          if (!resp.ok) { const j = await resp.json().catch(()=>null); alert('Error: ' + (j && j.message ? j.message : resp.statusText)); return; }
+          const j = await resp.json();
+          const a = j.application || j;
+          viewTitle.textContent = 'Application ' + (a._id||'').slice(-8);
+          let html = '';
+          html += `<div><strong>Name:</strong> ${escapeHtml(a.name||'')}</div>`;
+          html += `<div><strong>Email:</strong> ${escapeHtml(a.email||'')}</div>`;
+          html += `<div><strong>Phone:</strong> ${escapeHtml(a.phone||'')}</div>`;
+          html += `<div><strong>Location:</strong> ${escapeHtml(a.location||'')}</div>`;
+          html += `<div><strong>Opportunity:</strong> ${escapeHtml(a.opportunityTitle||a.opportunityId||'')}</div>`;
+          html += `<div style="margin-top:8px"><strong>Statement:</strong><pre style="white-space:pre-wrap">${escapeHtml(a.statement||'')}</pre></div>`;
+          if (a.cvUrl) html += `<div style="margin-top:8px"><a href="${escapeHtml(a.cvUrl)}" target="_blank" rel="noopener">Download CV</a> (${escapeHtml(a.cvName||'file')})</div>`;
+          html += `<div style="margin-top:8px" class="small muted">Submitted: ${new Date(a.createdAt).toLocaleString()}</div>`;
+          viewBody.innerHTML = html;
+          viewModal.classList.add('open'); viewModal.setAttribute('aria-hidden', 'false');
+        } catch (err) { console.error(err); alert('Network error'); }
+      };
+    });
+
+    document.querySelectorAll('button.delete').forEach(b => {
+      b.onclick = async () => {
+        const id = b.dataset.id;
+        if (!confirm('Permanently delete this application?')) return;
+        try {
+          const resp = await fetch(API_BASE + '/api/opportunities/admin/application/' + id, { method: 'DELETE', headers: headers() });
+          const j = await resp.json().catch(()=>null);
+          if (!resp.ok) { alert('Delete failed: ' + (j && j.message ? j.message : resp.statusText)); return; }
+          alert('Deleted.');
+          loadApplications();
+        } catch (err) { console.error(err); alert('Network error'); }
+      };
+    });
+  }
+
+  viewClose.onclick = () => { viewModal.classList.remove('open'); viewModal.setAttribute('aria-hidden','true'); viewBody.innerHTML = ''; currentId = null; };
+  delBtn.onclick = async () => {
+    if (!currentId) return;
+    if (!confirm('Delete this application?')) return;
+    try {
+      const resp = await fetch(API_BASE + '/api/opportunities/admin/application/' + currentId, { method: 'DELETE', headers: headers() });
+      const j = await resp.json().catch(()=>null);
+      if (!resp.ok) { alert('Delete failed: ' + (j && j.message ? j.message : resp.statusText)); return; }
+      alert('Deleted.');
+      viewModal.classList.remove('open'); loadApplications();
+    } catch (err) { console.error(err); alert('Network error'); }
+  };
+
+  btnFilter.onclick = () => { page = 1; loadApplications(); };
+  btnRefresh.onclick = () => loadApplications();
+  limitEl.onchange = () => { page = 1; loadApplications(); };
+  document.getElementById('btnExport').addEventListener('click', async () => {
+    try {
+      const url = `${API_BASE}/api/opportunities/admin/export`;
+      const resp = await fetch(url, { headers: headers() });
+      if (!resp.ok) { const j = await resp.json().catch(()=>({message:'Export failed'})); alert('Export error: ' + (j.message || resp.statusText)); return; }
+      const blob = await resp.blob();
+      const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'opportunities-applications.csv'; document.body.appendChild(a); a.click(); a.remove();
+    } catch (err) { console.error(err); alert('Export failed'); }
+  });
+
+  function escapeHtml(s){ if (s === null || s === undefined) return ''; return String(s).replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m])); }
+
+  (async function init(){
+    if (!token()) {
+      showLogin(true);
+      tbody.innerHTML = '<tr><td colspan="8" class="center muted">Sign in as admin to view applications.</td></tr>';
+      return;
+    }
+    // verify admin
+    try {
+      const resp = await fetch(API_BASE + '/api/auth/me', { headers: headers() });
+      if (!resp.ok) { showLogin(true); tbody.innerHTML = '<tr><td colspan="8" class="center muted">Unauthorized</td></tr>'; return; }
+      const j = await resp.json();
+      const role = j && j.user && j.user.role ? String(j.user.role).toLowerCase() : '';
+      if (role !== 'admin' && role !== 'superadmin') { showLogin(true); tbody.innerHTML = '<tr><td colspan="8" class="center muted">Forbidden</td></tr>'; return; }
+      showLogin(false);
+      loadApplications();
+    } catch (err) {
+      console.error(err);
+      showLogin(true);
+    }
+  })();
+})();
+</script>
+</body>
+</html>
