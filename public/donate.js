@@ -1,4 +1,3 @@
-// donate.js
 (() => {
   const API_BASE = (location.hostname === 'localhost' || location.hostname === '127.0.0.1')
   ? 'http://localhost:4000'
@@ -126,389 +125,422 @@
     });
   }
 
-// donate.js - mobile USSD & bank-account copy helpers
-document.addEventListener('DOMContentLoaded', () => {
-  // Provider USSD templates (change numbers here if needed)
-  const USSD_TEMPLATES = {
-    evc: '*712*617000264*{amount}#',
-    zaad: '*111*617000264*{amount}#',
-    mybessa: '*112*617000264*{amount}#'
-  };
-  const BANK_ACCOUNT = 'NO Account Please Contact us '; // the account number to show for bank transfer
+ // donate.js - mobile USSD & bank-account copy helpers
+ document.addEventListener('DOMContentLoaded', () => {
+   // Provider USSD templates (change numbers here if needed)
+   const USSD_TEMPLATES = {
+     evc: '*712*617000264*{amount}#',
+     zaad: '*111*617000264*{amount}#',
+     mybessa: '*112*617000264*{amount}#'
+   };
+   const BANK_ACCOUNT = 'NO Account Please Contact us '; // the account number to show for bank transfer
 
-  // DOM refs
-  const presetBtns = document.querySelectorAll('.amt');
-  const customAmount = document.getElementById('customAmount');
-  const paymentMethod = document.getElementById('paymentMethod');
-  const offlineOptions = document.getElementById('offlineOptions');
-  const offlineType = document.getElementById('offlineType');
-  const mobileProviders = document.getElementById('mobileProviders');
-  const bankInfo = document.getElementById('bankInfo');
-  const mobileProvider = document.getElementById('mobileProvider');
-  const paymentInstructions = document.getElementById('paymentInstructions');
+   // DOM refs
+   const presetBtns = document.querySelectorAll('.amt');
+   const customAmount = document.getElementById('customAmount');
+   const paymentMethod = document.getElementById('paymentMethod');
+   const offlineOptions = document.getElementById('offlineOptions');
+   const offlineType = document.getElementById('offlineType');
+   const mobileProviders = document.getElementById('mobileProviders');
+   const bankInfo = document.getElementById('bankInfo');
+   const mobileProvider = document.getElementById('mobileProvider');
+   const paymentInstructions = document.getElementById('paymentInstructions');
 
-  // helper: get current amount (integer USD)
-  function getSelectedAmount() {
-    // priority: custom amount if > 0, else last selected preset with .selected
-    let amount = 0;
-    const v = Number((customAmount && customAmount.value) || 0);
-    if (v && !isNaN(v) && v > 0) return Math.round(v);
-    const chosen = document.querySelector('.amt.selected');
-    if (chosen) return Number(chosen.dataset.amount) || 0;
-    // fallback: first preset
-    const first = document.querySelector('.amt');
-    if (first) return Number(first.dataset.amount) || 0;
-    return 0;
-  }
+   // helper: get current amount (integer USD)
+   function getSelectedAmount() {
+     // priority: custom amount if > 0, else last selected preset with .selected
+     let amount = 0;
+     const v = Number((customAmount && customAmount.value) || 0);
+     if (v && !isNaN(v) && v > 0) return Math.round(v);
+     const chosen = document.querySelector('.amt.selected');
+     if (chosen) return Number(chosen.dataset.amount) || 0;
+     // fallback: first preset
+     const first = document.querySelector('.amt');
+     if (first) return Number(first.dataset.amount) || 0;
+     return 0;
+   }
 
-  // update UI to reflect selected preset
-  presetBtns.forEach(btn => {
-    btn.addEventListener('click', () => {
-      presetBtns.forEach(b => b.classList.remove('selected'));
-      btn.classList.add('selected');
-      // clear custom input when picking preset (optional)
-      if (customAmount) customAmount.value = '';
-      refreshPaymentInstructions();
-    });
-  });
+   // update UI to reflect selected preset
+   presetBtns.forEach(btn => {
+     btn.addEventListener('click', () => {
+       presetBtns.forEach(b => b.classList.remove('selected'));
+       btn.classList.add('selected');
+       // UPDATED: set custom input to the preset amount (instead of clearing it)
+       if (customAmount) customAmount.value = btn.dataset.amount;
+       refreshPaymentInstructions();
+     });
+   });
 
-  // when custom amount changes, clear selected preset
-  if (customAmount) {
-    customAmount.addEventListener('input', () => {
-      presetBtns.forEach(b => b.classList.remove('selected'));
-      refreshPaymentInstructions();
-    });
-  }
+   // when custom amount changes, clear selected preset
+   if (customAmount) {
+     customAmount.addEventListener('input', () => {
+       presetBtns.forEach(b => b.classList.remove('selected'));
+       refreshPaymentInstructions();
+     });
+   }
 
-  // show/hide offline options depending on top-level paymentMethod
-  function refreshOfflineVisibility() {
-    const method = (paymentMethod && paymentMethod.value) || '';
-    if (method === 'offline' || method === 'mobile') {
-      offlineOptions.style.display = 'block';
-      // if paymentMethod is 'mobile' consider mobile-money by default
-      if (method === 'mobile') {
-        offlineType.value = 'mobile-money';
-      }
-    } else {
-      offlineOptions.style.display = 'none';
-      paymentInstructions.style.display = 'none';
-    }
-    // ensure UI for offlineType is applied
-    refreshOfflineType();
-  }
+   // show/hide offline options depending on top-level paymentMethod
+   function refreshOfflineVisibility() {
+     const method = (paymentMethod && paymentMethod.value) || '';
+     if (method === 'offline' || method === 'mobile') {
+       offlineOptions.style.display = 'block';
+       // if paymentMethod is 'mobile' consider mobile-money by default
+       if (method === 'mobile') {
+         offlineType.value = 'mobile-money';
+       }
+     } else {
+       offlineOptions.style.display = 'none';
+       paymentInstructions.style.display = 'none';
+     }
+     // ensure UI for offlineType is applied
+     refreshOfflineType();
+   }
 
-  // show/hide mobileProviders vs bankInfo based on offlineType
-  function refreshOfflineType() {
-    const t = offlineType.value;
-    if (t === 'mobile-money') {
-      mobileProviders.style.display = 'block';
-      bankInfo.style.display = 'none';
-    } else {
-      mobileProviders.style.display = 'none';
-      bankInfo.style.display = 'block';
-    }
-    refreshPaymentInstructions();
-  }
+   // show/hide mobileProviders vs bankInfo based on offlineType
+   function refreshOfflineType() {
+     const t = offlineType.value;
+     if (t === 'mobile-money') {
+       mobileProviders.style.display = 'block';
+       bankInfo.style.display = 'none';
+     } else {
+       mobileProviders.style.display = 'none';
+       bankInfo.style.display = 'block';
+     }
+     refreshPaymentInstructions();
+   }
 
-  // Build and render instructions (USSD or bank account)
-  function refreshPaymentInstructions() {
-    const t = offlineType.value;
-    const amount = getSelectedAmount();
-    paymentInstructions.innerHTML = ''; // clear
-    paymentInstructions.style.display = 'none';
+   // Build and render instructions (USSD or bank account)
+   function refreshPaymentInstructions() {
+     const t = offlineType.value;
+     const amount = getSelectedAmount();
+     paymentInstructions.innerHTML = ''; // clear
+     paymentInstructions.style.display = 'none';
 
-    if (t === 'mobile-money') {
-      const provider = (mobileProvider && mobileProvider.value) || 'evc';
-      const template = USSD_TEMPLATES[provider] || USSD_TEMPLATES['evc'];
-      if (!amount || amount <= 0) {
-        // ask user to choose amount
-        const p = document.createElement('p');
-        p.className = 'muted';
-        p.textContent = 'Select or enter an amount to see the USSD code to dial.';
-        paymentInstructions.appendChild(p);
-        paymentInstructions.style.display = 'block';
-        return;
-      }
-      const ussd = template.replace('{amount}', encodeURIComponent(String(amount)));
-      const wrapper = document.createElement('div');
-      wrapper.style.display = 'flex';
-      wrapper.style.alignItems = 'center';
-      wrapper.style.gap = '8px';
+     if (t === 'mobile-money') {
+       const provider = (mobileProvider && mobileProvider.value) || 'evc';
+       const template = USSD_TEMPLATES[provider] || USSD_TEMPLATES['evc'];
+       if (!amount || amount <= 0) {
+         // ask user to choose amount
+         const p = document.createElement('p');
+         p.className = 'muted';
+         p.textContent = 'Select or enter an amount to see the USSD code to dial.';
+         paymentInstructions.appendChild(p);
+         paymentInstructions.style.display = 'block';
+         return;
+       }
+       const ussd = template.replace('{amount}', encodeURIComponent(String(amount)));
+       const wrapper = document.createElement('div');
+       wrapper.style.display = 'flex';
+       wrapper.style.alignItems = 'center';
+       wrapper.style.gap = '8px';
 
-      // show the USSD in an input so mobile users can long-press / copy easily
-      const inp = document.createElement('input');
-      inp.type = 'text';
-      inp.readOnly = true;
-      inp.value = ussd;
-      inp.style.padding = '8px';
-      inp.style.borderRadius = '8px';
-      inp.style.border = '1px solid #e6eef0';
-      inp.style.minWidth = '220px';
-      wrapper.appendChild(inp);
+       // show the USSD in an input so mobile users can long-press / copy easily
+       const inp = document.createElement('input');
+       inp.type = 'text';
+       inp.readOnly = true;
+       inp.value = ussd;
+       inp.style.padding = '8px';
+       inp.style.borderRadius = '8px';
+       inp.style.border = '1px solid #e6eef0';
+       inp.style.minWidth = '220px';
+       wrapper.appendChild(inp);
 
-      const copyBtn = document.createElement('button');
-      copyBtn.type = 'button';
-      copyBtn.className = 'btn';
-      copyBtn.style.padding = '8px 10px';
-      copyBtn.innerHTML = 'Copy';
-      copyBtn.addEventListener('click', async () => {
-        try {
-          await navigator.clipboard.writeText(ussd);
-          showCopied(copyBtn);
-        } catch (e) {
-          // fallback: select and prompt
-          inp.select();
-          document.execCommand && document.execCommand('copy');
-          showCopied(copyBtn);
-        }
-      });
-      wrapper.appendChild(copyBtn);
+       const copyBtn = document.createElement('button');
+       copyBtn.type = 'button';
+       copyBtn.className = 'btn';
+       copyBtn.style.padding = '8px 10px';
+       copyBtn.innerHTML = 'Copy';
+       copyBtn.addEventListener('click', async () => {
+         try {
+           await navigator.clipboard.writeText(ussd);
+           showCopied(copyBtn);
+         } catch (e) {
+           // fallback: select and prompt
+           inp.select();
+           document.execCommand && document.execCommand('copy');
+           showCopied(copyBtn);
+         }
+       });
+       wrapper.appendChild(copyBtn);
 
-      // helper dial hint for mobile: small link to open dialer (on mobile most browsers support)
-      const dialLink = document.createElement('a');
-      dialLink.href = `tel:${ussd}`;
-      dialLink.textContent = 'Dial now';
-      dialLink.style.marginLeft = '6px';
-      dialLink.style.fontSize = '13px';
-      wrapper.appendChild(dialLink);
+       // helper dial hint for mobile: small link to open dialer (on mobile most browsers support)
+       const dialLink = document.createElement('a');
+       dialLink.href = `tel:${ussd}`;
+       dialLink.textContent = 'Dial now';
+       dialLink.style.marginLeft = '6px';
+       dialLink.style.fontSize = '13px';
+       wrapper.appendChild(dialLink);
 
-      paymentInstructions.appendChild(wrapper);
-      paymentInstructions.style.display = 'block';
-      return;
-    }
+       paymentInstructions.appendChild(wrapper);
+       paymentInstructions.style.display = 'block';
+       return;
+     }
 
-    // bank transfer instructions
-    if (t === 'bank') {
-      const wrapper = document.createElement('div');
-      wrapper.style.display = 'flex';
-      wrapper.style.alignItems = 'center';
-      wrapper.style.gap = '8px';
+     // bank transfer instructions
+     if (t === 'bank') {
+       const wrapper = document.createElement('div');
+       wrapper.style.display = 'flex';
+       wrapper.style.alignItems = 'center';
+       wrapper.style.gap = '8px';
 
-      const accSpan = document.createElement('span');
-      accSpan.id = 'displayBankAcc';
-      accSpan.textContent = BANK_ACCOUNT;
-      accSpan.style.fontWeight = '700';
-      accSpan.style.padding = '8px';
-      accSpan.style.borderRadius = '8px';
-      accSpan.style.border = '1px solid #e6eef0';
-      wrapper.appendChild(accSpan);
+       const accSpan = document.createElement('span');
+       accSpan.id = 'displayBankAcc';
+       accSpan.textContent = BANK_ACCOUNT;
+       accSpan.style.fontWeight = '700';
+       accSpan.style.padding = '8px';
+       accSpan.style.borderRadius = '8px';
+       accSpan.style.border = '1px solid #e6eef0';
+       wrapper.appendChild(accSpan);
 
-      const copyBtn = document.createElement('button');
-      copyBtn.type = 'button';
-      copyBtn.className = 'btn';
-      copyBtn.style.padding = '8px 10px';
-      copyBtn.innerHTML = 'Copy';
-      copyBtn.addEventListener('click', async () => {
-        try {
-          await navigator.clipboard.writeText(BANK_ACCOUNT);
-          showCopied(copyBtn);
-        } catch(e){
-          // fallback: select text trick
-          const ta = document.createElement('textarea');
-          ta.value = BANK_ACCOUNT;
-          document.body.appendChild(ta);
-          ta.select();
-          document.execCommand && document.execCommand('copy');
-          ta.remove();
-          showCopied(copyBtn);
-        }
-      });
-      wrapper.appendChild(copyBtn);
+       const copyBtn = document.createElement('button');
+       copyBtn.type = 'button';
+       copyBtn.className = 'btn';
+       copyBtn.style.padding = '8px 10px';
+       copyBtn.innerHTML = 'Copy';
+       copyBtn.addEventListener('click', async () => {
+         try {
+           await navigator.clipboard.writeText(BANK_ACCOUNT);
+           showCopied(copyBtn);
+         } catch(e){
+           // fallback: select text trick
+           const ta = document.createElement('textarea');
+           ta.value = BANK_ACCOUNT;
+           document.body.appendChild(ta);
+           ta.select();
+           document.execCommand && document.execCommand('copy');
+           ta.remove();
+           showCopied(copyBtn);
+         }
+       });
+       wrapper.appendChild(copyBtn);
 
-      const info = document.createElement('div');
-      info.style.marginLeft = '8px';
-      info.className = 'muted';
-      info.textContent = 'Use this account number for bank transfer; then confirm transfer above.';
-      paymentInstructions.appendChild(wrapper);
-      paymentInstructions.appendChild(info);
-      paymentInstructions.style.display = 'block';
-      return;
-    }
+       const info = document.createElement('div');
+       info.style.marginLeft = '8px';
+       info.className = 'muted';
+       info.textContent = 'Use this account number for bank transfer; then confirm transfer above.';
+       paymentInstructions.appendChild(wrapper);
+       paymentInstructions.appendChild(info);
+       paymentInstructions.style.display = 'block';
+       return;
+     }
 
-    // otherwise nothing
-    paymentInstructions.style.display = 'none';
-  }
+     // otherwise nothing
+     paymentInstructions.style.display = 'none';
+   }
 
-  // small helper that shows "Copied!" text briefly
-  function showCopied(btn) {
-    const orig = btn.innerHTML;
-    btn.innerHTML = 'Copied ✔';
-    setTimeout(()=> btn.innerHTML = orig, 1800);
-  }
+   // small helper that shows "Copied!" text briefly
+   function showCopied(btn) {
+     const orig = btn.innerHTML;
+     btn.innerHTML = 'Copied ✔';
+     setTimeout(()=> btn.innerHTML = orig, 1800);
+   }
 
-  // copy buttons for static bank account in markup (the one near #bankAccountNumber)
-  document.querySelectorAll('.copy-btn').forEach(cb => {
-    cb.addEventListener('click', async (ev) => {
-      const sel = cb.getAttribute('data-copy-target');
-      let text = '';
-      if (sel) {
-        const el = document.querySelector(sel);
-        if (el) text = el.textContent.trim();
-      }
-      if (!text) {
-        // fallback to bank account constant
-        text = BANK_ACCOUNT;
-      }
-      try {
-        await navigator.clipboard.writeText(text);
-        showCopied(cb);
-      } catch(e){
-        const ta = document.createElement('textarea'); ta.value = text; document.body.appendChild(ta); ta.select();
-        document.execCommand && document.execCommand('copy'); ta.remove();
-        showCopied(cb);
-      }
-    });
-  });
+   // copy buttons for static bank account in markup (the one near #bankAccountNumber)
+   document.querySelectorAll('.copy-btn').forEach(cb => {
+     cb.addEventListener('click', async (ev) => {
+       const sel = cb.getAttribute('data-copy-target');
+       let text = '';
+       if (sel) {
+         const el = document.querySelector(sel);
+         if (el) text = el.textContent.trim();
+       }
+       if (!text) {
+         // fallback to bank account constant
+         text = BANK_ACCOUNT;
+       }
+       try {
+         await navigator.clipboard.writeText(text);
+         showCopied(cb);
+       } catch(e){
+         const ta = document.createElement('textarea'); ta.value = text; document.body.appendChild(ta); ta.select();
+         document.execCommand && document.execCommand('copy'); ta.remove();
+         showCopied(cb);
+       }
+     });
+   });
 
-  // event listeners
-  if (paymentMethod) paymentMethod.addEventListener('change', refreshOfflineVisibility);
-  if (offlineType) offlineType.addEventListener('change', refreshOfflineType);
-  if (mobileProvider) mobileProvider.addEventListener('change', refreshPaymentInstructions);
-  if (customAmount) customAmount.addEventListener('blur', refreshPaymentInstructions);
+   // event listeners
+   if (paymentMethod) paymentMethod.addEventListener('change', refreshOfflineVisibility);
+   if (offlineType) offlineType.addEventListener('change', refreshOfflineType);
+   if (mobileProvider) mobileProvider.addEventListener('change', refreshPaymentInstructions);
+   if (customAmount) customAmount.addEventListener('blur', refreshPaymentInstructions);
 
-  // if page loads and paymentMethod is mobile, show options
-  refreshOfflineVisibility();
-  refreshPaymentInstructions();
+   // if page loads and paymentMethod is mobile, show options
+   refreshOfflineVisibility();
+   refreshPaymentInstructions();
 
-  // Optional: also update when user types amount instantly
-  if (customAmount) customAmount.addEventListener('input', () => {
-    // only update after a brief debounce to be not too chatty
-    clearTimeout(customAmount._deb);
-    customAmount._deb = setTimeout(refreshPaymentInstructions, 250);
-  });
-});
+   // Optional: also update when user types amount instantly
+   if (customAmount) customAmount.addEventListener('input', () => {
+     // only update after a brief debounce to be not too chatty
+     clearTimeout(customAmount._deb);
+     customAmount._deb = setTimeout(refreshPaymentInstructions, 250);
+   });
+ });
 
+ // form submit: create donation (general flow). For non-offline methods, it returns different payloads.
+ donateForm.addEventListener('submit', async (e) => {
+   e.preventDefault();
+   donateMsg.textContent = '';
+   const name = document.getElementById('donorName').value.trim() || null;
+   const email = document.getElementById('donorEmail').value.trim() || null;
+   const amount = Number((customInput.value || 0));
+   const freq = (document.querySelector('input[name="frequency"]:checked')||{}).value || 'one-time';
+   const methodVal = paymentMethod.value || 'offline';
+   const message = document.getElementById('donorMessage').value || '';
+   if (!email || !amount || isNaN(amount) || amount <= 0) {
+     donateMsg.textContent = 'Please enter a valid email and donation amount.';
+     return;
+   }
+   donateMsg.textContent = 'Creating donation...';
+   try {
+     const payload = { donorName: name, donorEmail: email, amount, frequency: freq, method: (methodVal==='mobile'?'mobile':methodVal), message };
+     const resp = await fetch(API_BASE + '/api/donations', {
+       method: 'POST', headers: { 'Content-Type':'application/json' }, body: JSON.stringify(payload)
+     });
+     const j = await resp.json();
+     if (!resp.ok) {
+       donateMsg.innerHTML = '<span class="error">' + (j.message || 'Create failed') + '</span>';
+       return;
+     }
 
+     const donation = j.donation;
+     // store pending for anonymous user
+     if (!window.currentUser) {
+       localStorage.setItem(LS_PENDING, JSON.stringify({ donationId: donation._id, createdAt: new Date().toISOString() }));
+     }
 
-  // form submit: create donation (general flow). For non-offline methods, it returns different payloads.
-  donateForm.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    donateMsg.textContent = '';
-    const name = document.getElementById('donorName').value.trim() || null;
-    const email = document.getElementById('donorEmail').value.trim() || null;
-    const amount = Number((customInput.value || 0));
-    const freq = (document.querySelector('input[name="frequency"]:checked')||{}).value || 'one-time';
-    const methodVal = paymentMethod.value || 'offline';
-    const message = document.getElementById('donorMessage').value || '';
-    if (!email || !amount || isNaN(amount) || amount <= 0) {
-      donateMsg.textContent = 'Please enter a valid email and donation amount.';
-      return;
-    }
-    donateMsg.textContent = 'Creating donation...';
-    try {
-      const payload = { donorName: name, donorEmail: email, amount, frequency: freq, method: (methodVal==='mobile'?'mobile':methodVal), message };
-      const resp = await fetch(API_BASE + '/api/donations', {
-        method: 'POST', headers: { 'Content-Type':'application/json' }, body: JSON.stringify(payload)
-      });
-      const j = await resp.json();
-      if (!resp.ok) {
-        donateMsg.innerHTML = '<span class="error">' + (j.message || 'Create failed') + '</span>';
-        return;
-      }
+     // respond differently by method
+     if (payload.method === 'mobile') {
+       const ussd = j.ussd || (donation.meta && donation.meta.ussd) || null;
+       donateMsg.innerHTML = `<div>Mobile donation initiated. Dial <strong>${ussd || 'the provider USSD'}</strong> to send payment, then confirm on this page.</div>
+         <div style="margin-top:8px"><button id="confirmMobile" class="btn">Confirm payment</button></div>`;
+       document.getElementById('confirmMobile').addEventListener('click', () => showConfirmUI(donation._id, donation.amount));
+       return;
+     }
 
-      const donation = j.donation;
-      // store pending for anonymous user
-      if (!window.currentUser) {
-        localStorage.setItem(LS_PENDING, JSON.stringify({ donationId: donation._id, createdAt: new Date().toISOString() }));
-      }
+     if (payload.method === 'offline') {
+       // show bank info returned by server or from env placeholders on the page
+       const bank = j.bankInfo || {
+         bank: document.getElementById('bankName').textContent,
+         branch: '',
+         accountName: document.getElementById('bankAccountName').textContent,
+         accountNumber: document.getElementById('bankAccountNumber').textContent,
+         email: document.getElementById('bankEmail').textContent
+       };
+       donateMsg.innerHTML = `<div>Offline donation recorded (pending). Please transfer using the details below and click Confirm after you transfer.</div>
+        <div style="margin-top:8px"><strong>Bank:</strong> ${bank.bank} — ${bank.branch}<br><strong>Account:</strong> ${bank.accountName} — ${bank.accountNumber}<br>Email for receipts: ${bank.email}</div>
+        <div style="margin-top:8px">Your donation ID: <code>${donation._id}</code></div>
+        <div style="margin-top:8px"><button id="confirmOfflineNow" class="btn">I have transferred / Confirm</button></div>`;
+       document.getElementById('confirmOfflineNow').addEventListener('click', () => showConfirmUI(donation._id, donation.amount));
+       return;
+     }
 
-      // respond differently by method
-      if (payload.method === 'mobile') {
-        const ussd = j.ussd || (donation.meta && donation.meta.ussd) || null;
-        donateMsg.innerHTML = `<div>Mobile donation initiated. Dial <strong>${ussd || 'the provider USSD'}</strong> to send payment, then confirm on this page.</div>
-          <div style="margin-top:8px"><button id="confirmMobile" class="btn">Confirm payment</button></div>`;
-        document.getElementById('confirmMobile').addEventListener('click', () => showConfirmUI(donation._id, donation.amount));
-        return;
-      }
+     // for stripe/paypal placeholder: inform user that payment provider integration is pending
+     if (payload.method === 'stripe' || payload.method === 'paypal') {
+       donateMsg.innerHTML = `<span class="muted">Payment provider integration placeholder. Admin will process or you will be redirected when integration is configured.</span>`;
+       return;
+     }
 
-      if (payload.method === 'offline') {
-        // show bank info returned by server or from env placeholders on the page
-        const bank = j.bankInfo || {
-          bank: document.getElementById('bankName').textContent,
-          branch: '',
-          accountName: document.getElementById('bankAccountName').textContent,
-          accountNumber: document.getElementById('bankAccountNumber').textContent,
-          email: document.getElementById('bankEmail').textContent
-        };
-        donateMsg.innerHTML = `<div>Offline donation recorded (pending). Please transfer using the details below and click Confirm after you transfer.</div>
-         <div style="margin-top:8px"><strong>Bank:</strong> ${bank.bank} — ${bank.branch}<br><strong>Account:</strong> ${bank.accountName} — ${bank.accountNumber}<br>Email for receipts: ${bank.email}</div>
-         <div style="margin-top:8px">Your donation ID: <code>${donation._id}</code></div>
-         <div style="margin-top:8px"><button id="confirmOfflineNow" class="btn">I have transferred / Confirm</button></div>`;
-        document.getElementById('confirmOfflineNow').addEventListener('click', () => showConfirmUI(donation._id, donation.amount));
-        return;
-      }
+     donateMsg.innerHTML = `<span class="success">Donation recorded (demo). Thank you!</span>`;
+   } catch (err) {
+     console.error(err);
+     donateMsg.innerHTML = '<span class="error">Network error</span>';
+   }
+ });
 
-      // for stripe/paypal placeholder: inform user that payment provider integration is pending
-      if (payload.method === 'stripe' || payload.method === 'paypal') {
-        donateMsg.innerHTML = `<span class="muted">Payment provider integration placeholder. Admin will process or you will be redirected when integration is configured.</span>`;
-        return;
-      }
+ // If we have a pending donation in storage, show quick action
+ (function checkPending(){
+   try {
+     const p = JSON.parse(localStorage.getItem(LS_PENDING));
+     if (!p || !p.donationId) return;
+     donateMsg.innerHTML = `<div>You have a pending donation (ID: <code>${p.donationId}</code>). <button id="checkDonationStatus" class="btn">Check status</button></div>`;
+     document.getElementById('checkDonationStatus').addEventListener('click', async () => {
+       donateMsg.textContent = 'Checking...';
+       try {
+         const resp = await fetch(API_BASE + `/api/donations/${p.donationId}`);
+         const j = await resp.json();
+         if (!resp.ok) { donateMsg.innerHTML = '<span class="error">' + (j.message || 'Check failed') + '</span>'; return; }
+         const d = j.donation;
+         donateMsg.innerHTML = `<div>Donation status: <strong>${d.status}</strong> (method: ${d.method}).</div>
+           <div style="margin-top:8px"><button id="openConfirm" class="btn secondary">Submit confirmation / details</button></div>`;
+         document.getElementById('openConfirm').addEventListener('click', () => showConfirmUI(d._id, d.amount));
+       } catch (err) { console.error(err); donateMsg.innerHTML = '<span class="error">Network error</span>'; }
+     });
+   } catch(e){}
+ })();
 
-      donateMsg.innerHTML = `<span class="success">Donation recorded (demo). Thank you!</span>`;
-    } catch (err) {
-      console.error(err);
-      donateMsg.innerHTML = '<span class="error">Network error</span>';
-    }
-  });
+ // --- Admin-only "Check donations" button logic ---
+ // Shows the "Check donations" button only when the logged-in user is admin/superadmin.
+ (async function adminCheck() {
+   try {
+     const btn = document.getElementById('checkDonationsBtn');
+     if (!btn) return;
 
-  // If we have a pending donation in storage, show quick action
-  (function checkPending(){
-    try {
-      const p = JSON.parse(localStorage.getItem(LS_PENDING));
-      if (!p || !p.donationId) return;
-      donateMsg.innerHTML = `<div>You have a pending donation (ID: <code>${p.donationId}</code>). <button id="checkDonationStatus" class="btn">Check status</button></div>`;
-      document.getElementById('checkDonationStatus').addEventListener('click', async () => {
-        donateMsg.textContent = 'Checking...';
-        try {
-          const resp = await fetch(API_BASE + `/api/donations/${p.donationId}`);
-          const j = await resp.json();
-          if (!resp.ok) { donateMsg.innerHTML = '<span class="error">' + (j.message || 'Check failed') + '</span>'; return; }
-          const d = j.donation;
-          donateMsg.innerHTML = `<div>Donation status: <strong>${d.status}</strong> (method: ${d.method}).</div>
-            <div style="margin-top:8px"><button id="openConfirm" class="btn secondary">Submit confirmation / details</button></div>`;
-          document.getElementById('openConfirm').addEventListener('click', () => showConfirmUI(d._id, d.amount));
-        } catch (err) { console.error(err); donateMsg.innerHTML = '<span class="error">Network error</span>'; }
-      });
-    } catch(e){}
-  })();
+     // token storage key used by your admin UI
+     const token = localStorage.getItem('seha_token') || null;
+     if (!token) return; // no token -> don't show
 
-  // --- Admin-only "Check donations" button logic ---
-// Shows the "Check donations" button only when the logged-in user is admin/superadmin.
-(async function adminCheck() {
-  try {
-    const btn = document.getElementById('checkDonationsBtn');
-    if (!btn) return;
+     const resp = await fetch(API_BASE + '/api/auth/me', {
+       headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' }
+     });
 
-    // token storage key used by your admin UI
-    const token = localStorage.getItem('seha_token') || null;
-    if (!token) return; // no token -> don't show
+     if (!resp.ok) {
+       // not authorized -> don't show
+       return;
+     }
 
-    const resp = await fetch(API_BASE + '/api/auth/me', {
-      headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' }
-    });
+     const data = await resp.json();
+     const user = data && data.user ? data.user : null;
+     if (!user || !user.role) return;
 
-    if (!resp.ok) {
-      // not authorized -> don't show
-      return;
-    }
+     const role = String(user.role).toLowerCase();
+     if (role === 'admin' || role === 'superadmin') {
+       // show button and attach click
+       btn.style.display = 'inline-block';
+       btn.addEventListener('click', (e) => {
+         // navigate to admin donations page - adjust path if your admin UI lives elsewhere
+         window.location.href = 'admin/donations.html';
+       });
+     }
+   } catch (err) {
+     // network or unexpected error — silently do nothing (button stays hidden)
+     console.error('Admin check failed', err);
+   }
+ })();
 
-    const data = await resp.json();
-    const user = data && data.user ? data.user : null;
-    if (!user || !user.role) return;
+ // --- Sync preset -> custom input + default = 30 ---
+ (function syncPresetToCustom() {
+   const DEFAULT = '30';
 
-    const role = String(user.role).toLowerCase();
-    if (role === 'admin' || role === 'superadmin') {
-      // show button and attach click
-      btn.style.display = 'inline-block';
-      btn.addEventListener('click', (e) => {
-        // navigate to admin donations page - adjust path if your admin UI lives elsewhere
-        window.location.href = 'admin/donations.html';
-      });
-    }
-  } catch (err) {
-    // network or unexpected error — silently do nothing (button stays hidden)
-    console.error('Admin check failed', err);
-  }
-})();
+   // helper to mark a preset active (visual class used in your code: btn-primary and selected)
+   function activatePreset(btn) {
+     presetBtns.forEach(b => b.classList.remove('btn-primary', 'selected'));
+     if (btn) {
+       btn.classList.add('btn-primary', 'selected');
+       // update custom input to match the preset
+       if (customInput) customInput.value = btn.dataset.amount;
+     }
+   }
 
+   // wire clicks (in case wiring happens earlier in file, re-wire safely)
+   presetBtns.forEach(b => {
+     // ensure click also sets the custom field (keeps existing behaviour)
+     b.addEventListener('click', () => {
+       activatePreset(b);
+     });
+   });
+
+   // if user types a custom amount, clear preset "selected" state
+   if (customInput) {
+     customInput.addEventListener('input', () => {
+       // don't remove value here — only the selected visual state
+       presetBtns.forEach(p => p.classList.remove('btn-primary', 'selected'));
+     });
+   }
+
+   // set initial default to US$30 if that button exists, otherwise fallback to first preset
+   const defaultBtn = document.querySelector(`.amt[data-amount="${DEFAULT}"]`);
+   if (defaultBtn) activatePreset(defaultBtn);
+   else if (presetBtns.length) activatePreset(presetBtns[0]);
+ })();
 })();
