@@ -287,7 +287,7 @@
   <main class="section">
     <div class="container">
       <h1>Awareness Campaigns & Toolkits</h1>
-      <p class="muted">SEHA produces campaigns, posters and simple toolkits for community health workers, schools and clinics to raise awareness about eye care, preventable blindness, and how to access local services.</p>
+      <p class="muted">Somali Eye Health Alliance produces campaigns, posters and simple toolkits for community health workers, schools and clinics to raise awareness about eye care, preventable blindness, and how to access local services.</p>
 
     
 
@@ -295,7 +295,7 @@
       <div class="grid grid-3" id="awarenessGrid" style="margin-top:12px">
         <!-- Campaign card 1 -->
         <article class="card">
-          <img src="images/image1.png" alt="School vision screening" style="width:100%;height:160px;object-fit:cover;border-radius:8px">
+          <img src="images/schoolscreen3.jpeg" alt="School vision screening" style="width:100%;height:160px;object-fit:cover;border-radius:8px">
           <h4 style="margin-top:10px">School Vision Screening Drive</h4>
           <p class="muted">A complete school screening toolkit — poster, screening form and referral card so teachers and health workers can detect refractive errors early.</p>
           <p class="muted"><strong>Downloads:</strong></p>
@@ -308,7 +308,7 @@
 
         <!-- Campaign card 2 -->
         <article class="card">
-          <img src="images/image2.png" alt="Community outreach" style="width:100%;height:160px;object-fit:cover;border-radius:8px">
+          <img src="images/screening.png" alt="Community outreach" style="width:100%;height:160px;object-fit:cover;border-radius:8px">
           <h4>Community Outreach & Screening</h4>
           <p class="muted">Materials and messaging for outreach events in markets and community centers: oral scripts, poster artwork and community radio briefings.</p>
           <ul class="small-list">
@@ -320,7 +320,7 @@
 
         <!-- Campaign card 3 -->
         <article class="card">
-          <img src="images/image3.png" alt="Caregiver messaging" style="width:100%;height:160px;object-fit:cover;border-radius:8px">
+          <img src="images/screening5.jpeg" alt="Caregiver messaging" style="width:100%;height:160px;object-fit:cover;border-radius:8px">
           <h4>Caregiver & Maternal Health Messaging</h4>
           <p class="muted">Short messages for maternal health clinics about neonatal red reflex checks and when to refer for urgent ophthalmic care.</p>
           <ul class="small-list">
@@ -375,36 +375,205 @@
   </main>
 
 <!-- FOOTER -->
-<footer class="site-footer" role="contentinfo">
-  <div class="container footer-inner">
-    <div class="footer-col">
-      <img src="images/logo.png" alt="SEHA logo" class="footer-logo">
-      <p class="muted">© 2026 Somali Eye Health Alliance — All Rights Reserved <a href="/public/admin/developers-contact.html">Developers</a></p>
-    </div>
+  <!-- FOOTER -->
+  <footer class="site-footer" role="contentinfo">
+    <div class="container footer-inner">
+      <div class="footer-col">
+        <img src="images/logo.png" alt="SEHA logo" class="footer-logo">
+        <p class="muted">© 2026 Somali Eye Health Alliance — All Rights Reserved <a href="developers-contact.html">Developers</a></p>
+      </div>
 
-    <div class="footer-col">
-      <h4>Quick links</h4>
-      <ul class="small-list footer-links">
-        <li><a href="index.html">Home</a></li>
-        <li><a href="about.html">About Us</a></li>
-        <li><a href="programs.html">Programs</a></li>
-        <li><a href="resources.html">Resources</a></li>
-        <li><a href="membership.html">Membership</a></li>
-        <li><a href="contact.html">Contact</a></li>
-      </ul>
-    </div>
+      <div class="footer-col">
+        <h4>Quick links</h4>
+        <ul class="small-list footer-links">
+          <li><a href="index.html">Home</a></li>
+          <li><a href="about.html">About Us</a></li>
+          <li><a href="programs.html">Programs</a></li>
+          <li><a href="resources.html">Resources</a></li>
+          <li><a href="membership.html">Membership</a></li>
+          <li><a href="contact.html">Contact</a></li>
+        </ul>
+      </div>
 
-    <div class="footer-col">
-      <h4>Contact</h4>
-      <address class="muted">
-        Mogadishu, Somalia<br>
-        info@Somalieyehealthalliance.org <br>
-        +252 61 7000264
-              </address>
+      <div class="footer-col">
+        <h4>Contact</h4>
+        <address class="muted">
+          Mogadishu, Somalia<br>
+          info@Somalieyehealthalliance.org <br>
+          +252 61 7000264
+                </address>
+      </div>
     </div>
-  </div>
-</footer>
+  </footer>
 
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const awarenessGrid = document.getElementById('awarenessGrid');
+    if (!awarenessGrid) return;
+  
+    // --- Configure campaigns: change these image file names to match your images/ folder ---
+    const CAMPAIGNS = [
+      { id: 1, title: 'School Vision Screening — Borama', category: 'School screening', img: 'images/schoolscreen1.jpeg', excerpt: 'Toolkit and checklist for high-quality school screening events.' },
+      { id: 2, title: 'Community Outreach — Afgooye', category: 'Community outreach', img: 'images/screening.jpeg', excerpt: 'Mobile outreach campaign bringing screening and spectacles to rural communities.' },
+      { id: 3, title: 'Campaign Toolkit: Vision Week', category: 'Campaign toolkit', img: 'images/screening5.jpeg', excerpt: 'A full toolkit for running a Vision Week campaign — posters, checklists and outreach scripts.' },
+      { id: 4, title: 'Poster Pack: Child Vision', category: 'Poster', img: 'images/schoolscreen3.jpeg', excerpt: 'Printable posters targeted at schoolchildren and parents — multilingual assets.' },
+      { id: 5, title: 'School Screening — Hargeisa pilot', category: 'School screening', img: 'images/schoolscreen2.jpeg', excerpt: 'Pilot materials and evaluation summary from Hargeisa pilot screenings.' },
+      { id: 6, title: 'Community Eye Day — Beledweyne', category: 'Community outreach', img: 'images/screening5.jpeg', excerpt: 'Community Eye Day resources and follow-up pathways for district clinics.' }
+    ];
+  
+    const FILTERS = ['All', 'School screening', 'Community outreach', 'Campaign toolkit', 'Poster'];
+    let currentFilter = 'All';
+  
+    // Build or reuse filter bar
+    let filterBar = document.querySelector('.filter-bar--awareness');
+    if (!filterBar) {
+      filterBar = document.createElement('div');
+      filterBar.className = 'filter-bar filter-bar--awareness';
+      filterBar.style.display = 'flex';
+      filterBar.style.gap = '8px';
+      filterBar.style.flexWrap = 'wrap';
+      filterBar.style.marginBottom = '12px';
+      FILTERS.forEach((f) => {
+        const btn = document.createElement('button');
+        btn.className = 'filter-btn';
+        btn.type = 'button';
+        btn.textContent = f;
+        btn.dataset.filter = f;
+        btn.setAttribute('aria-pressed', 'false');
+  
+        // styling hint (you can move to CSS)
+        btn.style.padding = '8px 12px';
+        btn.style.borderRadius = '8px';
+        btn.style.border = '1px solid rgba(0,0,0,0.06)';
+        btn.style.background = 'transparent';
+        btn.style.cursor = 'pointer';
+        btn.style.fontWeight = '700';
+  
+        btn.addEventListener('click', () => {
+          // set active
+          filterBar.querySelectorAll('.filter-btn').forEach(b => { b.classList.remove('active'); b.setAttribute('aria-pressed','false'); b.style.background = 'transparent'; });
+          btn.classList.add('active');
+          btn.setAttribute('aria-pressed','true');
+          btn.style.background = 'linear-gradient(90deg,var(--primary, #0f766e),var(--accent, #2dd4bf))';
+          btn.style.color = '#fff';
+  
+          currentFilter = f;
+          renderAwarenessGrid();
+          btn.focus();
+        });
+  
+        // keyboard: allow Enter/Space to activate
+        btn.addEventListener('keydown', (ev) => {
+          if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); btn.click(); }
+        });
+  
+        filterBar.appendChild(btn);
+      });
+      awarenessGrid.parentNode.insertBefore(filterBar, awarenessGrid);
+    }
+  
+    // Add a CSS class for the grid if not present (optional styling)
+    awarenessGrid.classList.add('awareness-grid');
+  
+    // Render function
+    function renderAwarenessGrid() {
+      awarenessGrid.innerHTML = '';
+      const filtered = CAMPAIGNS.filter(c => (currentFilter === 'All' ? true : c.category === currentFilter));
+      if (!filtered.length) {
+        const p = document.createElement('p');
+        p.className = 'muted';
+        p.textContent = 'No items found for this filter.';
+        awarenessGrid.appendChild(p);
+        return;
+      }
+  
+      // create a fragment for performance
+      const frag = document.createDocumentFragment();
+  
+      filtered.forEach(c => {
+        const card = document.createElement('article');
+        card.className = 'card';
+        card.setAttribute('data-category', c.category);
+        card.style.display = 'flex';
+        card.style.flexDirection = 'column';
+        card.style.gap = '8px';
+  
+        // image element (use the img path string)
+        const img = document.createElement('img');
+        img.src = c.img;
+        img.alt = c.title;
+        img.loading = 'lazy';
+        img.style.width = '100%';
+        img.style.height = '160px';
+        img.style.objectFit = 'cover';
+        img.style.borderRadius = '8px';
+  
+        // fallback on broken images: try to show a generic placeholder from your images folder
+        img.addEventListener('error', function () {
+          this.classList.add('broken');
+          // fallback file - change to an image that exists in your images/ folder
+          if (this.src.indexOf('image1.png') === -1) this.src = 'images/image1.png';
+          else this.src = 'images/placeholder.png';
+        });
+  
+        const bodyWrap = document.createElement('div');
+        bodyWrap.style.padding = '6px 0 2px';
+  
+        const h4 = document.createElement('h4');
+        h4.style.margin = '0 0 6px 0';
+        h4.style.fontSize = '16px';
+        h4.textContent = c.title;
+  
+        const cat = document.createElement('div');
+        cat.className = 'muted';
+        cat.style.fontSize = '13px';
+        cat.style.marginBottom = '6px';
+        cat.textContent = c.category;
+  
+        const ex = document.createElement('p');
+        ex.className = 'muted';
+        ex.style.margin = '0 0 8px 0';
+        ex.textContent = c.excerpt;
+  
+        const linkP = document.createElement('p');
+        linkP.style.margin = '0';
+        const a = document.createElement('a');
+        a.href = `awareness-detail-${c.id}.html`;
+        a.setAttribute('aria-label', `Read more about ${c.title}`);
+        a.textContent = 'Read more →';
+        linkP.appendChild(a);
+  
+        bodyWrap.appendChild(h4);
+        bodyWrap.appendChild(cat);
+        bodyWrap.appendChild(ex);
+        bodyWrap.appendChild(linkP);
+  
+        card.appendChild(img);
+        card.appendChild(bodyWrap);
+        frag.appendChild(card);
+      });
+  
+      awarenessGrid.appendChild(frag);
+    }
+  
+    // Activate default filter ("All") visually
+    const defaultBtn = filterBar.querySelector('.filter-btn[data-filter="All"]');
+    if (defaultBtn) {
+      defaultBtn.classList.add('active');
+      defaultBtn.setAttribute('aria-pressed','true');
+      defaultBtn.style.background = 'linear-gradient(90deg,var(--primary, #0f766e),var(--accent, #2dd4bf))';
+      defaultBtn.style.color = '#fff';
+    }
+  
+    // initial render
+    renderAwarenessGrid();
+  
+    // optional: expose render function for debugging
+    window.__renderAwarenessGrid = renderAwarenessGrid;
+  });
+  </script>
+  
   <script src="script.js"></script>
+
 </body>
 </html>
