@@ -135,7 +135,7 @@ body {
   position: sticky;
   top: 0;
   z-index: 120;
-  box-shadow: 0 1px 0 rgba(0,0,0,0.04);
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.944);
   backdrop-filter: blur(4px);
 }
 .header-inner {
@@ -534,146 +534,94 @@ body {
 /* broken-image helper */
 img.broken { opacity: 0.28; filter: grayscale(85%); }
 
-/* ---------- HERO TWEAKS (mobile thumbnails, spacing, fit) ---------- */
 
-/* Base: hero positioned slides behind content */
-.hero {
-  position: relative;
-  overflow: hidden;
-  /* desktop min height (keeps large look on desktop) */
-  min-height: 420px;
-}
 
-/* slides container absolute behind content */
-.hero-slides {
-  position: absolute;
-  inset: 0;
-  z-index: 1;
-}
+/*hdero complet*/
 
-/* each slide fills the hero area */
-.hero-slide {
-  position: absolute;
-  inset: 0;
-  opacity: 0;
-  transition: opacity .45s ease;
-  display: block;
-  
-}
-.hero-slide.active { opacity: 1; z-index: 1; }
+:root { --header-height: 64px; --container:1200px; --shadow: 0 10px 30px rgba(2,6,23,0.07); }
 
-/* image fills slide by default (keeps consistent cropping) */
+/* HERO base */
+.hero { position: relative; overflow: hidden; height: calc(110vh - var(--header-height)); min-height: 420px; }
+.hero-slides { position: absolute; inset: 0; z-index:1; width:100%; height:100%; pointer-events:none; }
+
+/* slide basic */
+.hero-slide { position:absolute; inset:0; opacity:0; transition:opacity .45s ease; display:block; }
+.hero-slide.active { opacity:1; z-index:1; }
+
+/* Foreground image defaults — we'll control behavior via fit-* classes */
 .hero-slide img.hero-img {
+  display:block;
+  margin:0 auto;
+  background:#000;
+  /* defaults (will be overridden by classes below) */
+  width:100%;
+  height:100%;
+  object-position:center;
+  transition:transform .35s ease, opacity .35s ease;
+}
+
+/* ---------- Fit classes (what you will use) ---------- */
+
+/* 1) contain: show whole image (no cropping), centered, may letterbox/pillarbox */
+.hero-slide.fit-contain img.hero-img {
+  object-fit: contain;
   width: 100%;
   height: 100%;
-  display: block;
-  object-fit: cover;         /* uniform fill */
-  object-position: center;
-  transition: transform .45s ease;
-  background: #000;         /* fallback while image loads */
 }
 
-/* For images flagged as 'natural' by your script -> show full image without cropping */
-.hero-slide img.hero-img.hero-img-natural {
-  object-fit: contain;      /* show whole image with letterbox */
-  background: #6b6666df;
-}
-
-/* hero content sits above slides */
-.hero-inner {
-  position: relative;
-  
-  z-index: 2;
-  display: flex;
-  gap: 20px;
-  align-items: center;
-  padding-top: 34px;
-  /* add bottom padding so content doesn't overlap the lower parts of the image on small screens */
-  padding-bottom: 24px;
-}
-
-/* right-side gallery (thumbnails) */
-.hero-gallery {
-  display: flex;
-  gap: 2px;
-  margin-left: 20px;
-  align-items: center;
-  justify-content:flex-start;
-  overflow-x: auto;
-  padding-top: 6px;
-  padding-bottom: 6px;
-  -webkit-overflow-scrolling: touch;
-}
-
-/* thumbnail defaults (desktop) — small rectangles */
-.hero-gallery img {
-  width: 56px;
-  height: 46px;
-  margin-top: 20px;
+/* 2) cover: fill hero and crop top/bottom (no letterbox/pillarbox) */
+.hero-slide.fit-cover img.hero-img {
   object-fit: cover;
-  border-radius: 8px;
-  box-shadow: 0 6px 18px rgba(2,6,23,0.06);
-  border: 2px solid rgba(255, 255, 255, 0.439);
-  cursor: pointer;
-  transition: transform .18s ease, box-shadow .18s ease, opacity .12s ease;
-  opacity: 0.95;
-}
-.hero-gallery img.active { transform: translateY(-6px); box-shadow: 0 14px 30px rgb(17, 177, 240); opacity: 1; }
-
-/* Caption box (kept for desktop) */
-.hero-caption {
-  margin-top: 10px;
+  width: 100%;
+  height: 100%;
 }
 
-/* ---------- Responsive: mobile / small screens ---------- */
-@media (max-width: 980px) {
-  /* make the hero slightly shorter but still large enough to see details */
-  .hero { min-height: 46vw; max-height: 520px; }
+/* 3) natural: show the image at natural size if it fits, otherwise contain (safe fallback) */
+.hero-slide.fit-natural img.hero-img {
+  object-fit: none;
+  width: auto;
+  height: auto;
+  max-width: 100%;
+  max-height: 100%;
+}
 
-  /* scale down left text area on mobile */
-  .hero-intro h2 { font-size: 15px; line-height: 1.15;margin-top: 300px;color: #0856f3ca;  }
-  #heroDescription.lead { font-size: 11px; margin-top: 10px;color: rgba(12, 94, 246, 0.806); margin-bottom :5px;
-  font-size: bold;}
+/* overlay & layout stuff */
+.hero-slide .hero-overlay { position:absolute; inset:0; z-index:1; pointer-events:none;
+  background: linear-gradient(180deg, rgba(0,0,0,0.12) 0%, rgba(0,0,0,0.06) 35%, rgba(0,0,0,0.02) 100%); }
 
-  /* make gallery thumbs much smaller and circular (dots-like) */
-  .hero-gallery img {
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
-    box-shadow: none;
-    border: 1px solid rgba(228, 20, 159, 0.882);
-    margin-right: 8px;
+/* hero inner content */
+.hero-inner { position:relative; z-index:2; display:flex; gap:20px; align-items:center; padding:28px 16px; height:100%;margin-top: 20px; box-sizing:border-box; pointer-events:auto; }
+.hero-intro { flex:1 1 60%; color:white; display:flex; flex-direction:column; 
+  background:rgba(41, 38, 38, 0.217) 230px; justify-content:center; gap:12px; 
+  margin-top: auto;
+  border-radius: 10px; padding:12px; text-shadow:0 6px 18px rgba(2,6,23,0.35); }
+
+/* gallery thumbnails */
+.hero-gallery { display:flex; gap:8px; align-items:center; justify-content:flex-end; overflow-x:auto; padding:6px; pointer-events:auto; z-index:3; }
+.hero-gallery img { width:46px; height:36px; object-fit:cover; border-radius:8px; cursor:pointer; border:2px solid rgba(28, 217, 255, 0.47); }
+.hero-gallery img.active { transform:translateY(-6px); box-shadow:0 14px 30px rgba(255, 4, 4, 0.45); }
+
+/* caption box */
+.hero-caption { width:320px; padding:14px; border-radius:10px; background:rgba(255,255,255,0.95); color:#07102a; box-shadow:0 8px 28px rgba(9, 51, 237, 0.955); pointer-events:auto; z-index:3; }
+
+/* responsive tweaks (keep same behavior) */
+@media (max-width:980px) {
+  .hero { height:56vh; min-height:46vw; }
+  .hero-inner { flex-direction:column; align-items:stretch; padding:18px; }
+  .hero-side { width:100%; order:3; }
+  .hero-gallery img { width:48px; height:36px; }
+  .hero-caption { width:100%; order:2;}
+  .hero-intro {
+    background: rgba(0, 0, 0, 0.08);   margin-top: 160px;
+
   }
-  .hero-gallery img.active { transform: none; box-shadow: 0 6px 18px rgb(8, 205, 231); }
-
-  /* give gallery extra space below so thumbnails don't overlap the image area */
-  .hero-gallery { margin-top: 10px; margin-top: 0px;margin-right: 100px; }
-
-  /* reduce spacing on actions */
-  .hero-actions .btn { padding: 8px 10px; font-size: 13px; }
-
-  /* hide caption box on small screens (keeps current behavior) but also add a margin
-     so content doesn't overlap the image below the fold */
-  #heroCaptionBox { display: none; }
-
-  /* ensure hero inner adds more bottom padding on mobile so image visible below */
-  .hero-inner { padding-bottom: 34px; padding-top: 22px;margin-top: 30px; }
-
-  /* reduce tag & title size */
-  .hero-intro .tag { font-size: 12px; }
+}
+@media (max-width:560px) {
+  .hero { height: calc(80vh - var(--header-height)); min-height:320px; }
+  .hero-gallery img { width:40px; height:36px; }
+  .hero-caption { display:none; }
 }
 
-/* ---------- Very small phones — extra compact ---------- */
-@media (max-width: 420px) {
-  .hero { min-height: 52vw; }
-  .hero-intro h2 { font-size: 16px; }
-  #heroDescription.lead { font-size: 12px; }
-  .hero-gallery img { width: 32px; height: 32px; }
-  .hero-gallery { gap: 8px; padding-bottom: 12px; }
-}
-
-/* ---------- Accessibility / focus ---------- */
-.hero-gallery img:focus { outline: 3px solid rgba(45,212,191,0.18); outline-offset: 2px; }
 
 /* ---------------------------
    Layout utilities & content
@@ -685,7 +633,6 @@ img.broken { opacity: 0.28; filter: grayscale(85%); }
 
 /* simple grid */
 .grid { display: grid; gap: 18px; }
-
 /* grid-3 used on Explore, Programs, Events previews */
 .grid-3 { grid-template-columns: repeat(3, 1fr); }
 
@@ -941,14 +888,14 @@ textarea{ min-height:120px; resize:vertical; }
   .hamb { display: inline-block; }
   .header-inner { height: 60px; }
   .logo { height: 40px; width: 40px; }
-  .hero-inner { padding: 20px 12px; flex-direction: column; gap: 12px; }
+  /* .hero-inner { padding: 20px 12px; flex-direction: column; gap: 12px; }
   .hero-side { width: 100%; align-items: stretch; order: 3; }
   .hero-gallery { grid-template-columns: repeat(6, 48px); }
   .hero-gallery img { width: 48px; height: 48px; border-radius: 6px; }
   .hero-caption { width: 100%; order: 2; }
   .hero-pager { display: none; }
   .hero-pager-mobile { display: flex; }
-  h2 { font-size: 1.8rem; }
+  h2 { font-size: 1.8rem; } */
   .mobile-menu.open { display: block; }
 
   /* make three-column previews collapse to two columns on tablets */
@@ -957,27 +904,24 @@ textarea{ min-height:120px; resize:vertical; }
   .opportunities-grid { grid-template-columns: repeat(2, 1fr); }
   .awareness-grid { grid-template-columns: repeat(2, 1fr); }
 
-  /* make hero text vertically centered on tablet (less extreme lower alignment) */
-  .hero-intro { justify-content: center; }
 }
-
 /* Phone: make everything one column for .grid-3 and many grids */
 @media (max-width: 560px) {
-  .hero { min-height: 300px; }
+  /* .hero { min-height: 300px; }
   .hero-inner { padding: 14px 12px; gap: 10px; }
   .hero-gallery { grid-template-columns: repeat(6, 40px); gap: 6px; justify-content: end; }
   .hero-gallery img { width: 40px; height: 40px; border-radius: 6px; }
   .hero-caption { width: 100%; order: 2; }
 
-  /* hide per-image caption/explanations on phones (user requested) */
+  /* hide per-image caption/explanations on phones (user requested) *
   .hero-caption { display: none !important; }
 
-  /* ensure hero intro text is smaller and centered on phones */
+  /* ensure hero intro text is smaller and centered on phones *
   .hero-intro { justify-content: center; }
   .hero-intro h2 { font-size: 1.4rem; }
-  .hero-intro .lead { font-size: 13px; margin-top: 6px; }
+  .hero-intro .lead { font-size: 13px; margin-top: 6px; } */
 
-  /* make Explore / Programs / Events show 1 card per row on phones */
+  /*make Explore / Programs / Events show 1 card per row on phones*/
   .grid-3 { grid-template-columns: 1fr; }
   .gallery-grid { grid-template-columns: repeat(2, 1fr); }
   .opportunities-grid { grid-template-columns: 1fr; }
@@ -1048,3 +992,4 @@ html.dark .mobile-menu .mobile-sub-toggle {
 
 /* Small safety: if you use icon fonts or pseudo elements */
 .hamb::before, .hamb::after { color: inherit; }
+
