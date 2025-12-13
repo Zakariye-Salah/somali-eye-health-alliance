@@ -984,19 +984,19 @@ const hambBtn = document.getElementById('hambBtn');
 
   const HERO_DATA = [
     {
-      img: "images/schoolscreen3.jpeg",
+      img: "images/Background.png",
       title: "Community screening & spectacles",
       description: "Large school and community screening campaigns detect refractive errors and provide low-cost spectacles.",
       extra: "Local optical workshops are trained and follow-up pathways established with district clinics."
     },
     {
-      img: "images/surgerical1.jpeg",
+      img: "images/surgerical3.jpeg",
       title: "Surgical mentorship & camps",
       description: "Mobile surgical campaigns and mentorship strengthen cataract services and surgical safety.",
       extra: "Visiting specialists work alongside Somali surgeons to transfer skills and best practice."
     },
     {
-      img: "images/screening6.jpeg",
+      img: "images/screening3-800.jpeg",
       title: "Workforce training & CPD",
       description: "Continuous professional development for nurses, optometrists and mid-level eye workers.",
       extra: "Hands-on training, practical triage and local trainer development are emphasised."
@@ -1811,3 +1811,4 @@ if (eventsGrid) {
     });
   });
 })(); // end IIFE
+
