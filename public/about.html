@@ -7,16 +7,65 @@
   <meta name="description" content="About SEHA — mission, vision, history and governance. English-only expanded content." />
   <link rel="stylesheet" href="style.css">
 
-  <script>
-    document.addEventListener("DOMContentLoaded", () => {
-      const current = window.location.pathname.split("/").pop(); 
-      document.querySelectorAll(".main-nav a").forEach(a => {
-        const href = a.getAttribute("href");
-        if (href === current) {
-          a.classList.add("active");
+    <script>
+document.addEventListener('DOMContentLoaded', () => {
+  // 1) Keep your current "active" detection but update to also add 'active' class for styling
+  const current = window.location.pathname.split("/").pop() || 'index.html';
+  document.querySelectorAll(".main-nav a").forEach(a => {
+    const href = a.getAttribute("href");
+    if (href === current || (href === 'index.html' && current === '')) {
+      a.classList.add("active");
+    } else {
+      a.classList.remove("active");
+    }
+  });
+
+  // 2) Mobile menu toggle
+  const hambBtn = document.getElementById('hambBtn');
+  const mobileMenu = document.getElementById('mobileMenu');
+  if (hambBtn && mobileMenu) {
+    hambBtn.addEventListener('click', () => {
+      const open = hambBtn.getAttribute('aria-expanded') === 'true';
+      hambBtn.setAttribute('aria-expanded', String(!open));
+      mobileMenu.setAttribute('aria-hidden', String(open));
+      if (!open) {
+        mobileMenu.style.display = 'block';
+        // populate mobile menu if empty (clone)
+        if (!mobileMenu.innerHTML.trim()) {
+          const clone = document.querySelector('.main-nav .nav-list').cloneNode(true);
+          // simplify clone for mobile (remove desktop-only popovers)
+          clone.querySelectorAll('.nav-subtitle').forEach(n => n.remove());
+          mobileMenu.appendChild(clone);
         }
-      });
+      } else {
+        mobileMenu.style.display = 'none';
+      }
+      hambBtn.focus();
     });
+    // close mobile menu when clicking outside
+    document.addEventListener('click', (e) => {
+      if (!mobileMenu.contains(e.target) && !hambBtn.contains(e.target)) {
+        hambBtn.setAttribute('aria-expanded','false');
+        mobileMenu.setAttribute('aria-hidden','true');
+        mobileMenu.style.display = 'none';
+      }
+    });
+  }
+
+  // 3) Move focusable state to show current nav for keyboard users
+  document.querySelectorAll('.nav-list a').forEach(a => {
+    a.addEventListener('focus', () => {
+      a.classList.add('focus-visible');
+    });
+    a.addEventListener('blur', () => {
+      a.classList.remove('focus-visible');
+    });
+  });
+
+  // 4) optional: ensure donate sits flush at right visually by making header-inner full width
+  // (handled in CSS - nothing to do here)
+});
+
     </script>
     
   <!-- START: Back-to-top small styles (optional: move into style.css) -->
