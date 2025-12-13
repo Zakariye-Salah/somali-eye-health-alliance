@@ -449,11 +449,11 @@
           }
           adminBtn.textContent = `Membership applications${count !== null ? ' (' + count + ')' : ''}`;
           adminBtn.style.display = 'inline-block';
-          adminBtn.addEventListener('click', () => window.location.href = 'admin/memberships.html');
+          adminBtn.addEventListener('click', () => window.location.href = 'memberships.html');
         } catch (e) {
           adminBtn.textContent = 'Membership applications';
           adminBtn.style.display = 'inline-block';
-          adminBtn.addEventListener('click', () => window.location.href = '/admin/memberships.html');
+          adminBtn.addEventListener('click', () => window.location.href = 'memberships.html');
         }
       }
     } catch (err) { /* ignore */ }
