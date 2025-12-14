@@ -331,7 +331,7 @@ h4 { font-size: 16px; margin: 0 0 8px 0; display:flex; align-items:center; gap:8
 
 /* On small screens reduce or hide heavy backgrounds for performance */
 @media (max-width: 560px) {
-  .section-bg::before { opacity: 0.1; background-position: center top; background-size: cover; }
+  .section-bg::before { opacity: 0.05; background-position: center top; background-size: cover; }
 }
 
 /* cards / lists remain on top */
