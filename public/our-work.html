@@ -6,67 +6,17 @@
   <title>Our Work — SEHA</title>
   <meta name="description" content="Programs, consortia and the regional approach SEHA uses to deliver eye health services across Somalia." />
   <link rel="stylesheet" href="style.css">
-
   <script>
-document.addEventListener('DOMContentLoaded', () => {
-  // 1) Keep your current "active" detection but update to also add 'active' class for styling
-  const current = window.location.pathname.split("/").pop() || 'index.html';
-  document.querySelectorAll(".main-nav a").forEach(a => {
-    const href = a.getAttribute("href");
-    if (href === current || (href === 'index.html' && current === '')) {
-      a.classList.add("active");
-    } else {
-      a.classList.remove("active");
-    }
-  });
-
-  // 2) Mobile menu toggle
-  const hambBtn = document.getElementById('hambBtn');
-  const mobileMenu = document.getElementById('mobileMenu');
-  if (hambBtn && mobileMenu) {
-    hambBtn.addEventListener('click', () => {
-      const open = hambBtn.getAttribute('aria-expanded') === 'true';
-      hambBtn.setAttribute('aria-expanded', String(!open));
-      mobileMenu.setAttribute('aria-hidden', String(open));
-      if (!open) {
-        mobileMenu.style.display = 'block';
-        // populate mobile menu if empty (clone)
-        if (!mobileMenu.innerHTML.trim()) {
-          const clone = document.querySelector('.main-nav .nav-list').cloneNode(true);
-          // simplify clone for mobile (remove desktop-only popovers)
-          clone.querySelectorAll('.nav-subtitle').forEach(n => n.remove());
-          mobileMenu.appendChild(clone);
+    document.addEventListener("DOMContentLoaded", () => {
+      const current = window.location.pathname.split("/").pop(); 
+      document.querySelectorAll(".main-nav a").forEach(a => {
+        const href = a.getAttribute("href");
+        if (href === current) {
+          a.classList.add("active");
         }
-      } else {
-        mobileMenu.style.display = 'none';
-      }
-      hambBtn.focus();
+      });
     });
-    // close mobile menu when clicking outside
-    document.addEventListener('click', (e) => {
-      if (!mobileMenu.contains(e.target) && !hambBtn.contains(e.target)) {
-        hambBtn.setAttribute('aria-expanded','false');
-        mobileMenu.setAttribute('aria-hidden','true');
-        mobileMenu.style.display = 'none';
-      }
-    });
-  }
-
-  // 3) Move focusable state to show current nav for keyboard users
-  document.querySelectorAll('.nav-list a').forEach(a => {
-    a.addEventListener('focus', () => {
-      a.classList.add('focus-visible');
-    });
-    a.addEventListener('blur', () => {
-      a.classList.remove('focus-visible');
-    });
-  });
-
-  // 4) optional: ensure donate sits flush at right visually by making header-inner full width
-  // (handled in CSS - nothing to do here)
-});
-
-    </script>
+  </script>
   <!-- START: Back-to-top small styles (optional: move into style.css) -->
   <style>
     /* Floating "back to top" button */
@@ -204,23 +154,93 @@ document.addEventListener('DOMContentLoaded', () => {
   <!-- END: Back-to-top styles -->
 </head>
 <body>
-     <!-- HEADER -->
-<header class="site-header" role="banner">
+   <!-- HEADER -->
+ <header class="site-header" role="banner">
   
   <!-- small, safe header-local CSS to avoid duplicate arrows & show mobile toggle only on small screens -->
   <style>
-    /* If your global CSS also sets .nav-item.has-sub > a::after, override here so we don't get double arrows */
-    .nav-item.has-sub > a::after { content: ''; }
+ /* Loader overlay */
+.page-loader {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: white; /* adjust to site background if needed */
+  z-index: 99999;
+  transition: opacity .18s ease, visibility .18s ease;
+  opacity: 1;
+  visibility: visible;
+  pointer-events: all;
+}
 
-    /* mobile-only helper: hide by default (desktop) and show only under your mobile breakpoint */
-    .mobile-only { display: none; align-items: center; gap: 8px; }
-    @media (max-width: 880px) {
-      .mobile-only { display: flex; }
-      /* ensure desktop popover remains visible on hover as before */
-      .nav-item.has-sub > .nav-subtitle { display: none; }
-      .nav-item.has-sub:hover > .nav-subtitle,
-      .nav-item.has-sub:focus-within > .nav-subtitle { display: block; }
-    }
+/* accessible label hidden visually */
+.visually-hidden { position: absolute !important; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; border:0; }
+
+/* Eye sizing & color (brand-friendly) */
+.loader-eye { color: #0f766e; width: 120px; height: 80px; display:block; }
+
+/* Pupil wrap (moves left-right) */
+.pupil-wrap { transform-origin: 60px 40px; }
+
+/* Lids that cover eye for blink; we animate scaleY to simulate blink */
+.lid { transform-origin: 60px 40px; }
+
+/* Keyframes: look left -> center -> right -> center */
+@keyframes lookSides {
+  0%   { transform: translateX(-8px); }
+  25%  { transform: translateX(0px); }
+  50%  { transform: translateX(8px); }
+  75%  { transform: translateX(0px); }
+  100% { transform: translateX(-8px); }
+}
+
+/* quick blink: closed at 45-50% of the blink cycle */
+@keyframes blink {
+  0%, 88% { transform: scaleY(0); }  /* lids open (scale 0 = out of view) */
+  92%     { transform: scaleY(1.05); }/* closed */
+  100%    { transform: scaleY(0); }   /* open */
+}
+
+/* Pupil subtle scale on blink for natural feel */
+@keyframes pupilPulse {
+  0%, 88% { transform: scale(1); }
+  92%     { transform: scale(0.7); }
+  100%    { transform: scale(1); }
+}
+
+/* Apply animations: fairly quick loop */
+.page-loader.running .pupil-wrap {
+  animation: lookSides 1.2s ease-in-out infinite;
+}
+.page-loader.running .lid-top,
+.page-loader.running .lid-bottom {
+  animation: blink 2.2s steps(1, end) infinite;
+}
+.page-loader.running .pupil {
+  animation: pupilPulse 2.2s ease-in-out infinite;
+}
+
+/* Hide loader quickly when done */
+.page-loader.loaded { opacity: 0; visibility: hidden; pointer-events: none; }
+
+/* Prevent body scroll while loader visible */
+body[data-loading="true"] { overflow: hidden !important; }
+
+/* Respect reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .page-loader.running .pupil-wrap,
+  .page-loader.running .lid-top,
+  .page-loader.running .lid-bottom,
+  .page-loader.running .pupil { animation: none; }
+}
+
+/* optional dark mode tweak */
+@media (prefers-color-scheme: dark) {
+  .page-loader { background: #07102a; }
+  .loader-eye { color: #2dd4bf; }
+}
+
   </style>
 
   <div class="container header-inner">
