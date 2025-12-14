@@ -1403,6 +1403,40 @@ html[data-loading="true"], body[data-loading="true"] { overflow: hidden !importa
 
 
 
+(function () {
+  const el = document.getElementById('footerTop');
+  if (!el) return;
+
+  // stagger children reveal for a bit more polish
+  const children = Array.from(el.children);
+  children.forEach((c, i) => {
+    c.style.transition = `opacity 420ms ease ${i*80}ms, transform 420ms ease ${i*80}ms`;
+    c.style.opacity = '0';
+    c.style.transform = 'translateY(8px)';
+  });
+
+  function revealNow() {
+    el.classList.add('in-view');
+    children.forEach((c) => { c.style.opacity = ''; c.style.transform = ''; });
+  }
+
+  if ('IntersectionObserver' in window) {
+    const io = new IntersectionObserver((entries, obs) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          revealNow();
+          obs.disconnect();
+        }
+      });
+    }, { threshold: 0.08 });
+    io.observe(el);
+  } else {
+    // fallback: reveal after brief delay so mobile non-supporting browsers still show it
+    setTimeout(revealNow, 300);
+  }
+})();
+
+
 
 (function () {
   const IMG_COUNT = Math.max(1, CONFIG.IMG_COUNT);
