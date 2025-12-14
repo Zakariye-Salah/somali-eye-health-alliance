@@ -311,7 +311,7 @@ h4 { font-size: 16px; margin: 0 0 8px 0; display:flex; align-items:center; gap:8
   background-repeat: no-repeat;
   background-position: center right;
   background-size: cover;
-  opacity: 0.14;
+  opacity: 0.10;
   pointer-events: none;
   z-index: 0;
   filter: blur(0.6px) saturate(0.98);
@@ -331,7 +331,7 @@ h4 { font-size: 16px; margin: 0 0 8px 0; display:flex; align-items:center; gap:8
 
 /* On small screens reduce or hide heavy backgrounds for performance */
 @media (max-width: 560px) {
-  .section-bg::before { opacity: 0.1; background-position: center top; background-size: cover; }
+  .section-bg::before { opacity: 0.6; background-position: center top; background-size: cover; }
 }
 
 /* cards / lists remain on top */
@@ -343,9 +343,73 @@ h4 { font-size: 16px; margin: 0 0 8px 0; display:flex; align-items:center; gap:8
 }
 
 /* footer */
-.site-footer { background: #071026; color: #cbd5e1; padding: 28px 0; }
-.footer-inner { display: flex; gap: 24px; align-items: flex-start; justify-content: space-between; flex-wrap: wrap; }
-.footer-logo { height: 44px; }
+
+  /* footer variables */
+  :root {
+    --footer-bg: #07102a;
+    --footer-accent: #0f766e;
+    --footer-text: #e6eef0;
+    --footer-muted: rgba(230,238,240,0.85);
+    --container: 1200px;
+  }
+
+  .site-footer {
+    background: linear-gradient(180deg, var(--footer-bg), rgba(7,16,42,0.96));
+    color: var(--footer-text);
+    margin-top: 36px;
+    border-top: 1px solid rgba(255,255,255,0.04);
+  }
+
+  .site-footer .container { max-width: var(--container); margin: 0 auto; padding: 28px 18px; box-sizing: border-box; }
+
+  .footer-top {
+    display: grid;
+    grid-template-columns: 1fr 220px 320px;
+    gap: 24px;
+    align-items: start;
+    opacity: 0;
+    transform: translateY(10px);
+    transition: opacity 420ms ease, transform 420ms ease;
+  }
+  /* when in view -> fade up */
+  .footer-top.in-view { opacity: 1; transform: translateY(0); }
+
+  .footer-block { min-width: 0; }
+
+  /* brand */
+  .footer-logo { width: 64px; height: auto; border-radius: 8px; display:block; margin-bottom: 10px; }
+  .footer-slogan .muted { color: var(--footer-muted); margin: 0; }
+
+  /* quick links */
+  .footer-heading { font-size: 15px; margin: 0 0 10px 0; color: #fff; font-weight: 700; }
+  .footer-links ul { list-style: none; padding:0; margin:0; display:flex; flex-direction:column; gap:8px; }
+  .footer-links a { color: var(--footer-muted); text-decoration:none; font-size:15px; }
+  .footer-links a:hover, .footer-links a:focus { color: #fff; text-decoration: underline; outline: none; }
+
+  /* contact */
+  .footer-contact address { font-style: normal; color: var(--footer-muted); margin-bottom: 12px; line-height: 1.5; }
+  .footer-contact a { color: var(--footer-muted); text-decoration:none; }
+  .footer-contact a:hover, .footer-contact a:focus { color: #fff; text-decoration: underline; }
+
+  /* socials */
+  .footer-socials { display:flex; gap:10px; margin-bottom:12px; }
+  .social { display:inline-flex; align-items:center; justify-content:center; width:38px; height:38px; border-radius:8px; background: rgba(255,255,255,0.03); color: var(--footer-text); text-decoration:none; }
+  .social:hover { background: var(--footer-accent); color: #fff; transform: translateY(-3px); transition: transform .14s ease, background .14s ease; }
+
+  .muted { color: var(--footer-muted); }
+
+  /* bottom bar */
+  .footer-bottom { border-top: 1px solid rgba(255,255,255,0.03); background: rgba(0,0,0,0.02); }
+  .footer-bottom-inner { display:flex; justify-content:space-between; align-items:center; gap:20px; padding:12px 18px; max-width: var(--container); margin:0 auto; color: var(--footer-muted); font-size:14px; }
+  .footer-bottom-inner .policies a { color: var(--footer-muted); text-decoration:none; margin-left:10px; }
+  .footer-bottom-inner .policies a:hover { color: #fff; text-decoration:underline; }
+
+  /* responsive */
+  @media (max-width: 980px) {
+    .footer-top { grid-template-columns: 1fr; gap: 18px; }
+    .footer-bottom-inner { flex-direction: column; align-items: flex-start; gap:8px; }
+    .footer-logo { width:56px; }
+  }
 
 /* utility focus */
 a:focus, button:focus, input:focus { outline: 3px solid rgba(45,212,191,0.25); outline-offset: 2px; }
