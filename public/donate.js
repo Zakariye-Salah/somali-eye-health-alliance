@@ -543,4 +543,105 @@
    if (defaultBtn) activatePreset(defaultBtn);
    else if (presetBtns.length) activatePreset(presetBtns[0]);
  })();
+// ===== preset amounts + "More" toggling =====
+(function () {
+  // run after DOM ready
+  const init = () => {
+    const presetContainer = document.getElementById('presetAmounts');
+    const moreContainer = document.getElementById('moreAmounts');
+    const showMoreBtn = document.getElementById('showMoreBtn');
+    const hideMoreBtn = document.getElementById('hideMoreBtn');
+    const customAmount = document.getElementById('customAmount');
+
+    if (!presetContainer) return;
+
+    // helper: clear visual selection
+    function clearSelected() {
+      document.querySelectorAll('.amt').forEach(b => {
+        b.classList.remove('btn-primary', 'selected');
+      });
+    }
+
+    // helper: select a preset button visually + sync custom input + call refresh if exists
+    function activatePresetButton(btn) {
+      if (!btn) return;
+      clearSelected();
+      btn.classList.add('btn-primary', 'selected');
+      const amt = btn.dataset && btn.dataset.amount ? btn.dataset.amount : '';
+      if (customAmount) customAmount.value = amt;
+      // call refreshPaymentInstructions if available (older code uses it)
+      if (typeof refreshPaymentInstructions === 'function') {
+        try { refreshPaymentInstructions(); } catch (e) { /* ignore */ }
+      }
+    }
+
+    // event delegation for preset container clicks
+    presetContainer.addEventListener('click', (ev) => {
+      const btn = ev.target.closest('.amt');
+      if (!btn) return;
+      activatePresetButton(btn);
+    });
+
+    // delegation for the extra amounts area
+    if (moreContainer) {
+      moreContainer.addEventListener('click', (ev) => {
+        const btn = ev.target.closest('.amt');
+        if (btn) {
+          activatePresetButton(btn);
+        }
+      });
+    }
+
+    // "More" toggle behaviour
+    if (showMoreBtn && moreContainer) {
+      showMoreBtn.addEventListener('click', () => {
+        const isOpen = moreContainer.style.display !== 'none' && moreContainer.style.display !== '';
+        if (isOpen) {
+          // collapse
+          moreContainer.style.display = 'none';
+          showMoreBtn.setAttribute('aria-expanded', 'false');
+          showMoreBtn.innerHTML = 'More ▾';
+        } else {
+          moreContainer.style.display = 'flex';
+          showMoreBtn.setAttribute('aria-expanded', 'true');
+          showMoreBtn.innerHTML = 'More ▴';
+        }
+      });
+    }
+
+    if (hideMoreBtn && moreContainer) {
+      hideMoreBtn.addEventListener('click', () => {
+        moreContainer.style.display = 'none';
+        if (showMoreBtn) {
+          showMoreBtn.setAttribute('aria-expanded', 'false');
+          showMoreBtn.innerHTML = 'More ▾';
+        }
+      });
+    }
+
+    // when user types a custom amount we remove selected state (keep existing behaviour)
+    if (customAmount) {
+      customAmount.addEventListener('input', () => {
+        document.querySelectorAll('.amt').forEach(b => b.classList.remove('btn-primary', 'selected'));
+        if (typeof refreshPaymentInstructions === 'function') {
+          clearTimeout(customAmount._deb);
+          customAmount._deb = setTimeout(refreshPaymentInstructions, 250);
+        }
+      });
+    }
+
+    // set initial default to US$30 if present, otherwise first preset
+    const defaultBtn = document.querySelector('.amt[data-amount="30"]');
+    if (defaultBtn) activatePresetButton(defaultBtn);
+    else {
+      const first = document.querySelector('.amt');
+      if (first) activatePresetButton(first);
+    }
+  };
+
+  // run when DOM is ready; tolerate being called inside an existing DOMContentLoaded handler
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+  else init();
+})();
+
 })();
