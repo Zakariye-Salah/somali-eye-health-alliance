@@ -955,6 +955,226 @@ const hambBtn = document.getElementById('hambBtn');
 })();
 
 
+/* /scripts/loader.js
+   Single-file, drop-in loader (3 rising dots).
+   - injects CSS + HTML immediately (even before <body> exists)
+   - shows instantly on refresh
+   - hides ASAP when DOM is ready (DOMContentLoaded / readystate 'interactive' / load / pageshow)
+   - small safety timeout and bfcache handling
+   Include once (first element in <body> or your site template).
+*/
+(function () {
+  // ---------- config (tweakable) ----------
+  const VARS = {
+    fadeMs: 220,
+    dotSize: 12,
+    dotGap: 10,
+    dotColor: '#0f766e',
+    zIndex: 99999,
+    safetyMs: 3000,
+    minimalShowMs: 20 // tiny delay to avoid abrupt flicker
+  };
+
+  // ---------- CSS (injected synchronously) ----------
+  const css = `
+:root{
+  --loader-fade: ${VARS.fadeMs}ms;
+  --dot-size: ${VARS.dotSize}px;
+  --dot-gap: ${VARS.dotGap}px;
+  --dot-color: ${VARS.dotColor};
+  --loader-z: ${VARS.zIndex};
+}
+
+/* overlay (transparent so page shows through) */
+.page-loader {
+  position: fixed;
+  inset: 0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background: transparent;
+  z-index: var(--loader-z);
+  transition: opacity var(--loader-fade) ease, visibility var(--loader-fade) ease;
+  opacity: 1;
+  visibility: visible;
+  pointer-events: all;
+}
+.page-loader.loaded { opacity: 0; visibility: hidden; pointer-events: none; }
+
+/* stop page scrolling while loader active */
+html[data-loading="true"], body[data-loading="true"] { overflow: hidden !important; }
+
+/* dot wrapper */
+.loader-dots {
+  display:flex;
+  gap: var(--dot-gap);
+  align-items:center;
+  justify-content:center;
+  padding: 10px 14px;
+  border-radius: 12px;
+  background: rgba(255,255,255,0.0);
+  box-shadow: 0 8px 20px rgba(7,16,42,0.06);
+}
+
+/* each dot */
+.dot {
+  width: var(--dot-size);
+  height: var(--dot-size);
+  border-radius: 50%;
+  background: var(--dot-color);
+  opacity: 0.18;
+  transform: translateY(0);
+  will-change: transform, opacity;
+  animation: dotBlink 0.95s ease-in-out infinite;
+}
+.dot:nth-child(1){ animation-delay: 0s; }
+.dot:nth-child(2){ animation-delay: 0.14s; }
+.dot:nth-child(3){ animation-delay: 0.28s; }
+
+@keyframes dotBlink {
+  0%   { opacity: 0.18; transform: translateY(0); }
+  45%  { opacity: 1;    transform: translateY(-6px); }
+  100% { opacity: 0.18; transform: translateY(0); }
+}
+
+/* reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+  .dot { animation: none; opacity: 1; transform: none; }
+}
+
+/* accessible label visually hidden */
+.visually-hidden {
+  position:absolute !important;
+  width:1px; height:1px; padding:0; margin:-1px;
+  overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; border:0;
+}
+`.trim();
+
+  // ---------- HTML (loader element) ----------
+  const html = `
+<div id="pageLoader" class="page-loader" role="status" aria-live="polite" aria-label="Loading">
+  <div class="loader-dots" aria-hidden="true">
+    <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+  </div>
+  <span class="visually-hidden">Loading — please wait</span>
+</div>`.trim();
+
+  // ---------- utility helpers ----------
+  function safeAppendStyle(cssText) {
+    try {
+      const s = document.createElement('style');
+      s.setAttribute('data-seha-loader', 'true');
+      s.textContent = cssText;
+      // insert into head if available, otherwise into documentElement
+      const head = document.head || document.getElementsByTagName('head')[0];
+      if (head) head.appendChild(s);
+      else document.documentElement.appendChild(s);
+      return s;
+    } catch (e) {
+      // last resort: document.write (rare), but avoid on modern pages
+      try { document.write('<style>' + cssText + '<\/style>'); } catch(e2) {}
+      return null;
+    }
+  }
+
+  function insertLoaderImmediately() {
+    // if already present, do nothing
+    if (document.getElementById('pageLoader')) return;
+    const frag = document.createRange().createContextualFragment(html);
+
+    // Try to insert into body first; if body not ready, insert into documentElement so it's visible ASAP
+    const target = document.body || document.documentElement;
+    if (target && target.firstChild) target.insertBefore(frag, target.firstChild);
+    else if (target) target.appendChild(frag);
+
+    // If we inserted into documentElement and body later becomes available, move loader into body
+    if (!document.body) {
+      document.addEventListener('DOMContentLoaded', () => {
+        const loader = document.getElementById('pageLoader');
+        if (!loader) return;
+        if (document.body && loader.parentNode !== document.body) {
+          document.body.insertBefore(loader, document.body.firstChild);
+        }
+      }, { once: true, passive: true });
+    }
+  }
+
+  function setLoadingAttributes(on) {
+    if (on) {
+      document.documentElement.setAttribute('data-loading', 'true');
+      try { document.body && document.body.setAttribute('data-loading', 'true'); } catch(e){}
+    } else {
+      document.documentElement.removeAttribute('data-loading');
+      try { document.body && document.body.removeAttribute('data-loading'); } catch(e){}
+    }
+  }
+
+  // ---------- inject style + html immediately ----------
+  safeAppendStyle(css);
+  insertLoaderImmediately();
+  setLoadingAttributes(true);
+
+  // ---------- show/hide logic ----------
+  let finished = false;
+  let shownAt = Date.now();
+
+  function finish() {
+    if (finished) return;
+    finished = true;
+    const loader = document.getElementById('pageLoader');
+    if (loader) loader.classList.add('loaded');
+    // ensure we allow a short fade then remove attributes & hide element
+    setTimeout(() => {
+      const loaderNow = document.getElementById('pageLoader');
+      if (loaderNow) {
+        try { loaderNow.style.display = 'none'; } catch(e){}
+      }
+      setLoadingAttributes(false);
+    }, VARS.fadeMs);
+  }
+
+  // If the document is already interactive/complete when this script runs, hide quickly
+  if (document.readyState === 'interactive' || document.readyState === 'complete') {
+    // tiny delay to avoid a flash on super-fast loads
+    setTimeout(finish, VARS.minimalShowMs);
+  } else {
+    // DOMContentLoaded will indicate the DOM is usable (page "responsive")
+    document.addEventListener('DOMContentLoaded', () => {
+      // finish quickly (almost immediate)
+      setTimeout(finish, VARS.minimalShowMs);
+    }, { once: true, passive: true });
+
+    // also watch readystatechange in case some environments prefer that
+    document.addEventListener('readystatechange', () => {
+      if (document.readyState === 'interactive' || document.readyState === 'complete') {
+        setTimeout(finish, VARS.minimalShowMs);
+      }
+    });
+  }
+
+  // window load fallback
+  window.addEventListener('load', () => setTimeout(finish, VARS.minimalShowMs), { once: true });
+
+  // Handle page show (bfcache / back-forward restore) — ensure loader is hidden if page was restored
+  window.addEventListener('pageshow', (ev) => {
+    // If persisted, the DOM is ready — hide immediately
+    if (ev.persisted) {
+      setTimeout(finish, VARS.minimalShowMs);
+    }
+  }, { once: false });
+
+  // Safety timeout never to hang
+  const SAFETY = setTimeout(() => finish(), VARS.safetyMs);
+  function clearSafety() { clearTimeout(SAFETY); }
+  window.addEventListener('load', clearSafety, { once: true });
+  document.addEventListener('DOMContentLoaded', clearSafety, { once: true });
+
+  // expose for debug / manual hide
+  try { window.pageLoaderFinish = finish; } catch(e){}
+
+})();
+
+
 
 (function () {
   const IMG_COUNT = Math.max(1, CONFIG.IMG_COUNT);
