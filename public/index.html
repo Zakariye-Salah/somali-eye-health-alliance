@@ -114,64 +114,15 @@
     </style>
     
   <script>
-document.addEventListener('DOMContentLoaded', () => {
-  // 1) Keep your current "active" detection but update to also add 'active' class for styling
-  const current = window.location.pathname.split("/").pop() || 'index.html';
-  document.querySelectorAll(".main-nav a").forEach(a => {
-    const href = a.getAttribute("href");
-    if (href === current || (href === 'index.html' && current === '')) {
-      a.classList.add("active");
-    } else {
-      a.classList.remove("active");
-    }
-  });
-
-  // 2) Mobile menu toggle
-  const hambBtn = document.getElementById('hambBtn');
-  const mobileMenu = document.getElementById('mobileMenu');
-  if (hambBtn && mobileMenu) {
-    hambBtn.addEventListener('click', () => {
-      const open = hambBtn.getAttribute('aria-expanded') === 'true';
-      hambBtn.setAttribute('aria-expanded', String(!open));
-      mobileMenu.setAttribute('aria-hidden', String(open));
-      if (!open) {
-        mobileMenu.style.display = 'block';
-        // populate mobile menu if empty (clone)
-        if (!mobileMenu.innerHTML.trim()) {
-          const clone = document.querySelector('.main-nav .nav-list').cloneNode(true);
-          // simplify clone for mobile (remove desktop-only popovers)
-          clone.querySelectorAll('.nav-subtitle').forEach(n => n.remove());
-          mobileMenu.appendChild(clone);
+    document.addEventListener("DOMContentLoaded", () => {
+      const current = window.location.pathname.split("/").pop(); 
+      document.querySelectorAll(".main-nav a").forEach(a => {
+        const href = a.getAttribute("href");
+        if (href === current) {
+          a.classList.add("active");
         }
-      } else {
-        mobileMenu.style.display = 'none';
-      }
-      hambBtn.focus();
+      });
     });
-    // close mobile menu when clicking outside
-    document.addEventListener('click', (e) => {
-      if (!mobileMenu.contains(e.target) && !hambBtn.contains(e.target)) {
-        hambBtn.setAttribute('aria-expanded','false');
-        mobileMenu.setAttribute('aria-hidden','true');
-        mobileMenu.style.display = 'none';
-      }
-    });
-  }
-
-  // 3) Move focusable state to show current nav for keyboard users
-  document.querySelectorAll('.nav-list a').forEach(a => {
-    a.addEventListener('focus', () => {
-      a.classList.add('focus-visible');
-    });
-    a.addEventListener('blur', () => {
-      a.classList.remove('focus-visible');
-    });
-  });
-
-  // 4) optional: ensure donate sits flush at right visually by making header-inner full width
-  // (handled in CSS - nothing to do here)
-});
-
     </script>
     
   <!-- START: Back-to-top small styles (optional: move into style.css) -->
@@ -325,23 +276,93 @@ document.addEventListener('DOMContentLoaded', () => {
   <!-- END: Back-to-top styles -->
 </head>
 <body>
-     <!-- HEADER -->
-<header class="site-header" role="banner">
+ <!-- HEADER -->
+ <header class="site-header" role="banner">
   
   <!-- small, safe header-local CSS to avoid duplicate arrows & show mobile toggle only on small screens -->
   <style>
-    /* If your global CSS also sets .nav-item.has-sub > a::after, override here so we don't get double arrows */
-    .nav-item.has-sub > a::after { content: ''; }
+ /* Loader overlay */
+.page-loader {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: white; /* adjust to site background if needed */
+  z-index: 99999;
+  transition: opacity .18s ease, visibility .18s ease;
+  opacity: 1;
+  visibility: visible;
+  pointer-events: all;
+}
 
-    /* mobile-only helper: hide by default (desktop) and show only under your mobile breakpoint */
-    .mobile-only { display: none; align-items: center; gap: 8px; }
-    @media (max-width: 880px) {
-      .mobile-only { display: flex; }
-      /* ensure desktop popover remains visible on hover as before */
-      .nav-item.has-sub > .nav-subtitle { display: none; }
-      .nav-item.has-sub:hover > .nav-subtitle,
-      .nav-item.has-sub:focus-within > .nav-subtitle { display: block; }
-    }
+/* accessible label hidden visually */
+.visually-hidden { position: absolute !important; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; border:0; }
+
+/* Eye sizing & color (brand-friendly) */
+.loader-eye { color: #0f766e; width: 120px; height: 80px; display:block; }
+
+/* Pupil wrap (moves left-right) */
+.pupil-wrap { transform-origin: 60px 40px; }
+
+/* Lids that cover eye for blink; we animate scaleY to simulate blink */
+.lid { transform-origin: 60px 40px; }
+
+/* Keyframes: look left -> center -> right -> center */
+@keyframes lookSides {
+  0%   { transform: translateX(-8px); }
+  25%  { transform: translateX(0px); }
+  50%  { transform: translateX(8px); }
+  75%  { transform: translateX(0px); }
+  100% { transform: translateX(-8px); }
+}
+
+/* quick blink: closed at 45-50% of the blink cycle */
+@keyframes blink {
+  0%, 88% { transform: scaleY(0); }  /* lids open (scale 0 = out of view) */
+  92%     { transform: scaleY(1.05); }/* closed */
+  100%    { transform: scaleY(0); }   /* open */
+}
+
+/* Pupil subtle scale on blink for natural feel */
+@keyframes pupilPulse {
+  0%, 88% { transform: scale(1); }
+  92%     { transform: scale(0.7); }
+  100%    { transform: scale(1); }
+}
+
+/* Apply animations: fairly quick loop */
+.page-loader.running .pupil-wrap {
+  animation: lookSides 1.2s ease-in-out infinite;
+}
+.page-loader.running .lid-top,
+.page-loader.running .lid-bottom {
+  animation: blink 2.2s steps(1, end) infinite;
+}
+.page-loader.running .pupil {
+  animation: pupilPulse 2.2s ease-in-out infinite;
+}
+
+/* Hide loader quickly when done */
+.page-loader.loaded { opacity: 0; visibility: hidden; pointer-events: none; }
+
+/* Prevent body scroll while loader visible */
+body[data-loading="true"] { overflow: hidden !important; }
+
+/* Respect reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .page-loader.running .pupil-wrap,
+  .page-loader.running .lid-top,
+  .page-loader.running .lid-bottom,
+  .page-loader.running .pupil { animation: none; }
+}
+
+/* optional dark mode tweak */
+@media (prefers-color-scheme: dark) {
+  .page-loader { background: #07102a; }
+  .loader-eye { color: #2dd4bf; }
+}
+
   </style>
 
   <div class="container header-inner">
@@ -400,11 +421,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
         <li class="nav-item"><a href="programs.html">Programs</a></li>
         <li class="nav-item"><a href="membership.html">Membership</a></li>
-        <li class="nav-item"><a href="partnership.html">Partnership</a></li>
+        <!-- <li class="nav-item"><a href="partnership.html">Partnership</a></li> -->
 
         <li class="nav-item"><a href="resources.html">Resources</a></li>
         <li class="nav-item"><a href="events.html">Events & Blogs</a></li>
-        <!-- <li class="nav-item"><a href="opportunities.html">Opportunities</a></li> -->
+        <li class="nav-item"><a href="opportunities.html">Opportunities</a></li>
         <li class="nav-item"><a href="awareness.html">Awareness</a></li>
         <li class="nav-item"><a href="contact.html">Contact</a></li>
 
@@ -453,7 +474,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   <div class="mobile-menu" id="mobileMenu" aria-hidden="true"></div>
 </header>
-    
+
 
   <!-- MAIN -->
   <main id="main" role="main">
@@ -675,6 +696,198 @@ document.addEventListener('DOMContentLoaded', () => {
         <p style="margin-top:14px"><a href="events.html">See events & blog posts →</a></p>
       </div>
     </section>
+<!-- =========================
+     OUR PARTNERSHIPS (HOME)
+     ========================= -->
+     <section id="home-partners" class="section">
+      <div class="container">
+        <div class="card">
+    
+          <!-- Heading + explanation -->
+          <div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:flex-start">
+            <div>
+              <h3 style="margin:0 0 6px">Our partnerships</h3>
+              <p class="muted" style="margin:0">
+                We collaborate with trusted organisations to strengthen eye care services across Somalia.
+              </p>
+            </div>
+            <a class="btn" href="partnership.html">More partnerships →</a>
+          </div>
+    
+          <!-- Carousel -->
+          <div class="partners-carousel">
+            <button class="partner-btn prev" aria-label="Previous">‹</button>
+    
+            <div class="partners-viewport" id="partnersViewport">
+              <div class="partners-track" id="partnersTrack"></div>
+            </div>
+    
+            <button class="partner-btn next" aria-label="Next">›</button>
+          </div>
+          <style>
+            /* layout */
+            .partners-carousel {
+              position: relative;
+              margin-top: 16px;
+              display: flex;
+              align-items: center;
+            }
+            
+            .partners-viewport {
+              overflow: hidden;
+              width: 100%;
+            }
+            
+            .partners-track {
+              display: flex;
+              gap: 16px;
+              transition: transform .45s ease;
+              will-change: transform;
+            }
+            
+            /* partner image card */
+            .partner-item {
+              flex: 0 0 auto;
+              background: #fff;
+              border-radius: 12px;
+              border: 1px solid rgba(0,0,0,.05);
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              padding: 18px;
+            }
+            
+            .partner-item img {
+              max-width: 100%;
+              max-height: 80px;
+              object-fit: contain;
+            }
+            
+            /* buttons */
+            .partner-btn {
+              position: absolute;
+              top: 50%;
+              transform: translateY(-50%);
+              width: 44px;
+              height: 44px;
+              border-radius: 50%;
+              border: none;
+              background: #fff;
+              color: #0f766e;
+              font-size: 20px;
+              cursor: pointer;
+              box-shadow: 0 8px 24px rgba(0,0,0,.15);
+              z-index: 5;
+            }
+            
+            .partner-btn.prev { left: -10px; }
+            .partner-btn.next { right: -10px; }
+            
+            /* desktop */
+            @media (min-width: 881px) {
+              .partner-item {
+                width: calc((100% - 48px) / 4); /* 4 per row */
+              }
+            }
+            
+            /* mobile */
+            @media (max-width: 880px) {
+              .partner-item {
+                width: 100%; /* 1 per row */
+              }
+            }
+            </style>
+<script>
+  (function () {
+    const partners = [
+      { img: 'images/images-ac-hospital.png', link: 'https://aah.so/' },
+      { img: 'images/images-arag-hospital.png', link: 'partnership.html' },
+      { img: 'images/images-hormuud-doundation.png', link: 'https://hormuudsalaamfoundation.org/' },
+      { img: 'images/images-acu-university.png', link: 'https://aaiu.edu.so/' },
+      { img: 'images/images-bright-foundation.png', link: 'partnership.html' },
+      { img: 'images/images-ministry-of-health.png', link: 'https://moh.gov.so/so/home/' }
+    ];
+  
+    const track = document.getElementById('partnersTrack');
+    const viewport = document.getElementById('partnersViewport');
+    const prev = document.querySelector('.partner-btn.prev');
+    const next = document.querySelector('.partner-btn.next');
+  
+    let perView = window.innerWidth <= 880 ? 1 : 4;
+    let index = perView;
+    let timer;
+  
+    function build() {
+      track.innerHTML = '';
+      perView = window.innerWidth <= 880 ? 1 : 4;
+  
+      const clonesStart = partners.slice(-perView);
+      const clonesEnd = partners.slice(0, perView);
+      const all = [...clonesStart, ...partners, ...clonesEnd];
+  
+      all.forEach(p => {
+        track.insertAdjacentHTML(
+          'beforeend',
+          `<a class="partner-item" href="${p.link}">
+             <img src="${p.img}" alt="Partner logo" loading="lazy">
+           </a>`
+        );
+      });
+  
+      index = perView;
+      requestAnimationFrame(update);
+    }
+  
+    function update(noAnim = false) {
+      const item = track.children[0];
+      if (!item) return;
+      const w = item.offsetWidth + 16;
+      if (noAnim) track.style.transition = 'none';
+      track.style.transform = `translateX(${-index * w}px)`;
+      if (noAnim) requestAnimationFrame(() => track.style.transition = '');
+    }
+  
+    function step(dir) {
+      index += dir;
+      update();
+    }
+  
+    track.addEventListener('transitionend', () => {
+      const total = partners.length;
+      if (index >= total + perView) {
+        index = perView;
+        update(true);
+      }
+      if (index < perView) {
+        index = total + perView - 1;
+        update(true);
+      }
+    });
+  
+    prev.onclick = () => { step(-1); restart(); };
+    next.onclick = () => { step(1); restart(); };
+  
+    function start() {
+      timer = setInterval(() => step(2), 2000);
+    }
+    function stop() { clearInterval(timer); }
+    function restart() { stop(); start(); }
+  
+    viewport.addEventListener('mouseenter', stop);
+    viewport.addEventListener('mouseleave', start);
+  
+    window.addEventListener('resize', () => build());
+  
+    build();
+    start();
+  })();
+  </script>
+              
+        </div>
+      </div>
+    </section>
+    
+    
   </main>
 
   <!-- FOOTER -->
