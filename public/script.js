@@ -954,28 +954,29 @@ const hambBtn = document.getElementById('hambBtn');
   window.addEventListener('pageshow', updateVisibility);
 })();
 
-
-/* /scripts/loader.js
-   Single-file, drop-in loader (3 rising dots).
-   - injects CSS + HTML immediately (even before <body> exists)
-   - shows instantly on refresh
-   - hides ASAP when DOM is ready (DOMContentLoaded / readystate 'interactive' / load / pageshow)
-   - small safety timeout and bfcache handling
-   Include once (first element in <body> or your site template).
+/* loader-all.js
+   Combined loader + nav helper.
+   Place as first script in <body> (or in shared header), include once.
 */
 (function () {
-  // ---------- config (tweakable) ----------
+  // config
   const VARS = {
     fadeMs: 220,
     dotSize: 12,
     dotGap: 10,
     dotColor: '#0f766e',
     zIndex: 99999,
-    safetyMs: 3000,
-    minimalShowMs: 20 // tiny delay to avoid abrupt flicker
+    safetyMs: 3000,        // safety hide after initial page load
+    actionGraceMs: 350,    // if no navigation detected within this after click/submit -> assume prevented -> hide
+    longWaitMs: 15000,     // if loader still visible after this -> show message and hide
+    minimalShowMs: 20
   };
 
-  // ---------- CSS (injected synchronously) ----------
+  // one-time guard
+  if (window.__seha_loader_all_installed) return;
+  window.__seha_loader_all_installed = true;
+
+  // CSS injected synchronously
   const css = `
 :root{
   --loader-fade: ${VARS.fadeMs}ms;
@@ -985,7 +986,7 @@ const hambBtn = document.getElementById('hambBtn');
   --loader-z: ${VARS.zIndex};
 }
 
-/* overlay (transparent so page shows through) */
+/* overlay */
 .page-loader {
   position: fixed;
   inset: 0;
@@ -1037,21 +1038,32 @@ html[data-loading="true"], body[data-loading="true"] { overflow: hidden !importa
   100% { opacity: 0.18; transform: translateY(0); }
 }
 
-/* reduced motion preference */
-@media (prefers-reduced-motion: reduce) {
-  .dot { animation: none; opacity: 1; transform: none; }
-}
-
-/* accessible label visually hidden */
+/* accessible visually-hidden label */
 .visually-hidden {
   position:absolute !important;
   width:1px; height:1px; padding:0; margin:-1px;
   overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; border:0;
 }
+
+/* small transient timeout notice */
+.seha-loader-timeout {
+  position: fixed;
+  right: 18px;
+  top: 18px;
+  background: rgba(7,16,42,0.96);
+  color: #fff;
+  padding: 10px 14px;
+  border-radius: 10px;
+  box-shadow: 0 10px 30px rgba(2,6,23,0.32);
+  font-size: 13px;
+  z-index: calc(var(--loader-z) + 10);
+  opacity: 0;
+  transition: opacity 220ms ease;
+}
 `.trim();
 
-  // ---------- HTML (loader element) ----------
-  const html = `
+  // loader HTML
+  const loaderHTML = `
 <div id="pageLoader" class="page-loader" role="status" aria-live="polite" aria-label="Loading">
   <div class="loader-dots" aria-hidden="true">
     <span class="dot"></span><span class="dot"></span><span class="dot"></span>
@@ -1059,35 +1071,30 @@ html[data-loading="true"], body[data-loading="true"] { overflow: hidden !importa
   <span class="visually-hidden">Loading — please wait</span>
 </div>`.trim();
 
-  // ---------- utility helpers ----------
-  function safeAppendStyle(cssText) {
+  // inject style
+  (function injectStyle() {
     try {
-      const s = document.createElement('style');
-      s.setAttribute('data-seha-loader', 'true');
-      s.textContent = cssText;
-      // insert into head if available, otherwise into documentElement
-      const head = document.head || document.getElementsByTagName('head')[0];
-      if (head) head.appendChild(s);
-      else document.documentElement.appendChild(s);
-      return s;
+      if (!document.querySelector('style[data-seha-loader]')) {
+        const s = document.createElement('style');
+        s.setAttribute('data-seha-loader', 'true');
+        s.textContent = css;
+        const head = document.head || document.getElementsByTagName('head')[0] || document.documentElement;
+        head.appendChild(s);
+      }
     } catch (e) {
-      // last resort: document.write (rare), but avoid on modern pages
-      try { document.write('<style>' + cssText + '<\/style>'); } catch(e2) {}
-      return null;
+      try { document.write('<style>' + css + '<\/style>'); } catch (e2) { /* ignore */ }
     }
-  }
+  })();
 
-  function insertLoaderImmediately() {
-    // if already present, do nothing
+  // insert loader immediately (into body if available, otherwise documentElement)
+  (function insertLoader() {
     if (document.getElementById('pageLoader')) return;
-    const frag = document.createRange().createContextualFragment(html);
-
-    // Try to insert into body first; if body not ready, insert into documentElement so it's visible ASAP
+    const frag = document.createRange().createContextualFragment(loaderHTML);
     const target = document.body || document.documentElement;
     if (target && target.firstChild) target.insertBefore(frag, target.firstChild);
     else if (target) target.appendChild(frag);
 
-    // If we inserted into documentElement and body later becomes available, move loader into body
+    // If body later appears, move the loader into it
     if (!document.body) {
       document.addEventListener('DOMContentLoaded', () => {
         const loader = document.getElementById('pageLoader');
@@ -1097,245 +1104,288 @@ html[data-loading="true"], body[data-loading="true"] { overflow: hidden !importa
         }
       }, { once: true, passive: true });
     }
-  }
+  })();
 
+  // helper: set/remove data-loading attributes
   function setLoadingAttributes(on) {
     if (on) {
       document.documentElement.setAttribute('data-loading', 'true');
-      try { document.body && document.body.setAttribute('data-loading', 'true'); } catch(e){}
+      try { document.body && document.body.setAttribute('data-loading', 'true'); } catch(e) {}
     } else {
       document.documentElement.removeAttribute('data-loading');
-      try { document.body && document.body.removeAttribute('data-loading'); } catch(e){}
+      try { document.body && document.body.removeAttribute('data-loading'); } catch(e) {}
     }
   }
 
-  // ---------- inject style + html immediately ----------
-  safeAppendStyle(css);
-  insertLoaderImmediately();
-  setLoadingAttributes(true);
-
-  // ---------- show/hide logic ----------
-  let finished = false;
-  let shownAt = Date.now();
-
-  function finish() {
-    if (finished) return;
-    finished = true;
+  // base show/hide functions
+  function showLoaderImmediate() {
     const loader = document.getElementById('pageLoader');
-    if (loader) loader.classList.add('loaded');
-    // ensure we allow a short fade then remove attributes & hide element
-    setTimeout(() => {
-      const loaderNow = document.getElementById('pageLoader');
-      if (loaderNow) {
-        try { loaderNow.style.display = 'none'; } catch(e){}
-      }
-      setLoadingAttributes(false);
-    }, VARS.fadeMs);
-  }
-
-  // If the document is already interactive/complete when this script runs, hide quickly
-  if (document.readyState === 'interactive' || document.readyState === 'complete') {
-    // tiny delay to avoid a flash on super-fast loads
-    setTimeout(finish, VARS.minimalShowMs);
-  } else {
-    // DOMContentLoaded will indicate the DOM is usable (page "responsive")
-    document.addEventListener('DOMContentLoaded', () => {
-      // finish quickly (almost immediate)
-      setTimeout(finish, VARS.minimalShowMs);
-    }, { once: true, passive: true });
-
-    // also watch readystatechange in case some environments prefer that
-    document.addEventListener('readystatechange', () => {
-      if (document.readyState === 'interactive' || document.readyState === 'complete') {
-        setTimeout(finish, VARS.minimalShowMs);
-      }
-    });
-  }
-
-  // window load fallback
-  window.addEventListener('load', () => setTimeout(finish, VARS.minimalShowMs), { once: true });
-
-  // Handle page show (bfcache / back-forward restore) — ensure loader is hidden if page was restored
-  window.addEventListener('pageshow', (ev) => {
-    // If persisted, the DOM is ready — hide immediately
-    if (ev.persisted) {
-      setTimeout(finish, VARS.minimalShowMs);
-    }
-  }, { once: false });
-
-  // Safety timeout never to hang
-  const SAFETY = setTimeout(() => finish(), VARS.safetyMs);
-  function clearSafety() { clearTimeout(SAFETY); }
-  window.addEventListener('load', clearSafety, { once: true });
-  document.addEventListener('DOMContentLoaded', clearSafety, { once: true });
-
-  // expose for debug / manual hide
-  try { window.pageLoaderFinish = finish; } catch(e){}
-
-})();
-
-/* loader-nav.js
-   Show the existing page loader when user clicks navigation links or submits forms,
-   so users see the loader until the browser starts navigating to the new page.
-
-   Safe rules:
-   - skips hash-only links (#...), mailto:, tel:, javascript:
-   - skips links with target="_blank" or when Ctrl/Meta/Shift/Alt is held
-   - skips elements with data-no-loader
-   - handles form submissions (skips target=_blank)
-*/
-
-(function () {
-  // Small guard to prevent repeated work
-  if (window.__seha_loader_nav_attached) return;
-  window.__seha_loader_nav_attached = true;
-
-  // HTML used when loader isn't present (kept minimal & consistent with loader.js)
-  const LOADER_HTML = `
-<div id="pageLoader" class="page-loader" role="status" aria-live="polite" aria-label="Loading">
-  <div class="loader-dots" aria-hidden="true">
-    <span class="dot"></span><span class="dot"></span><span class="dot"></span>
-  </div>
-  <span class="visually-hidden">Loading — please wait</span>
-</div>`.trim();
-
-  // Ensure loader element exists; returns the element
-  function ensureLoader() {
-    let el = document.getElementById('pageLoader');
-    if (el) return el;
-
-    // Try to clone from injected style if present; otherwise insert minimal markup
-    try {
-      const frag = document.createRange().createContextualFragment(LOADER_HTML);
-      const container = document.body || document.documentElement;
-      container.insertBefore(frag, container.firstChild);
-      el = document.getElementById('pageLoader');
-      return el;
-    } catch (e) {
-      // fallback: create element manually
-      const wrapper = document.createElement('div');
-      wrapper.innerHTML = LOADER_HTML;
-      const node = wrapper.firstElementChild;
-      (document.body || document.documentElement).insertBefore(node, (document.body || document.documentElement).firstChild);
-      return document.getElementById('pageLoader');
-    }
-  }
-
-  // Show loader (fast). If loader is hidden already, un-hide it.
-  function showLoader() {
-    const loader = ensureLoader();
     if (!loader) return;
-    // remove loaded if present, then ensure visible
     loader.classList.remove('loaded');
-    // ensure it's displayed (if previously display:none was applied)
-    loader.style.display = '';
-    // mark page as loading to prevent scroll (matching loader.js behavior)
-    try { document.documentElement.setAttribute('data-loading', 'true'); } catch(e){}
-    try { document.body && document.body.setAttribute('data-loading', 'true'); } catch(e){}
-    // small visual protection: force reflow so CSS transitions apply reliably
+    loader.style.display = ''; // ensure visible
+    setLoadingAttributes(true);
+    // force reflow so transitions apply reliably
     void loader.offsetHeight;
   }
 
-  // Optional quick hide function (shouldn't usually be needed here)
-  function hideLoaderQuick() {
+  function hideLoaderImmediate() {
     const loader = document.getElementById('pageLoader');
     if (!loader) return;
     loader.classList.add('loaded');
     setTimeout(() => {
-      try { loader.style.display = 'none'; } catch(e){}
-      try { document.documentElement.removeAttribute('data-loading'); } catch(e){}
-      try { document.body && document.body.removeAttribute('data-loading'); } catch(e){}
-    }, 220);
+      try { loader.style.display = 'none'; } catch(e) {}
+      setLoadingAttributes(false);
+    }, VARS.fadeMs);
   }
 
-  // Decide whether a click on an <a> should show the loader
+  // initial auto-hide logic (for page refresh visible loader) — similar to previous loader.js
+  (function initAutoHide() {
+    let finished = false;
+    function finish() {
+      if (finished) return;
+      finished = true;
+      hideLoaderImmediate();
+    }
+
+    // show attributes already set at insertion; ensure set
+    setLoadingAttributes(true);
+
+    if (document.readyState === 'interactive' || document.readyState === 'complete') {
+      setTimeout(finish, VARS.minimalShowMs);
+    } else {
+      document.addEventListener('DOMContentLoaded', () => setTimeout(finish, VARS.minimalShowMs), { once: true, passive: true });
+      document.addEventListener('readystatechange', () => {
+        if (document.readyState === 'interactive' || document.readyState === 'complete') setTimeout(finish, VARS.minimalShowMs);
+      });
+    }
+    window.addEventListener('load', () => setTimeout(finish, VARS.minimalShowMs), { once: true });
+    window.addEventListener('pageshow', (ev) => { if (ev.persisted) setTimeout(finish, VARS.minimalShowMs); }, { once: false });
+
+    // safety
+    const SAFETY = setTimeout(() => finish(), VARS.safetyMs);
+    function clearSafety() { clearTimeout(SAFETY); }
+    window.addEventListener('load', clearSafety, { once: true });
+    document.addEventListener('DOMContentLoaded', clearSafety, { once: true });
+
+    // allow manual force-hide
+    try { window.pageLoaderFinish = finish; } catch(e){}
+  })();
+
+  // ----- Navigation/form tracking so loader doesn't get stuck ----- //
+  let trackers = new Map(); // id -> tracker
+  let trackerId = 1;
+
+  // listen for global navigation indicators and mark trackers as navigated
+  function attachNavigationEventsForTracker(tr) {
+    // mark navigated true when one of these fires
+    function markNavigated() {
+      tr.navigated = true;
+      cleanup();
+    }
+    function cleanup() {
+      window.removeEventListener('beforeunload', markNavigated);
+      window.removeEventListener('pagehide', markNavigated);
+      document.removeEventListener('visibilitychange', visibilityHandler);
+      window.removeEventListener('unload', markNavigated);
+    }
+    function visibilityHandler() {
+      if (document.hidden) markNavigated();
+    }
+
+    window.addEventListener('beforeunload', markNavigated, { once: true, passive: true });
+    window.addEventListener('pagehide', markNavigated, { once: true, passive: true });
+    document.addEventListener('visibilitychange', visibilityHandler, { passive: true });
+    window.addEventListener('unload', markNavigated, { once: true, passive: true });
+
+    // store cleanup ref
+    tr._cleanup = cleanup;
+  }
+
+  // show loader for an action and create tracker
+  function showLoaderForAction(kind, meta) {
+    // meta optional (link element or form)
+    showLoaderImmediate();
+
+    const id = trackerId++;
+    const tr = {
+      id,
+      kind: kind || 'action',
+      meta: meta || null,
+      navigated: false,
+      shortTimer: null,
+      longTimer: null,
+      _cleanup: null
+    };
+    trackers.set(id, tr);
+
+    // attach navigation watchers
+    attachNavigationEventsForTracker(tr);
+
+    // If navigation not detected quickly, assume prevented -> hide loader
+    tr.shortTimer = setTimeout(() => {
+      if (!tr.navigated) {
+        // hide loader (we assume submit prevented / link prevented)
+        hideLoaderImmediate();
+      }
+      // cancel long timer if any (we hid)
+      if (tr.longTimer) { clearTimeout(tr.longTimer); tr.longTimer = null; }
+      // cleanup nav events
+      if (tr._cleanup) tr._cleanup();
+      trackers.delete(id);
+    }, VARS.actionGraceMs);
+
+    // long wait handler: show message then hide
+    tr.longTimer = setTimeout(() => {
+      // show transient message to user (non-blocking)
+      showTimeoutNotice('Loading is taking longer than usual — please try again if nothing happens.');
+      hideLoaderImmediate();
+      if (tr._cleanup) tr._cleanup();
+      trackers.delete(id);
+    }, VARS.longWaitMs);
+
+    return tr;
+  }
+
+  // helper to cancel all trackers (used when page unloads or manual hide)
+  function cancelAllTrackers() {
+    trackers.forEach(tr => {
+      if (tr.shortTimer) clearTimeout(tr.shortTimer);
+      if (tr.longTimer) clearTimeout(tr.longTimer);
+      if (tr._cleanup) tr._cleanup();
+    });
+    trackers.clear();
+  }
+
+  // show transient timeout notice
+  function showTimeoutNotice(text) {
+    try {
+      let n = document.querySelector('.seha-loader-timeout');
+      if (!n) {
+        n = document.createElement('div');
+        n.className = 'seha-loader-timeout';
+        document.body.appendChild(n);
+        // quick fade in
+        requestAnimationFrame(() => { n.style.opacity = '1'; });
+      }
+      n.textContent = text || 'Taking longer than usual.';
+      setTimeout(() => {
+        n.style.opacity = '0';
+        setTimeout(() => { try { n.remove(); } catch(e){} }, 250);
+      }, 4000);
+    } catch (e) { console.warn('timeout notice error', e); }
+  }
+
+  // Expose manual show/hide (useful for other scripts)
+  function sehaShowLoader() { showLoaderImmediate(); }
+  function sehaHideLoader() {
+    cancelAllTrackers();
+    hideLoaderImmediate();
+  }
+  window.sehaShowLoader = sehaShowLoader;
+  window.sehaHideLoader = sehaHideLoader;
+
+  // ----- Navigation & form event wiring ----- //
+
+  // Decide if a link should show the loader
   function shouldShowForLink(ev, a) {
     if (!a) return false;
     if (a.dataset && a.dataset.noLoader !== undefined) return false;
-    // user modifiers -> open in new tab/window - do NOT show
+    // modifier keys -> user intended new tab or special action -> skip
     if (ev.ctrlKey || ev.metaKey || ev.shiftKey || ev.altKey) return false;
-    // explicit target blank -> do not show (navigation happens in new tab)
+    // target _blank -> skip
     if (a.target && a.target.toLowerCase() === '_blank') return false;
     const href = (a.getAttribute && a.getAttribute('href')) || '';
     if (!href) return false;
     const lc = href.trim().toLowerCase();
-    // skip anchors and same-page fragments
-    if (lc === '#' || lc.startsWith('#')) return false;
-    // skip mailto / tel / javascript links
+    // empty, hash-only, mailto:, tel:, javascript: -> skip
+    if (!lc || lc === '#' || lc.startsWith('#')) return false;
     if (lc.startsWith('mailto:') || lc.startsWith('tel:') || lc.startsWith('javascript:')) return false;
-    // skip if href is a same-document with only hash change but different page? covered above
+    // otherwise show
     return true;
   }
 
-  // Click handler (capture phase to run before other handlers & before navigation)
+  // Link click capture
   document.addEventListener('click', function (ev) {
-    // only primary button
-    if (ev.button !== 0) return;
-
-    const a = ev.target.closest && ev.target.closest('a');
-    if (!a) return;
-
-    if (!shouldShowForLink(ev, a)) return;
-
-    // At this point we'll show the loader and allow the navigation to proceed.
-    // Show loader synchronously so user sees it instantly.
-    showLoader();
-
-    // Note: don't call preventDefault — let browser proceed with navigation.
-    // If other scripts intercept and prevent default, the loader might remain; that's acceptable,
-    // but to help, we set a safety timeout to auto-hide after 3s if nothing happens.
-    setTimeout(() => {
-      // if still visible and document is still the same, quickly hide to avoid stuck UI
-      const loader = document.getElementById('pageLoader');
-      if (loader && !document.hidden && loader.classList.contains('loaded') === false) {
-        // do nothing — navigation likely in-progress. If not, hide
-        // we check if location.href has changed recently; simpler: hide after safety period
-        // but keep this minimal: we won't force hide here.
-      }
-    }, 3500);
+    try {
+      if (ev.button !== 0) return; // only primary button
+      const a = ev.target.closest && ev.target.closest('a');
+      if (!a) return;
+      if (!shouldShowForLink(ev, a)) return;
+      // show loader and create tracker
+      showLoaderForAction('link', { href: a.getAttribute('href') });
+      // minimal fade-in protection (so loader doesn't flash too briefly)
+      // do not prevent default; let browser navigate
+    } catch (e) { /* ignore */ }
   }, true); // capture
 
-  // Forms: show loader on submit (unless target=_blank or data-no-loader set)
-  document.addEventListener('submit', function (ev) {
-    const form = ev.target;
-    if (!form || !(form.tagName && form.tagName.toLowerCase() === 'form')) return;
-    if (form.dataset && form.dataset.noLoader !== undefined) return;
-    const t = (form.getAttribute('target') || '').toLowerCase();
-    if (t === '_blank') return; // opens in new tab, skip
-    // show loader (don't prevent submit)
-    showLoader();
+  // Form submit: show loader only if valid (native check)
+  // Add an 'invalid' capture listener to cancel loader if any field fails validation
+  document.addEventListener('invalid', function (ev) {
+    // when invalid occurs, hide loader right away — user needs to fix fields
+    try {
+      // invalid events bubble? They do not bubble; listen in capture to catch at target
+      sehaHideLoader();
+    } catch (e) {}
   }, true);
 
-  // Also show loader when the user navigates via keyboard (Enter on focused link)
+  document.addEventListener('submit', function (ev) {
+    try {
+      const form = ev.target;
+      if (!form || !(form.tagName && form.tagName.toLowerCase() === 'form')) return;
+      if (form.dataset && form.dataset.noLoader !== undefined) return;
+      const t = (form.getAttribute('target') || '').toLowerCase();
+      if (t === '_blank') return;
+
+      // If the browser's native validation is present, check it synchronously
+      // If checkValidity() is false, don't show the loader (native UI will guide user)
+      let nativeValid = true;
+      try {
+        nativeValid = form.checkValidity();
+      } catch (e) {
+        nativeValid = true; // if checkValidity throws for some reason, allow show
+      }
+      if (!nativeValid) {
+        // don't show loader; let browser show validation UI
+        sehaHideLoader();
+        return;
+      }
+
+      // show loader and track; if submit is prevented by JS later, our shortTimer will hide it
+      showLoaderForAction('form', { action: form.getAttribute('action') || null, method: form.getAttribute('method') || 'GET' });
+
+    } catch (e) {
+      // in case of unexpected error, ensure loader isn't left on
+      sehaHideLoader();
+    }
+  }, true);
+
+  // keyboard Enter on focused link: show loader if appropriate
   document.addEventListener('keydown', function (ev) {
-    if (ev.key !== 'Enter') return;
-    const el = document.activeElement;
-    if (!el) return;
-    const a = el.closest && el.closest('a');
-    if (a && shouldShowForLink(ev, a)) showLoader();
+    try {
+      if (ev.key !== 'Enter') return;
+      const el = document.activeElement;
+      if (!el) return;
+      const a = el.closest && el.closest('a');
+      if (a && shouldShowForLink(ev, a)) {
+        showLoaderForAction('link', { href: a.getAttribute('href') });
+      }
+    } catch (e) {}
   });
 
-  // If the page is hidden (user switches tab) we will ensure loader is hidden to avoid stuck UI
-  document.addEventListener('visibilitychange', function () {
-    if (!document.hidden) return;
-    // leave as-is; when user returns, loader shouldn't be visible unless navigation started.
+  // If the document is hidden or unload occurs, clear trackers / hide loader (defensive)
+  window.addEventListener('pagehide', () => cancelAllTrackers());
+  window.addEventListener('beforeunload', () => cancelAllTrackers());
+  window.addEventListener('unload', () => cancelAllTrackers());
+
+  // popstate: hide quickly (helpful for SPA/back)
+  window.addEventListener('popstate', () => {
+    setTimeout(() => { sehaHideLoader(); }, 40);
   });
 
-  // trying to be tidy on SPA navigations: if history API is used and navigation is handled,
-  // other scripts may dispatch 'popstate' or custom events; we provide a small helper to hide loader:
-  window.addEventListener('popstate', function () {
-    // if SPA handled quickly, ensure loader is hidden
-    setTimeout(() => {
-      const loader = document.getElementById('pageLoader');
-      if (loader) hideLoaderQuick();
-    }, 40);
-  });
-
-  // expose control if needed
-  window.sehaShowLoader = showLoader;
-  window.sehaHideLoader = hideLoaderQuick;
-
+  // Expose a debug method to finish loader (backwards compat)
+  try { window.pageLoaderFinish = sehaHideLoader; } catch (e) {}
 })();
+
 
 
 
