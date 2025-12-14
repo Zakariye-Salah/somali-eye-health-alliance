@@ -8,65 +8,31 @@
   <link rel="icon" href="images/logo.png">
   <link rel="stylesheet" href="style.css">
 
+  <style>
+    /* More / extra amounts visuals */
+.extra-amounts { display: flex; align-items:center; }
+.extra-amounts[hidden], .extra-amounts[style*="display:none"] { display: none !important; }
+
+/* make sure selected preset has same look as btn-primary */
+.amt.btn-primary { box-shadow: 0 8px 22px rgba(15,118,110,.10); }
+.amt.selected { outline: 2px solid rgba(45,212,191,.12); }
+
+/* small responsive tweak: ensure the extra row doesn't push layout awkwardly */
+@media (max-width: 480px) {
+  #presetAmounts .btn, .extra-amounts .btn { padding: 8px 10px; font-size: 14px; }
+}
+
+  </style>
   <script>
-document.addEventListener('DOMContentLoaded', () => {
-  // 1) Keep your current "active" detection but update to also add 'active' class for styling
-  const current = window.location.pathname.split("/").pop() || 'index.html';
-  document.querySelectorAll(".main-nav a").forEach(a => {
-    const href = a.getAttribute("href");
-    if (href === current || (href === 'index.html' && current === '')) {
-      a.classList.add("active");
-    } else {
-      a.classList.remove("active");
-    }
-  });
-
-  // 2) Mobile menu toggle
-  const hambBtn = document.getElementById('hambBtn');
-  const mobileMenu = document.getElementById('mobileMenu');
-  if (hambBtn && mobileMenu) {
-    hambBtn.addEventListener('click', () => {
-      const open = hambBtn.getAttribute('aria-expanded') === 'true';
-      hambBtn.setAttribute('aria-expanded', String(!open));
-      mobileMenu.setAttribute('aria-hidden', String(open));
-      if (!open) {
-        mobileMenu.style.display = 'block';
-        // populate mobile menu if empty (clone)
-        if (!mobileMenu.innerHTML.trim()) {
-          const clone = document.querySelector('.main-nav .nav-list').cloneNode(true);
-          // simplify clone for mobile (remove desktop-only popovers)
-          clone.querySelectorAll('.nav-subtitle').forEach(n => n.remove());
-          mobileMenu.appendChild(clone);
+    document.addEventListener("DOMContentLoaded", () => {
+      const current = window.location.pathname.split("/").pop(); 
+      document.querySelectorAll(".main-nav a").forEach(a => {
+        const href = a.getAttribute("href");
+        if (href === current) {
+          a.classList.add("active");
         }
-      } else {
-        mobileMenu.style.display = 'none';
-      }
-      hambBtn.focus();
+      });
     });
-    // close mobile menu when clicking outside
-    document.addEventListener('click', (e) => {
-      if (!mobileMenu.contains(e.target) && !hambBtn.contains(e.target)) {
-        hambBtn.setAttribute('aria-expanded','false');
-        mobileMenu.setAttribute('aria-hidden','true');
-        mobileMenu.style.display = 'none';
-      }
-    });
-  }
-
-  // 3) Move focusable state to show current nav for keyboard users
-  document.querySelectorAll('.nav-list a').forEach(a => {
-    a.addEventListener('focus', () => {
-      a.classList.add('focus-visible');
-    });
-    a.addEventListener('blur', () => {
-      a.classList.remove('focus-visible');
-    });
-  });
-
-  // 4) optional: ensure donate sits flush at right visually by making header-inner full width
-  // (handled in CSS - nothing to do here)
-});
-
     </script>
     
   <!-- START: Back-to-top small styles (optional: move into style.css) -->
@@ -207,7 +173,7 @@ document.addEventListener('DOMContentLoaded', () => {
 </head>
 <body>
  <!-- HEADER -->
-<header class="site-header" role="banner">
+ <header class="site-header" role="banner">
   
   <!-- small, safe header-local CSS to avoid duplicate arrows & show mobile toggle only on small screens -->
   <style>
@@ -285,7 +251,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         <li class="nav-item"><a href="resources.html">Resources</a></li>
         <li class="nav-item"><a href="events.html">Events & Blogs</a></li>
-        <li class="nav-item"><a href="opportunities.html">Opportunities</a></li>
+        <li class="nav-item"><a href="partnership.html">Partnership</a></li>
         <li class="nav-item"><a href="awareness.html">Awareness</a></li>
         <li class="nav-item"><a href="contact.html">Contact</a></li>
 
@@ -334,7 +300,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
   <div class="mobile-menu" id="mobileMenu" aria-hidden="true"></div>
 </header>
-  
   <main class="section">
     <div class="container">
       <div style="display:flex;align-items:center;gap:12px;">
@@ -361,13 +326,32 @@ document.addEventListener('DOMContentLoaded', () => {
               <input id="donorEmail" name="email" type="email" placeholder="you@example.org">
 
               <label style="margin-top:10px">Choose an amount</label>
-              <div id="presetAmounts" style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">
+              <div id="presetAmounts" style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;align-items:center">
+                <!-- small & common presets -->
+                <button type="button" class="btn amt" data-amount="1">US$1</button>
+                <button type="button" class="btn amt" data-amount="5">US$5</button>
                 <button type="button" class="btn amt" data-amount="10">US$10</button>
                 <button type="button" class="btn amt" data-amount="30">US$30</button> <!-- DEFAULT -->
                 <button type="button" class="btn amt" data-amount="50">US$50</button>
                 <button type="button" class="btn amt" data-amount="100">US$100</button>
                 <button type="button" class="btn amt" data-amount="250">US$250</button>
+              
+                <!-- "More" toggle -->
+                <button type="button" id="showMoreBtn" class="btn" aria-expanded="false" aria-controls="moreAmounts" style="margin-left:6px;padding:8px 10px;">
+                  More ▾
+                </button>
               </div>
+              
+              <!-- hidden extra presets revealed by "More" -->
+              <div id="moreAmounts" class="extra-amounts" style="display:none;margin-top:8px;gap:8px;flex-wrap:wrap;">
+                <button type="button" class="btn amt" data-amount="500">US$500</button>
+                <button type="button" class="btn amt" data-amount="1000">US$1,000</button>
+                <button type="button" class="btn amt" data-amount="10000">US$10,000</button>
+              
+                <!-- optional "Less" control to collapse -->
+                <button type="button" id="hideMoreBtn" class="btn" style="margin-left:8px;padding:8px 10px;">Less ▴</button>
+              </div>
+              
               
 
               <label for="customAmount" style="margin-top:12px">Or enter custom amount (USD)</label>
@@ -434,7 +418,7 @@ document.addEventListener('DOMContentLoaded', () => {
               <textarea id="donorMessage" name="message" placeholder="A message to SEHA (for acknowledgement)"></textarea>
 
               <div style="display:flex;gap:10px;margin-top:12px;align-items:center">
-                <button class="btn btn-primary" type="submit">Donate now (demo)</button>
+                <button class="btn btn-primary" type="submit">Donate now </button>
                 <button type="button" id="clearDonate" class="btn btn-outline">Clear</button>
               </div>
 
