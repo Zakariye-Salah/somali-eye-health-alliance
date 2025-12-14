@@ -958,6 +958,10 @@ const hambBtn = document.getElementById('hambBtn');
    Combined loader + nav helper.
    Place as first script in <body> (or in shared header), include once.
 */
+/* loader-all.js
+   Combined loader + nav helper with 20s max visible threshold and inline message.
+   Place as first script in <body> (or in shared header), include once.
+*/
 (function () {
   // config
   const VARS = {
@@ -968,7 +972,8 @@ const hambBtn = document.getElementById('hambBtn');
     zIndex: 99999,
     safetyMs: 3000,        // safety hide after initial page load
     actionGraceMs: 350,    // if no navigation detected within this after click/submit -> assume prevented -> hide
-    longWaitMs: 15000,     // if loader still visible after this -> show message and hide
+    maxVisibleMs: 20000,   // <- NEW: maximum time to show loader for any action (20s)
+    postMessageHideMs: 3000, // hide a few seconds after showing the message
     minimalShowMs: 20
   };
 
@@ -1045,28 +1050,29 @@ html[data-loading="true"], body[data-loading="true"] { overflow: hidden !importa
   overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; border:0;
 }
 
-/* small transient timeout notice */
-.seha-loader-timeout {
-  position: fixed;
-  right: 18px;
-  top: 18px;
-  background: rgba(7,16,42,0.96);
-  color: #fff;
-  padding: 10px 14px;
-  border-radius: 10px;
-  box-shadow: 0 10px 30px rgba(2,6,23,0.32);
+/* message that appears under the dots inside the overlay */
+.seha-loader-message {
+  margin-top: 12px;
   font-size: 13px;
-  z-index: calc(var(--loader-z) + 10);
-  opacity: 0;
-  transition: opacity 220ms ease;
+  color: rgba(7,16,42,0.92);
+  background: rgba(255,255,255,0.95);
+  padding: 8px 12px;
+  border-radius: 10px;
+  box-shadow: 0 6px 18px rgba(2,6,23,0.06);
+  max-width: min(540px, 92%);
+  text-align: center;
+  line-height: 1.25;
 }
 `.trim();
 
   // loader HTML
   const loaderHTML = `
 <div id="pageLoader" class="page-loader" role="status" aria-live="polite" aria-label="Loading">
-  <div class="loader-dots" aria-hidden="true">
-    <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+  <div style="display:flex;flex-direction:column;align-items:center;">
+    <div class="loader-dots" aria-hidden="true">
+      <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+    </div>
+    <!-- message area inserted dynamically when needed -->
   </div>
   <span class="visually-hidden">Loading — please wait</span>
 </div>`.trim();
@@ -1131,6 +1137,8 @@ html[data-loading="true"], body[data-loading="true"] { overflow: hidden !importa
   function hideLoaderImmediate() {
     const loader = document.getElementById('pageLoader');
     if (!loader) return;
+    // remove any message
+    removeLoaderMessage();
     loader.classList.add('loaded');
     setTimeout(() => {
       try { loader.style.display = 'none'; } catch(e) {}
@@ -1138,7 +1146,34 @@ html[data-loading="true"], body[data-loading="true"] { overflow: hidden !importa
     }, VARS.fadeMs);
   }
 
-  // initial auto-hide logic (for page refresh visible loader) — similar to previous loader.js
+  // message helpers (insert under the dots inside the loader)
+  function showLoaderMessage(text) {
+    try {
+      const loader = document.getElementById('pageLoader');
+      if (!loader) return;
+      // find column wrapper that contains .loader-dots
+      const wrapper = loader.querySelector('div > div.loader-dots')?.parentElement || loader.querySelector('.loader-dots')?.parentElement;
+      if (!wrapper) return;
+      // if message exists, update text
+      let msg = loader.querySelector('.seha-loader-message');
+      if (!msg) {
+        msg = document.createElement('div');
+        msg.className = 'seha-loader-message';
+        wrapper.appendChild(msg);
+      }
+      msg.textContent = text;
+    } catch (e) { console.warn('showLoaderMessage error', e); }
+  }
+  function removeLoaderMessage() {
+    try {
+      const loader = document.getElementById('pageLoader');
+      if (!loader) return;
+      const msg = loader.querySelector('.seha-loader-message');
+      if (msg) msg.remove();
+    } catch (e) {}
+  }
+
+  // initial auto-hide logic (for page refresh visible loader)
   (function initAutoHide() {
     let finished = false;
     function finish() {
@@ -1175,12 +1210,19 @@ html[data-loading="true"], body[data-loading="true"] { overflow: hidden !importa
   let trackers = new Map(); // id -> tracker
   let trackerId = 1;
 
+  function clearTrackerTimers(tr) {
+    try { if (tr.shortTimer) clearTimeout(tr.shortTimer); } catch(e){}
+    try { if (tr.longTimer) clearTimeout(tr.longTimer); } catch(e){}
+    try { if (tr.postHideTimer) clearTimeout(tr.postHideTimer); } catch(e){}
+  }
+
   // listen for global navigation indicators and mark trackers as navigated
   function attachNavigationEventsForTracker(tr) {
-    // mark navigated true when one of these fires
     function markNavigated() {
       tr.navigated = true;
       cleanup();
+      clearTrackerTimers(tr);
+      trackers.delete(tr.id);
     }
     function cleanup() {
       window.removeEventListener('beforeunload', markNavigated);
@@ -1197,13 +1239,11 @@ html[data-loading="true"], body[data-loading="true"] { overflow: hidden !importa
     document.addEventListener('visibilitychange', visibilityHandler, { passive: true });
     window.addEventListener('unload', markNavigated, { once: true, passive: true });
 
-    // store cleanup ref
     tr._cleanup = cleanup;
   }
 
   // show loader for an action and create tracker
   function showLoaderForAction(kind, meta) {
-    // meta optional (link element or form)
     showLoaderImmediate();
 
     const id = trackerId++;
@@ -1214,34 +1254,46 @@ html[data-loading="true"], body[data-loading="true"] { overflow: hidden !importa
       navigated: false,
       shortTimer: null,
       longTimer: null,
+      postHideTimer: null,
       _cleanup: null
     };
     trackers.set(id, tr);
 
-    // attach navigation watchers
     attachNavigationEventsForTracker(tr);
 
-    // If navigation not detected quickly, assume prevented -> hide loader
+    // Short grace: hide quickly if no nav detected (prevented)
     tr.shortTimer = setTimeout(() => {
       if (!tr.navigated) {
-        // hide loader (we assume submit prevented / link prevented)
+        // hide loader (submit prevented / link prevented)
+        clearTrackerTimers(tr);
+        if (tr._cleanup) tr._cleanup();
+        trackers.delete(tr.id);
         hideLoaderImmediate();
       }
-      // cancel long timer if any (we hid)
-      if (tr.longTimer) { clearTimeout(tr.longTimer); tr.longTimer = null; }
-      // cleanup nav events
-      if (tr._cleanup) tr._cleanup();
-      trackers.delete(id);
     }, VARS.actionGraceMs);
 
-    // long wait handler: show message then hide
+    // Long max-visible: at maxVisibleMs show message under loader and then hide shortly after
     tr.longTimer = setTimeout(() => {
-      // show transient message to user (non-blocking)
-      showTimeoutNotice('Loading is taking longer than usual — please try again if nothing happens.');
-      hideLoaderImmediate();
-      if (tr._cleanup) tr._cleanup();
-      trackers.delete(id);
-    }, VARS.longWaitMs);
+      try {
+        // show inline message under dots (20s)
+        showLoaderMessage(`Loading is taking longer than ${Math.round(VARS.maxVisibleMs/1000)} seconds — the operation may be slow. Please try again or check your connection.`);
+        // hide after a short grace so user sees message
+        tr.postHideTimer = setTimeout(() => {
+          try {
+            if (tr._cleanup) tr._cleanup();
+            clearTrackerTimers(tr);
+            trackers.delete(tr.id);
+            hideLoaderImmediate();
+          } catch (e) {}
+        }, VARS.postMessageHideMs);
+      } catch (e) {
+        // fallback: just hide
+        if (tr._cleanup) tr._cleanup();
+        clearTrackerTimers(tr);
+        trackers.delete(tr.id);
+        hideLoaderImmediate();
+      }
+    }, VARS.maxVisibleMs);
 
     return tr;
   }
@@ -1249,30 +1301,14 @@ html[data-loading="true"], body[data-loading="true"] { overflow: hidden !importa
   // helper to cancel all trackers (used when page unloads or manual hide)
   function cancelAllTrackers() {
     trackers.forEach(tr => {
-      if (tr.shortTimer) clearTimeout(tr.shortTimer);
-      if (tr.longTimer) clearTimeout(tr.longTimer);
-      if (tr._cleanup) tr._cleanup();
+      try { if (tr.shortTimer) clearTimeout(tr.shortTimer); } catch(e){}
+      try { if (tr.longTimer) clearTimeout(tr.longTimer); } catch(e){}
+      try { if (tr.postHideTimer) clearTimeout(tr.postHideTimer); } catch(e){}
+      try { if (tr._cleanup) tr._cleanup(); } catch(e){}
     });
     trackers.clear();
-  }
-
-  // show transient timeout notice
-  function showTimeoutNotice(text) {
-    try {
-      let n = document.querySelector('.seha-loader-timeout');
-      if (!n) {
-        n = document.createElement('div');
-        n.className = 'seha-loader-timeout';
-        document.body.appendChild(n);
-        // quick fade in
-        requestAnimationFrame(() => { n.style.opacity = '1'; });
-      }
-      n.textContent = text || 'Taking longer than usual.';
-      setTimeout(() => {
-        n.style.opacity = '0';
-        setTimeout(() => { try { n.remove(); } catch(e){} }, 250);
-      }, 4000);
-    } catch (e) { console.warn('timeout notice error', e); }
+    // remove any inline message if present
+    removeLoaderMessage();
   }
 
   // Expose manual show/hide (useful for other scripts)
@@ -1290,44 +1326,33 @@ html[data-loading="true"], body[data-loading="true"] { overflow: hidden !importa
   function shouldShowForLink(ev, a) {
     if (!a) return false;
     if (a.dataset && a.dataset.noLoader !== undefined) return false;
-    // modifier keys -> user intended new tab or special action -> skip
     if (ev.ctrlKey || ev.metaKey || ev.shiftKey || ev.altKey) return false;
-    // target _blank -> skip
     if (a.target && a.target.toLowerCase() === '_blank') return false;
     const href = (a.getAttribute && a.getAttribute('href')) || '';
     if (!href) return false;
     const lc = href.trim().toLowerCase();
-    // empty, hash-only, mailto:, tel:, javascript: -> skip
     if (!lc || lc === '#' || lc.startsWith('#')) return false;
     if (lc.startsWith('mailto:') || lc.startsWith('tel:') || lc.startsWith('javascript:')) return false;
-    // otherwise show
     return true;
   }
 
   // Link click capture
   document.addEventListener('click', function (ev) {
     try {
-      if (ev.button !== 0) return; // only primary button
+      if (ev.button !== 0) return;
       const a = ev.target.closest && ev.target.closest('a');
       if (!a) return;
       if (!shouldShowForLink(ev, a)) return;
-      // show loader and create tracker
       showLoaderForAction('link', { href: a.getAttribute('href') });
-      // minimal fade-in protection (so loader doesn't flash too briefly)
-      // do not prevent default; let browser navigate
     } catch (e) { /* ignore */ }
-  }, true); // capture
-
-  // Form submit: show loader only if valid (native check)
-  // Add an 'invalid' capture listener to cancel loader if any field fails validation
-  document.addEventListener('invalid', function (ev) {
-    // when invalid occurs, hide loader right away — user needs to fix fields
-    try {
-      // invalid events bubble? They do not bubble; listen in capture to catch at target
-      sehaHideLoader();
-    } catch (e) {}
   }, true);
 
+  // Form invalid -> hide loader immediately (user needs to fix)
+  document.addEventListener('invalid', function (ev) {
+    try { sehaHideLoader(); } catch (e) {}
+  }, true);
+
+  // Form submit
   document.addEventListener('submit', function (ev) {
     try {
       const form = ev.target;
@@ -1336,25 +1361,16 @@ html[data-loading="true"], body[data-loading="true"] { overflow: hidden !importa
       const t = (form.getAttribute('target') || '').toLowerCase();
       if (t === '_blank') return;
 
-      // If the browser's native validation is present, check it synchronously
-      // If checkValidity() is false, don't show the loader (native UI will guide user)
+      // If native validation fails, don't show loader
       let nativeValid = true;
-      try {
-        nativeValid = form.checkValidity();
-      } catch (e) {
-        nativeValid = true; // if checkValidity throws for some reason, allow show
-      }
+      try { nativeValid = form.checkValidity(); } catch (e) { nativeValid = true; }
       if (!nativeValid) {
-        // don't show loader; let browser show validation UI
         sehaHideLoader();
         return;
       }
 
-      // show loader and track; if submit is prevented by JS later, our shortTimer will hide it
       showLoaderForAction('form', { action: form.getAttribute('action') || null, method: form.getAttribute('method') || 'GET' });
-
     } catch (e) {
-      // in case of unexpected error, ensure loader isn't left on
       sehaHideLoader();
     }
   }, true);
@@ -1372,18 +1388,17 @@ html[data-loading="true"], body[data-loading="true"] { overflow: hidden !importa
     } catch (e) {}
   });
 
-  // If the document is hidden or unload occurs, clear trackers / hide loader (defensive)
+  // defensive cleanup on navigation/unload
   window.addEventListener('pagehide', () => cancelAllTrackers());
   window.addEventListener('beforeunload', () => cancelAllTrackers());
   window.addEventListener('unload', () => cancelAllTrackers());
 
-  // popstate: hide quickly (helpful for SPA/back)
-  window.addEventListener('popstate', () => {
-    setTimeout(() => { sehaHideLoader(); }, 40);
-  });
+  // popstate
+  window.addEventListener('popstate', () => { setTimeout(() => { sehaHideLoader(); }, 40); });
 
-  // Expose a debug method to finish loader (backwards compat)
+  // expose debug method
   try { window.pageLoaderFinish = sehaHideLoader; } catch (e) {}
+
 })();
 
 
