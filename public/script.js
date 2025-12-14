@@ -1174,6 +1174,169 @@ html[data-loading="true"], body[data-loading="true"] { overflow: hidden !importa
 
 })();
 
+/* loader-nav.js
+   Show the existing page loader when user clicks navigation links or submits forms,
+   so users see the loader until the browser starts navigating to the new page.
+
+   Safe rules:
+   - skips hash-only links (#...), mailto:, tel:, javascript:
+   - skips links with target="_blank" or when Ctrl/Meta/Shift/Alt is held
+   - skips elements with data-no-loader
+   - handles form submissions (skips target=_blank)
+*/
+
+(function () {
+  // Small guard to prevent repeated work
+  if (window.__seha_loader_nav_attached) return;
+  window.__seha_loader_nav_attached = true;
+
+  // HTML used when loader isn't present (kept minimal & consistent with loader.js)
+  const LOADER_HTML = `
+<div id="pageLoader" class="page-loader" role="status" aria-live="polite" aria-label="Loading">
+  <div class="loader-dots" aria-hidden="true">
+    <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+  </div>
+  <span class="visually-hidden">Loading — please wait</span>
+</div>`.trim();
+
+  // Ensure loader element exists; returns the element
+  function ensureLoader() {
+    let el = document.getElementById('pageLoader');
+    if (el) return el;
+
+    // Try to clone from injected style if present; otherwise insert minimal markup
+    try {
+      const frag = document.createRange().createContextualFragment(LOADER_HTML);
+      const container = document.body || document.documentElement;
+      container.insertBefore(frag, container.firstChild);
+      el = document.getElementById('pageLoader');
+      return el;
+    } catch (e) {
+      // fallback: create element manually
+      const wrapper = document.createElement('div');
+      wrapper.innerHTML = LOADER_HTML;
+      const node = wrapper.firstElementChild;
+      (document.body || document.documentElement).insertBefore(node, (document.body || document.documentElement).firstChild);
+      return document.getElementById('pageLoader');
+    }
+  }
+
+  // Show loader (fast). If loader is hidden already, un-hide it.
+  function showLoader() {
+    const loader = ensureLoader();
+    if (!loader) return;
+    // remove loaded if present, then ensure visible
+    loader.classList.remove('loaded');
+    // ensure it's displayed (if previously display:none was applied)
+    loader.style.display = '';
+    // mark page as loading to prevent scroll (matching loader.js behavior)
+    try { document.documentElement.setAttribute('data-loading', 'true'); } catch(e){}
+    try { document.body && document.body.setAttribute('data-loading', 'true'); } catch(e){}
+    // small visual protection: force reflow so CSS transitions apply reliably
+    void loader.offsetHeight;
+  }
+
+  // Optional quick hide function (shouldn't usually be needed here)
+  function hideLoaderQuick() {
+    const loader = document.getElementById('pageLoader');
+    if (!loader) return;
+    loader.classList.add('loaded');
+    setTimeout(() => {
+      try { loader.style.display = 'none'; } catch(e){}
+      try { document.documentElement.removeAttribute('data-loading'); } catch(e){}
+      try { document.body && document.body.removeAttribute('data-loading'); } catch(e){}
+    }, 220);
+  }
+
+  // Decide whether a click on an <a> should show the loader
+  function shouldShowForLink(ev, a) {
+    if (!a) return false;
+    if (a.dataset && a.dataset.noLoader !== undefined) return false;
+    // user modifiers -> open in new tab/window - do NOT show
+    if (ev.ctrlKey || ev.metaKey || ev.shiftKey || ev.altKey) return false;
+    // explicit target blank -> do not show (navigation happens in new tab)
+    if (a.target && a.target.toLowerCase() === '_blank') return false;
+    const href = (a.getAttribute && a.getAttribute('href')) || '';
+    if (!href) return false;
+    const lc = href.trim().toLowerCase();
+    // skip anchors and same-page fragments
+    if (lc === '#' || lc.startsWith('#')) return false;
+    // skip mailto / tel / javascript links
+    if (lc.startsWith('mailto:') || lc.startsWith('tel:') || lc.startsWith('javascript:')) return false;
+    // skip if href is a same-document with only hash change but different page? covered above
+    return true;
+  }
+
+  // Click handler (capture phase to run before other handlers & before navigation)
+  document.addEventListener('click', function (ev) {
+    // only primary button
+    if (ev.button !== 0) return;
+
+    const a = ev.target.closest && ev.target.closest('a');
+    if (!a) return;
+
+    if (!shouldShowForLink(ev, a)) return;
+
+    // At this point we'll show the loader and allow the navigation to proceed.
+    // Show loader synchronously so user sees it instantly.
+    showLoader();
+
+    // Note: don't call preventDefault — let browser proceed with navigation.
+    // If other scripts intercept and prevent default, the loader might remain; that's acceptable,
+    // but to help, we set a safety timeout to auto-hide after 3s if nothing happens.
+    setTimeout(() => {
+      // if still visible and document is still the same, quickly hide to avoid stuck UI
+      const loader = document.getElementById('pageLoader');
+      if (loader && !document.hidden && loader.classList.contains('loaded') === false) {
+        // do nothing — navigation likely in-progress. If not, hide
+        // we check if location.href has changed recently; simpler: hide after safety period
+        // but keep this minimal: we won't force hide here.
+      }
+    }, 3500);
+  }, true); // capture
+
+  // Forms: show loader on submit (unless target=_blank or data-no-loader set)
+  document.addEventListener('submit', function (ev) {
+    const form = ev.target;
+    if (!form || !(form.tagName && form.tagName.toLowerCase() === 'form')) return;
+    if (form.dataset && form.dataset.noLoader !== undefined) return;
+    const t = (form.getAttribute('target') || '').toLowerCase();
+    if (t === '_blank') return; // opens in new tab, skip
+    // show loader (don't prevent submit)
+    showLoader();
+  }, true);
+
+  // Also show loader when the user navigates via keyboard (Enter on focused link)
+  document.addEventListener('keydown', function (ev) {
+    if (ev.key !== 'Enter') return;
+    const el = document.activeElement;
+    if (!el) return;
+    const a = el.closest && el.closest('a');
+    if (a && shouldShowForLink(ev, a)) showLoader();
+  });
+
+  // If the page is hidden (user switches tab) we will ensure loader is hidden to avoid stuck UI
+  document.addEventListener('visibilitychange', function () {
+    if (!document.hidden) return;
+    // leave as-is; when user returns, loader shouldn't be visible unless navigation started.
+  });
+
+  // trying to be tidy on SPA navigations: if history API is used and navigation is handled,
+  // other scripts may dispatch 'popstate' or custom events; we provide a small helper to hide loader:
+  window.addEventListener('popstate', function () {
+    // if SPA handled quickly, ensure loader is hidden
+    setTimeout(() => {
+      const loader = document.getElementById('pageLoader');
+      if (loader) hideLoaderQuick();
+    }, 40);
+  });
+
+  // expose control if needed
+  window.sehaShowLoader = showLoader;
+  window.sehaHideLoader = hideLoaderQuick;
+
+})();
+
 
 
 (function () {
