@@ -7,7 +7,70 @@
   <meta name="description" content="About SEHA — mission, vision, history and governance. English-only expanded content." />
   <link rel="stylesheet" href="style.css">
 
-   <script>
+  <!-- Add this to <head> (or style.css) -->
+<style>
+  /* Base sizing — increase if you want even larger text */
+  :root {
+    --seha-base-size: 18px;    /* desktop base size */
+    --seha-small-size: 15px;   /* mobile base size */
+    --seha-line-height: 1.6;
+    --seha-lead-scale: 1.125;   /* lead paragraph scale (1.125 = 112.5%) */
+  }
+
+  /* Apply base font size & comfortable line height */
+  html { font-size: var(--seha-base-size); }
+  body {
+    font-size: 1rem;               /* equals var(--seha-base-size) */
+    line-height: var(--seha-line-height);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Paragraphs, lists and muted copy */
+  p, li, .muted, .small-list, .partner-desc, .hp-desc, .partner-info p {
+    font-size: 1rem;               /* ~18px on desktop */
+    line-height: 1.6;
+  }
+
+  /* Lead paragraphs (intro text) slightly larger */
+  .lead, header p.lead, .lead.muted {
+    font-size: calc(1rem * var(--seha-lead-scale));
+    line-height: 1.6;
+  }
+
+  /* Headings: scale up while keeping hierarchy */
+  h1 { font-size: 2rem; margin-top: 0; margin-bottom: 0.5rem; }   /* ~36px */
+  h2 { font-size: 1.5rem; margin-bottom: 0.6rem; }                /* ~27px */
+  h3 { font-size: 1.25rem; margin-bottom: 0.5rem; }               /* ~22.5px */
+  h4 { font-size: 1.05rem; margin-bottom: 0.4rem; }               /* ~19px */
+
+  /* Smaller UI elements (nav/footer) — keep legible but not huge */
+  .main-nav a, .footer, .footer p, .footer .small-list li {
+    font-size: 0.95rem;
+  }
+
+  /* Buttons: keep comfortable touch target but avoid huge text */
+  .btn { font-size: 0.98rem; }
+
+  /* Make small-list items a bit larger than before */
+  .small-list li { font-size: 0.98rem; }
+
+  /* Responsive: scale down slightly on small screens so layout remains tidy */
+  @media (max-width: 640px) {
+    :root { --seha-base-size: var(--seha-small-size); } /* ~15px base on phones */
+    h1 { font-size: 1.6rem; }   /* ~24px */
+    h2 { font-size: 1.25rem; }  /* ~20px */
+    h3 { font-size: 1.1rem; }   /* ~17px */
+    .lead { font-size: 1.05rem; }
+  }
+
+  /* Respect reduced motion / accessibility preferences */
+  @media (prefers-reduced-motion: reduce) {
+    * { transition-duration: 0s !important; }
+  }
+</style>
+
+  <script>
     document.addEventListener("DOMContentLoaded", () => {
       const current = window.location.pathname.split("/").pop(); 
       document.querySelectorAll(".main-nav a").forEach(a => {
@@ -160,8 +223,8 @@
   <!-- END: Back-to-top styles -->
 </head>
 <body>
- <!-- HEADER -->
- <header class="site-header" role="banner">
+<!-- HEADER -->
+<header class="site-header" role="banner">
   
   <!-- small, safe header-local CSS to avoid duplicate arrows & show mobile toggle only on small screens -->
   <style>
@@ -305,11 +368,11 @@ body[data-loading="true"] { overflow: hidden !important; }
 
         <li class="nav-item"><a href="programs.html">Programs</a></li>
         <li class="nav-item"><a href="membership.html">Membership</a></li>
-        <li class="nav-item"><a href="partnership.html">Partnership</a></li>
+        <!-- <li class="nav-item"><a href="partnership.html">Partnership</a></li> -->
 
         <li class="nav-item"><a href="resources.html">Resources</a></li>
         <li class="nav-item"><a href="events.html">Events & Blogs</a></li>
-        <!-- <li class="nav-item"><a href="opportunities.html">Opportunities</a></li> -->
+        <li class="nav-item"><a href="opportunities.html">Opportunities</a></li>
         <li class="nav-item"><a href="awareness.html">Awareness</a></li>
         <li class="nav-item"><a href="contact.html">Contact</a></li>
 
@@ -358,6 +421,7 @@ body[data-loading="true"] { overflow: hidden !important; }
 
   <div class="mobile-menu" id="mobileMenu" aria-hidden="true"></div>
 </header>
+
   <!-- MAIN -->
   <main class="section">
     <div class="container">
