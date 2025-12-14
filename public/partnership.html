@@ -903,29 +903,26 @@ a:focus, button:focus {
   min-height: 0; /* allow height to shrink on mobile */
 }
 
-/* image full width at top */
 .partner-media{
-  width:100%;
-  height:140px;               /* fixed height for consistent cards */
-  flex:0 0 auto;
-  display:block;
-  border-radius:10px;
-  overflow:hidden;
-  background:linear-gradient(180deg,#fff,#f7fbfb);
-  box-shadow:0 4px 18px rgba(2,6,23,.04), inset 0 1px 0 rgba(255,255,255,.7);
+  display:flex;
+  align-items:center;
+  justify-content:center;
 }
+
+.partner-media img{
+  max-width:100%;
+  max-height:100%;
+  width:auto;
+  height:auto;
+  object-fit:contain;
+  display:block;
+  transition:transform .25s ease;
+}
+
 
 /* Responsive: slightly taller images on wide screens */
 @media(min-width:1100px){
   .partner-media{ height:160px; }
-}
-
-.partner-media img{
-  width:100%;
-  height:100%;
-  object-fit:cover;
-  display:block;
-  transition:transform .36s,filter .24s;
 }
 
 /* card content area */
@@ -1046,13 +1043,15 @@ a:focus, button:focus {
   (function () {
     /* ---------- DATA: change images & sites as needed ---------- */
     const partners = [
-      { id:'sef', name:'Somali Eye Foundation', short:'National NGO delivering community screening campaigns and spectacles distribution.', long:'Somali Eye Foundation runs community screening programs, trains primary eye-care workers, and operates low-cost spectacles workshops in multiple regions.', categories:['ngos','implementation'], image:'images/image1.png', website:'https://somalieyefoundation.example', contact:'info@sef.org' },
-      { id:'horizon', name:'Horizon Aid', short:'International donor funding cataract camps and equipment procurement.', long:'Horizon Aid funds health outreach and emergency support in East Africa.', categories:['donors','foundations'], image:'images/image2.png', website:'https://horizonaid.example', contact:'grants@horizonaid.org' },
-      { id:'moh', name:'Ministry of Health — Somalia', short:'Policy partner supporting integration of eye care into national health plans.', long:'Ministry of Health collaborates on policy, workforce planning and coordination of regional referral networks.', categories:['government'], image:'images/image3.png', website:'https://moh.so', contact:'info@moh.so' },
-      { id:'mmu', name:'Mogadishu Medical University', short:'Academic partner providing clinical training, research and CPD for eye health workers.', long:'MMU partners on clinical curricula, practical training placements and operational research.', categories:['universities','technical'], image:'images/image4.png', website:'https://mmu.example', contact:'ophthal@mmu.edu' },
-      { id:'banadir', name:'Banadir Eye Hospital', short:'Regional surgical hub delivering cataract surgery and outreaches.', long:'Banadir Eye Hospital is a surgical centre providing high-volume cataract surgery and mentoring visiting teams.', categories:['hospitals','implementation'], image:'images/image5.png', website:'https://banadirhospital.example', contact:'surgery@banadirhospital.so' },
-      { id:'visiontech', name:'VisionTech Ltd', short:'Private supplier of diagnostic equipment and low-cost spectacles solutions.', long:'VisionTech supplies diagnostic equipment and supports local optical workshops with maintenance and training.', categories:['companies','supporting'], image:'images/image6.png', website:'https://visiontech.example', contact:'sales@visiontech.com' },
-      { id:'bright', name:'BrightFuture Foundation', short:'Foundation supporting capacity building and small grants for local clinics.', long:'BrightFuture provides small grants and targeted funding for clinic refurbishment and training bursaries.', categories:['foundations','donors'], image:'images/image7.png', website:'https://brightfuture.example', contact:'grants@brightfuture.org' },
+      { id:'aau', name:'Aden Adde International University', short:'Aden Adde International University (AAIU) is a non-profit institution, registered with the Ministry of Higher Education of Somalia.', long:'place in late 2015 with a group of Somali intellectuals lead by Prof Dr Osman Aden Abdulle,a prominent physician and geneticist who has spent his entire life in the service of his people. Following a civil war that destroyed the entire existing infrastructure,.', categories:['universities','technical'], image:'images/images-acu-university.png', website:'https://aaiu.edu.so/', contact:'info@aaiu.edu.so' },
+      { id:'arag', name:'Arag Hospital', short:'Regional surgical hub delivering cataract surgery and outreaches.', long:'Arag Hospital is a surgical centre providing high-volume cataract surgery and mentoring visiting teams.', categories:['hospitals','implementation'], image:'images/images-arag-hospital.png', website:'https://araghospital.com', contact:'surgery@araghospital.so' },
+      { id:'aah', name:'Aden Abdulle Hospital', short:'Aden Abdulle Hospital was named after Aden Abdulle Osman who was a prominent political figure in Somalia.', long:"Aden Abdulle Hospital was named after Aden Abdulle Osman who was a prominent political figure in Somalia. He served as the first President of Somalia from 1960 to 1967, following the country's independence from colonial rule. Osman played a significant role in the early years of Somalia's independence and was instrumental in the formation and development of the young nation.", categories:['hospitals'], image:'images/images-ac-hospital.png', website:'https://aah.so/', contact:'https://aah.so/contact/' },
+     
+      { id:'hormuud', name:'Hormuud Salaam Foundation', short:'Since its inception, Hormuud Salaam Foundation has been providing a critical economic and transformative lifeline to the Somali people in & outside Somalia through its extensive and global network.', long:' In 2013, Hormuud Telecom has officially established by Hormuud Salaam Foundation, the first ever corporate foundation, as a vehicle for its Corporate Social Responsibility program, with focus on giving back to the society and impacting the quality of life of the community in which funded Hormuud Telecom & Salam Bank.', categories:['donors','foundations'], image:'images/images-hormuud-doundation.png', website:'https://hormuudsalaamfoundation.org/', contact:'info@hormuudsalaamfoundation.org' },
+      { id:'moh', name:'Ministry of Health — Somalia', short:'Policy partner supporting integration of eye care into national health plans.', long:'Ministry of Health collaborates on policy, workforce planning and coordination of regional referral networks.', categories:['government'], image:'images/images-ministry-of-health.png', website:'https://moh.gov.so/so/home/', contact:'info@moh.so' },
+      { id:'bright', name:'BrightFuture Foundation', short:'Foundation supporting capacity building and small grants for local clinics.', long:'BrightFuture provides small grants and targeted funding for clinic refurbishment and training bursaries.', categories:['foundations','donors'], image:'images/images-bright-foundation.png', website:'https://brightfuture.example', contact:'grants@brightfuture.org' },
+      { id:'visiontech', name:'VisionTech Ltd', short:'Private supplier of diagnostic equipment and low-cost spectacles solutions.', long:'VisionTech supplies diagnostic equipment and supports local optical workshops with maintenance and training.', categories:['companies',], image:'images/images-vision.png', website:'https://visiontech.example', contact:'sales@visiontech.com' },
+      
       { id:'regional', name:'Regional Health Consortium', short:'Cross-sector consortium coordinating regional service delivery and referral networks.', long:'Regional consortium of local government, NGOs and hospitals working on referrals, supply logistics and data-sharing.', categories:['government','ngos','hospitals'], image:'images/image8.png', website:'', contact:'' }
     ];
   
