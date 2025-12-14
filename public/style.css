@@ -311,7 +311,7 @@ h4 { font-size: 16px; margin: 0 0 8px 0; display:flex; align-items:center; gap:8
   background-repeat: no-repeat;
   background-position: center right;
   background-size: cover;
-  opacity: 0.10;
+  opacity: 0.05;
   pointer-events: none;
   z-index: 0;
   filter: blur(0.6px) saturate(0.98);
