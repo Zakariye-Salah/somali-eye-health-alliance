@@ -639,7 +639,94 @@ a:focus, button:focus {
       </div>
     </div>
   </main>
-
+<!-- Add this markup once (near end of <body>) -->
+  <div id="sehaImageModal" class="seha-image-modal" aria-hidden="true" role="dialog">
+    <button id="sehaImageModalClose" class="seha-image-modal-close" aria-label="Close image">✕</button>
+    <img id="sehaImageModalImg" src="" alt="">
+  </div>
+  
+  <style>
+  /* simple lightbox styles */
+  .seha-image-modal {
+    position: fixed;
+    inset: 0;
+    display:none;
+    align-items:center;
+    justify-content:center;
+    background: rgba(2,6,23,0.75);
+    z-index: 12000;
+    padding: 20px;
+  }
+  .seha-image-modal.open { display:flex; }
+  .seha-image-modal img { max-width: calc(100% - 40px); max-height: calc(100% - 80px); border-radius:10px; box-shadow:0 30px 80px rgba(2,6,23,0.6); }
+  .seha-image-modal-close {
+    position: absolute;
+    top: 18px;
+    right: 18px;
+    z-index: 12100;
+    background:#fff; border-radius:999px; border:0; width:44px;height:44px; cursor:pointer;
+    box-shadow:0 8px 24px rgba(2,6,23,0.3);
+  }
+  </style>
+  
+  <script>
+  (function () {
+    // wire program grid images to open modal when clicked
+    const modal = document.getElementById('sehaImageModal');
+    const modalImg = document.getElementById('sehaImageModalImg');
+    const modalClose = document.getElementById('sehaImageModalClose');
+  
+    function openModal(src, alt) {
+      if (!modal || !modalImg) return;
+      modalImg.src = src;
+      modalImg.alt = alt || '';
+      modal.classList.add('open');
+      modal.setAttribute('aria-hidden', 'false');
+      modalClose.focus();
+    }
+  
+    function closeModal() {
+      if (!modal) return;
+      modal.classList.remove('open');
+      modal.setAttribute('aria-hidden', 'true');
+      // clear src to stop downloads on mobile
+      modalImg.src = '';
+    }
+  
+    // attach handlers (safe: run whenever images exist)
+    function attachProgramImageClicks() {
+      const imgs = document.querySelectorAll('#programGrid .program-card img');
+      imgs.forEach(img => {
+        // don't duplicate handlers
+        if (img.dataset.sehaLightbox) return;
+        img.dataset.sehaLightbox = '1';
+        img.style.cursor = 'zoom-in';
+        img.addEventListener('click', (e) => {
+          // open original image (use data-full if you have a larger version)
+          const full = img.dataset.full || img.src;
+          openModal(full, img.alt || '');
+        });
+      });
+    }
+  
+    // initial attach + also observe for future programGrid changes
+    attachProgramImageClicks();
+  
+    // observe programGrid for added images (if your script dynamically injects)
+    const pg = document.getElementById('programGrid');
+    if (pg && window.MutationObserver) {
+      const ob = new MutationObserver(() => attachProgramImageClicks());
+      ob.observe(pg, { childList:true, subtree:true });
+    }
+  
+    modalClose && modalClose.addEventListener('click', closeModal);
+    modal && modal.addEventListener('click', (e) => {
+      if (e.target === modal) closeModal();
+    });
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeModal(); });
+  })();
+  </script>
+  
 <!-- ====== Modern footer (replace existing footer) ====== -->
 <footer class="site-footer" role="contentinfo" aria-labelledby="footer-heading">
   <div class="container footer-top" id="footerTop">
