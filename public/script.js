@@ -1675,16 +1675,16 @@ html[data-loading="true"], body[data-loading="true"] { overflow: hidden !importa
   // ---------- PROGRAMS (10 items) ----------
   if (programGrid) {
     const programs = [
-      { id: 1, title: 'Strengthening Emergency Obstetric & Newborn Care', img: 'images/program1.png', thumb: 'images/program1.png', excerpt: 'Capacity building in referral hospitals and clinical mentoring.' },
+      // { id: 1, title: 'Strengthening Emergency Obstetric & Newborn Care', img: 'images/program1.png', thumb: 'images/program1.png', excerpt: 'Capacity building in referral hospitals and clinical mentoring.' },
       { id: 2, title: 'Health Investment & Finance', img: 'images/program2.png', thumb: 'images/program2.png', excerpt: 'Sustainable financing models and public-private collaboration.' },
       { id: 3, title: 'Research & Innovation', img: 'images/program3.png', thumb: 'images/program3.png', excerpt: 'Operational research and evidence translation for eye health.' },
-      { id: 4, title: 'Human Resources for Health (HRH)', img: 'images/mamo.jpeg', thumb: 'images/program4.png', excerpt: 'Training, exchange programs and workforce planning.' },
-      { id: 5, title: 'Eye Screening & Outreach', img: 'images/program5.png', thumb: 'images/program5.png', excerpt: 'Community-level screening campaigns and referrals.' },
-      { id: 6, title: 'Surgical Partnerships', img: 'images/program6.png', thumb: 'images/program6.png', excerpt: 'Specialist campaigns and mentorship.' },
+      { id: 4, title: 'Human Resources for Health (HRH)', img: 'images/mamo.jpeg', thumb: 'images/mamo.jpeg', excerpt: 'Training, exchange programs and workforce planning.' },
+      { id: 5, title: 'Eye Screening & Outreach', img: 'images/screening2.jpeg', thumb: 'images/screening2.jpeg', excerpt: 'Community-level screening campaigns and referrals.' },
+      { id: 6, title: 'Surgical Partnerships', img: 'images/surgerical3.jpeg', thumb: 'images/surgerical3.jpeg', excerpt: 'Specialist campaigns and mentorship.' },
       { id: 7, title: 'Telemedicine & Diagnostics', img: 'images/program7.png', thumb: 'images/program7.png', excerpt: 'Pilots linking remote clinics with specialist advice and imaging.' },
-      { id: 8, title: 'Optical Workshops & Social Enterprise', img: 'images/program8.png', thumb: 'images/program8.png', excerpt: 'Support small optical workshops and local enterprise models.' },
-      { id: 9, title: 'Child & School Vision', img: 'images/program9.png', thumb: 'images/program9.png', excerpt: 'School-based screening and child eye health initiatives.' },
-      { id:10, title: 'Quality & Safety in Eye Surgery', img: 'images/program10.png', thumb: 'images/program10.png', excerpt: 'Surgery quality improvement, checklists and mentoring.' }
+      { id: 8, title: 'Optical Workshops & Social Enterprise', img: 'images/screening6.jpeg', thumb: 'images/screening6.jpeg', excerpt: 'Support small optical workshops and local enterprise models.' },
+      { id: 9, title: 'Child & School Vision', img: 'images/schoolscreen3.jpeg', thumb: 'images/schoolscreen3.jpeg', excerpt: 'School-based screening and child eye health initiatives.' },
+      { id:10, title: 'Quality & Safety in Eye Surgery', img: 'images/surgerical2.jpeg', thumb: 'images/surgerical2.jpeg', excerpt: 'Surgery quality improvement, checklists and mentoring.' }
     ];
 
     // populate grid
@@ -1704,6 +1704,8 @@ html[data-loading="true"], body[data-loading="true"] { overflow: hidden !importa
       `;
       programGrid.appendChild(card);
     });
+
+
   }
 
  // ---------- RESOURCE GALLERY ----------
