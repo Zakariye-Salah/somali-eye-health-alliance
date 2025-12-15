@@ -710,21 +710,18 @@ img.broken { opacity: 0.28; filter: grayscale(85%); }
   padding: 14px 22px;            /* top/bottom | left/right */
   box-sizing: border-box;
 
-  background: linear-gradient(180deg, #f6fbfb, #ffffff);
+  background: linear-gradient(180deg, #f6066208, #0599f50a);
 }
 
 /* Mobile optimization */
 @media (max-width: 760px) {
   .program-card img {
-    height: 120px;               /* still tall enough on mobile */
+    height: 300px;               /* still tall enough on mobile */
     padding: 12px 18px;          /* balanced spacing for small screens */
   }
 }
 
-/* Logos & small images */
-.program-card img.logo {
-  padding: 16px 24px;            /* extra breathing room for logos */
-}
+
 
 /* Broken image fallback */
 .program-card img.broken {
