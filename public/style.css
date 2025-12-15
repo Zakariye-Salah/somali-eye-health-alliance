@@ -687,6 +687,54 @@ img.broken { opacity: 0.28; filter: grayscale(85%); }
 }
 
 
+/* promas*/
+
+/* PROGRAM CARD IMAGE — clean spacing, full visibility */
+.program-card {
+  overflow: hidden;
+  border-radius: 12px;
+  background: #fff;
+}
+
+/* Desktop / tablet */
+.program-card img {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  height: 300px;                 /* taller so top & bottom are visible */
+  object-fit: contain;           /* show full image (no crop) */
+  object-position: center;
+  border-radius: 12px 12px 0 0;
+
+  /* more space on left & right */
+  padding: 14px 22px;            /* top/bottom | left/right */
+  box-sizing: border-box;
+
+  background: linear-gradient(180deg, #f6fbfb, #ffffff);
+}
+
+/* Mobile optimization */
+@media (max-width: 760px) {
+  .program-card img {
+    height: 120px;               /* still tall enough on mobile */
+    padding: 12px 18px;          /* balanced spacing for small screens */
+  }
+}
+
+/* Logos & small images */
+.program-card img.logo {
+  padding: 16px 24px;            /* extra breathing room for logos */
+}
+
+/* Broken image fallback */
+.program-card img.broken {
+  filter: grayscale(30%) opacity(0.9);
+  object-fit: contain;
+  padding: 22px;
+  background: #fff;
+}
+
+
 /* ---------------------------
    Layout utilities & content
    --------------------------- */
