@@ -210,7 +210,7 @@ document.addEventListener('DOMContentLoaded', () => {
   --brand-gap: 12px;
   --logo-size: 44px;
   --nav-gap: 3px;
-  --nav-font-size: 12.5px;
+  --nav-font-size: 13px;
   --donate-bg: #0f766e;
   --donate-hover: #0b5f58;
   --accent: #2dd4bf;
@@ -291,7 +291,7 @@ document.addEventListener('DOMContentLoaded', () => {
 .nav-list .nav-item { position: relative; }
 .main-nav a {
   display: inline-block;
-  padding: 1px 8px;
+  padding: 1px 4px;
   font-weight: 700;
   font-size: var(--nav-font-size);
   color: #0b1220;
@@ -559,221 +559,525 @@ a:focus, button:focus {
 
 
 
-<!-- PARTNERSHIP: Dual-row carousel (mobile 1 / desktop 3 per row) with opposite autoplay and working prev/next controls -->
+<!-- COMPLETE: Partnership single-row carousel + info + fitted modal -->
 <section class="partnership-page">
   <div class="container partnership-container">
     <!-- HERO -->
     <header class="partnership-hero card">
       <div class="hero-inner">
         <div>
-          <h1>Partnerships  <div class="hero-cta"><a href="contact.html" class="btn primary">Contact us to become a partner</a></div></h1>
-          <p class="lead">Somali Eye Health Alliance works with NGOs, donors, institutions and private-sector partners to strengthen eye health services across Somalia.</p>
+          <h1>Partnerships</h1>
+          <div class="hero-cta" style="margin-top:8px;">
+            <a href="contact.html" class="btn primary">Contact us to become a partner</a>
+          </div>
+          <p class="lead" style="margin-top:10px">Somali Eye Health Alliance works with NGOs, donors, institutions and private-sector partners to strengthen eye health services across Somalia.</p>
         </div>
-       
       </div>
     </header>
 
-<!-- REPLACE partner-types / partner-benefits / impact-snapshot with this block -->
-
-<!-- PARTNER TYPES + BENEFITS + IMPACT SNAPSHOT (with icons + animated counters) -->
-<div class="card partnership-intro">
-  <div class="grid-2 intro-grid">
-    <div>
-      <h2>Why partner with Somali Eye Health Alliance?</h2>
-      <p class="muted">
-        We bring trusted local leadership, clinical expertise and scalable delivery mechanisms to improve eye health
-        outcomes across Somalia. Partnering with SEHA means faster, safer and more sustainable delivery of screening,
-        spectacles and cataract surgery — plus local capacity-building so results last.
-      </p>
-      <ul class="benefits clean">
-        <li><strong>Local reach:</strong> Community networks and regional surgical hubs</li>
-        <li><strong>Technical expertise:</strong> Clinical training, research and monitoring</li>
-        <li><strong>Operational support:</strong> Supply logistics, procurement and equipment maintenance</li>
-        <li><strong>Transparency:</strong> Clear reporting, measurable outcomes and accountability</li>
-        <li><strong>Scalability:</strong> Proven models that scale from single clinics to regional programmes</li>
-      </ul>
-    </div>
-
-    <div>
-      <h2>How we work with partners</h2>
-
-      <!-- partner types: each ptype has an icon -->
-      <div class="partner-types grid-3">
-        <div class="ptype card small">
-          <div class="ptype-row">
-            <div class="ptype-icon" aria-hidden="true">
-              <!-- funding icon (stacked coins) -->
-              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" role="img">
-                <circle cx="12" cy="7" r="4" stroke="currentColor" stroke-width="1.5" fill="none"/>
-                <rect x="4" y="13" width="16" height="6" rx="2" stroke="currentColor" stroke-width="1.5" fill="none"/>
-                <path d="M4 17h16" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
-              </svg>
-            </div>
-            <div>
-              <h4>Strategic & Funding Partners</h4>
-              <p class="muted small">Donors and foundations that fund large-scale programmes, capital projects and long-term capacity building.</p>
-            </div>
-          </div>
-        </div>
-
-        <div class="ptype card small">
-          <div class="ptype-row">
-            <div class="ptype-icon" aria-hidden="true">
-              <!-- implementation icon (hand truck / delivery) -->
-              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" role="img">
-                <rect x="3" y="6" width="12" height="10" rx="1" stroke="currentColor" stroke-width="1.5" fill="none"/>
-                <circle cx="18" cy="16" r="1.6" stroke="currentColor" stroke-width="1.4" fill="none"/>
-                <circle cx="9.5" cy="17.6" r="1.4" stroke="currentColor" stroke-width="1.2" fill="none"/>
-                <path d="M15 6l3 4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
-              </svg>
-            </div>
-            <div>
-              <h4>Implementation Partners</h4>
-              <p class="muted small">Local NGOs, hospitals and outreach teams who deliver screenings, surgeries and follow-up care.</p>
-            </div>
-          </div>
-        </div>
-
-        <div class="ptype card small">
-          <div class="ptype-row">
-            <div class="ptype-icon" aria-hidden="true">
-              <!-- technical/academic icon (book + atom) -->
-              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" role="img">
-                <path d="M4 6h10v12H4z" stroke="currentColor" stroke-width="1.5" fill="none"/>
-                <path d="M14 8c1 0 3 1 3 3s-2 3-3 3" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" fill="none"/>
-                <circle cx="16.5" cy="8.5" r="0.9" fill="currentColor"/>
-              </svg>
-            </div>
-            <div>
-              <h4>Technical & Academic Partners</h4>
-              <p class="muted small">Universities and clinical partners who provide training, research and quality assurance.</p>
-            </div>
-          </div>
-        </div>
-      </div><!-- /.partner-types -->
-    </div>
-  </div>
-</div>
-
-<!-- WHAT PARTNERS GET (benefits with icons) -->
-<div class="card partner-benefits">
-  <h3>What partners receive</h3>
-  <div class="benefit-grid">
-    <div class="benefit">
-      <div class="benefit-row">
-        <div class="benefit-icon" aria-hidden="true">
-          <!-- project-plan icon -->
-          <svg width="36" height="36" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" role="img">
-            <rect x="3" y="4" width="18" height="16" rx="2" stroke="currentColor" stroke-width="1.4" fill="none"/>
-            <path d="M7 9h10M7 13h6" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
-          </svg>
-        </div>
+    <!-- PARTNER TYPES + BENEFITS + IMPACT SNAPSHOT -->
+    <div class="card partnership-intro">
+      <div class="grid-2 intro-grid">
         <div>
-          <div class="benefit-title">Coordinated Implementation</div>
-          <p class="muted small">Local project management, logistics and reporting — we ensure activities run smoothly and on-time.</p>
+          <h2>Why partner with Somali Eye Health Alliance?</h2>
+          <p class="muted">
+            We bring trusted local leadership, clinical expertise and scalable delivery mechanisms to improve eye health
+            outcomes across Somalia. Partnering with SEHA means faster, safer and more sustainable delivery of screening,
+            spectacles and cataract surgery — plus local capacity-building so results last.
+          </p>
+          <ul class="benefits clean">
+            <li><strong>Local reach:</strong> Community networks and regional surgical hubs</li>
+            <li><strong>Technical expertise:</strong> Clinical training, research and monitoring</li>
+            <li><strong>Operational support:</strong> Supply logistics, procurement and equipment maintenance</li>
+            <li><strong>Transparency:</strong> Clear reporting, measurable outcomes and accountability</li>
+            <li><strong>Scalability:</strong> Proven models that scale from single clinics to regional programmes</li>
+          </ul>
+        </div>
+
+        <div>
+          <h2>How we work with partners</h2>
+          <div class="partner-types grid-3">
+            <div class="ptype card small">
+              <div class="ptype-row">
+                <div class="ptype-icon" aria-hidden="true">
+                  <!-- icon -->
+                  <svg width="28" height="28" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="7" r="4" stroke="currentColor" stroke-width="1.5" fill="none"/><rect x="4" y="13" width="16" height="6" rx="2" stroke="currentColor" stroke-width="1.5" fill="none"/></svg>
+                </div>
+                <div>
+                  <h4>Strategic & Funding Partners</h4>
+                  <p class="muted small">Donors and foundations that fund large-scale programmes, capital projects and long-term capacity building.</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="ptype card small">
+              <div class="ptype-row">
+                <div class="ptype-icon" aria-hidden="true">
+                  <svg width="28" height="28" viewBox="0 0 24 24" fill="none"><rect x="3" y="6" width="12" height="10" rx="1" stroke="currentColor" stroke-width="1.5" fill="none"/></svg>
+                </div>
+                <div>
+                  <h4>Implementation Partners</h4>
+                  <p class="muted small">Local NGOs, hospitals and outreach teams who deliver screenings, surgeries and follow-up care.</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="ptype card small">
+              <div class="ptype-row">
+                <div class="ptype-icon" aria-hidden="true">
+                  <svg width="28" height="28" viewBox="0 0 24 24" fill="none"><path d="M4 6h10v12H4z" stroke="currentColor" stroke-width="1.5" fill="none"/></svg>
+                </div>
+                <div>
+                  <h4>Technical & Academic Partners</h4>
+                  <p class="muted small">Universities and clinical partners who provide training, research and quality assurance.</p>
+                </div>
+              </div>
+            </div>
+          </div><!-- /.partner-types -->
         </div>
       </div>
     </div>
 
-    <div class="benefit">
-      <div class="benefit-row">
-        <div class="benefit-icon" aria-hidden="true">
-          <!-- analytics icon -->
-          <svg width="36" height="36" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" role="img">
-            <path d="M4 17h16" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
-            <path d="M7 13v4M12 9v8M17 5v12" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
-          </svg>
+    <div class="card partner-benefits">
+      <h3>What partners receive</h3>
+      <div class="benefit-grid">
+        <div class="benefit">
+          <div class="benefit-row">
+            <div class="benefit-icon" aria-hidden="true">
+              <svg width="36" height="36" viewBox="0 0 24 24" fill="none"><rect x="3" y="4" width="18" height="16" rx="2" stroke="currentColor" stroke-width="1.4"/></svg>
+            </div>
+            <div>
+              <div class="benefit-title">Coordinated Implementation</div>
+              <p class="muted small">Local project management, logistics and reporting — we ensure activities run smoothly and on-time.</p>
+            </div>
+          </div>
         </div>
-        <div>
-          <div class="benefit-title">Monitoring & Data</div>
-          <p class="muted small">Regular monitoring, outcomes data and learning to measure impact and inform funder reports.</p>
+
+        <div class="benefit">
+          <div class="benefit-row">
+            <div class="benefit-icon" aria-hidden="true">
+              <svg width="36" height="36" viewBox="0 0 24 24" fill="none"><path d="M4 17h16" stroke="currentColor" stroke-width="1.4"/></svg>
+            </div>
+            <div>
+              <div class="benefit-title">Monitoring & Data</div>
+              <p class="muted small">Regular monitoring, outcomes data and learning to measure impact and inform funder reports.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="benefit">
+          <div class="benefit-row">
+            <div class="benefit-icon" aria-hidden="true">
+              <svg width="36" height="36" viewBox="0 0 24 24" fill="none"><path d="M12 2l7 4v6c0 5-7 8-7 8s-7-3-7-8V6l7-4z" stroke="currentColor" stroke-width="1.2"/></svg>
+            </div>
+            <div>
+              <div class="benefit-title">Capacity Building</div>
+              <p class="muted small">Training, mentorship and CPD for local clinicians and optical technicians to sustain services.</p>
+            </div>
+          </div>
         </div>
       </div>
     </div>
 
-    <div class="benefit">
-      <div class="benefit-row">
-        <div class="benefit-icon" aria-hidden="true">
-          <!-- training icon -->
-          <svg width="36" height="36" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" role="img">
-            <path d="M12 2l7 4v6c0 5-7 8-7 8s-7-3-7-8V6l7-4z" stroke="currentColor" stroke-width="1.2" fill="none"/>
-            <path d="M9 12h6" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
-          </svg>
+    <div class="card impact-snapshot" id="impactSnapshot" aria-live="polite">
+      <h3>Impact snapshot</h3>
+      <div class="snapshot-grid">
+        <div class="stat stat-green">
+          <div class="stat-num" data-target="12400">0</div>
+          <div class="stat-label muted">People screened</div>
         </div>
-        <div>
-          <div class="benefit-title">Capacity Building</div>
-          <p class="muted small">Training, mentorship and CPD for local clinicians and optical technicians to sustain services.</p>
+
+        <div class="stat stat-blue">
+          <div class="stat-num" data-target="4200">0</div>
+          <div class="stat-label muted">Spectacles provided</div>
+        </div>
+
+        <div class="stat stat-orange">
+          <div class="stat-num" data-target="3100">0</div>
+          <div class="stat-label muted">Cataract surgeries</div>
         </div>
       </div>
+
+      <p class="muted small" style="margin-top:10px">These figures are illustrative — replace with your real metrics or dynamic values from your dashboard.</p>
+    </div>
+
+    <!-- PARTNERS: FILTER + SINGLE ROW CAROUSEL -->
+    <div class="card partners-area">
+      <div class="partners-head">
+        <div>
+          <h2>Our partners</h2>
+          <p class="muted" style="margin-top:6px">We are proud to work with national and international organisations committed to improving eye health.</p>
+        </div>
+
+        <div class="partner-filter" id="partnerFilter" role="toolbar" aria-label="Filter partners" style="margin-top:8px">
+          <button class="pill active" data-filter="all" aria-pressed="true">All</button>
+          <button class="pill" data-filter="ngos">NGOs</button>
+          <button class="pill" data-filter="donors">Donors</button>
+          <button class="pill" data-filter="government">Government</button>
+          <button class="pill" data-filter="universities">Universities</button>
+          <button class="pill" data-filter="hospitals">Hospitals</button>
+          <button class="pill" data-filter="companies">Companies</button>
+          <button class="pill" data-filter="foundations">Foundations</button>
+        </div>
+      </div>
+
+      <!-- SINGLE ROW carousel -->
+      <div class="partners-slider single-row" aria-live="polite">
+        <button id="prevBtn" class="slide-btn prev" aria-label="Previous">‹</button>
+
+        <div class="slides-viewport" id="viewport" tabindex="0" aria-roledescription="carousel">
+          <div class="slides" id="slides" aria-hidden="false"></div>
+        </div>
+
+        <button id="nextBtn" class="slide-btn next" aria-label="Next">›</button>
+      </div>
+
+      <!-- dots -->
+      <div class="carousel-dots" id="carouselDots" aria-hidden="false" style="margin-top:12px;display:flex;justify-content:center;gap:8px"></div>
+    </div>
+
+    <!-- CTA -->
+    <section class="cta-box card">
+      <h3>Interested in partnering with us?</h3>
+      <p>For partnership enquiries please <a href="contact.html">contact us</a> — we welcome funding, technical and implementation collaborations.</p>
+    </section>
+  </div>
+
+  <!-- MODAL -->
+  <div class="partner-modal-backdrop" id="partnerModal" aria-hidden="true" role="dialog" aria-modal="true">
+    <div class="partner-modal" role="document" id="partnerModalPanel">
+      <button class="partner-modal-close" id="partnerModalClose" aria-label="Close partner details">✕</button>
+      <div class="partner-modal-body" id="partnerModalBody" tabindex="0"></div>
     </div>
   </div>
-</div>
+</section>
 
-<!-- IMPACT SNAPSHOT (animated on scroll) -->
-<div class="card impact-snapshot" id="impactSnapshot" aria-live="polite">
-  <h3>Impact snapshot</h3>
-  <div class="snapshot-grid">
-    <div class="stat stat-green">
-      <div class="stat-num" data-target="12400">0</div>
-      <div class="stat-label muted">People screened</div>
-    </div>
-  
-    <div class="stat stat-blue">
-      <div class="stat-num" data-target="4200">0</div>
-      <div class="stat-label muted">Spectacles provided</div>
-    </div>
-  
-    <div class="stat stat-orange">
-      <div class="stat-num" data-target="3100">0</div>
-      <div class="stat-label muted">Cataract surgeries</div>
-    </div>
-  </div>
-  
-  <p class="muted small" style="margin-top:10px">These figures are illustrative — replace with your real metrics or dynamic values from your dashboard.</p>
-</div>
-
-<!-- Styles for icons, layout tweaks, and animated counters -->
+<!-- STYLES -->
 <style>
+  :root{ --accent:#16a085; --accent-2:#2dd4bf; --muted:#475569; --card-radius:12px; --gap:14px; --dot-size:10px; }
+
+  .partnership-container{max-width:1300px;margin:28px auto;padding:18px;box-sizing:border-box}
+  .card{background:#fff;padding:18px;border-radius:var(--card-radius);box-shadow:0 10px 30px rgba(2,6,23,.06);margin-bottom:18px}
+  .partners-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap}
+  .partner-filter{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}
+  .pill{background:#f3f4f6;border:0;padding:8px 12px;border-radius:999px;font-weight:700;cursor:pointer;box-shadow:0 2px 6px rgba(2,6,23,.03);transition:all .15s}
+  .pill.active{background:linear-gradient(90deg,var(--accent),var(--accent-2));color:#fff;box-shadow:0 10px 30px rgba(16,118,110,.12)}
+  .pill:focus{outline:3px solid rgba(45,212,191,.14);outline-offset:3px}
+
+  .partners-slider{position:relative;display:flex;align-items:center;margin-top:16px}
+  .slides-viewport{overflow:hidden;width:100%;border-radius:var(--card-radius);outline:none}
+  .slides{display:flex;gap:var(--gap);transition:transform .45s cubic-bezier(.2,.9,.23,1);padding:6px;will-change:transform;align-items:stretch}
+
+  .partner-card{ flex:0 0 auto; display:flex; flex-direction:column; gap:12px; align-items:stretch; background:linear-gradient(180deg,#fff,#fbfdff); padding:12px; border-radius:12px; border:1px solid rgba(11,95,88,.03); box-shadow:0 6px 18px rgba(2,6,23,.04); overflow:hidden; box-sizing:border-box; }
+  .partner-media{display:flex;align-items:center;justify-content:center;height:120px}
+  .partner-media img{max-width:100%;max-height:100%;object-fit:contain;display:block;transition:transform .25s ease}
+  .partner-info{display:flex;flex-direction:column;gap:8px;padding:0}
+  .partner-name{font-weight:800;color:#07102a;font-size:15px;margin:0}
+  .partner-desc{color:var(--muted);font-size:13px;line-height:1.35;margin:0;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  .partner-meta{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:auto}
+  .partner-badge-small{font-size:12px;background:#eef6f4;padding:6px 10px;border-radius:999px;color:#0b5563;font-weight:700;box-shadow:0 4px 12px rgba(2,6,23,.04)}
+  .card-actions{display:flex;gap:8px;align-items:center}
+  .btn-more{border:0;background:transparent;color:var(--accent);font-weight:700;cursor:pointer;padding:8px;border-radius:8px}
+
+  .partner-card:hover .partner-media img{transform:scale(1.04) translateY(-2px)}
+
+  .slide-btn{position:absolute;top:50%;transform:translateY(-50%);z-index:40;border:0;background:#fff;color:#0f766e;width:44px;height:44px;border-radius:999px;box-shadow:0 8px 28px rgba(2,6,23,.12);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:20px}
+  .prev{left:8px}
+  .next{right:8px}
+  .slide-btn.hidden{opacity:.0;visibility:hidden;pointer-events:none;transform:translateY(-50%) scale(.95)}
+
+  .carousel-dots button{width:var(--dot-size);height:var(--dot-size);border-radius:999px;border:0;background:#e6eefb;cursor:pointer;box-shadow:0 6px 12px rgba(2,6,23,.06);transition:all .28s}
+  .carousel-dots button.active{transform:scale(1.2);background:linear-gradient(90deg,var(--accent),var(--accent-2));box-shadow:0 10px 26px rgba(16,118,110,.12)}
+
+  /* modal (image TOP + content under) - constrained image */
+  .partner-modal-backdrop{display:none;position:fixed;inset:0;background:rgba(2,6,23,.46);align-items:center;justify-content:center;z-index:2200;padding:24px}
+  .partner-modal-backdrop.open{display:flex}
+  .partner-modal{width:min(900px,96vw);max-height:90vh;overflow:auto;border-radius:14px;background:linear-gradient(180deg,#fff,#fcfffe);box-shadow:0 40px 120px rgba(2,6,23,.36);position:relative;padding:18px;display:block}
+  .partner-modal-close{position:absolute;right:14px;top:14px;border:0;background:#fff;font-size:18px;cursor:pointer;width:44px;height:44px;border-radius:999px;box-shadow:0 8px 28px rgba(2,6,23,.12);display:inline-flex;align-items:center;justify-content:center;color:#0f766e;z-index:60}
+
+  .partner-modal-body{display:flex;flex-direction:column;gap:12px;align-items:stretch}
+  .modal-left{display:flex;align-items:center;justify-content:center;padding:8px;background:#fff;border-radius:10px;box-shadow:0 8px 26px rgba(2,6,23,.04);overflow:hidden}
+  .modal-left img{width:100%;height:auto;max-width:420px;max-height:42vh;object-fit:contain;display:block;border-radius:8px;margin:0 auto}
+  .modal-content{padding-top:6px}
+  .modal-content h3{margin:8px 0 6px 0;font-size:22px;color:#07102a}
+  .modal-content .muted{color:var(--muted)}
+  .modal-content p{color:#334155;line-height:1.45;margin:6px 0}
+  .modal-visit-btn{display:inline-block;margin-top:12px;background:linear-gradient(90deg,var(--accent),var(--accent-2));color:#fff;padding:10px 14px;border-radius:10px;font-weight:800;text-decoration:none;box-shadow:0 14px 40px rgba(15,118,110,.12)}
+
+  /* snapshot counter colors and layout */
+  .snapshot-grid { display:grid; gap:12px; grid-template-columns: 1fr; }
+  @media(min-width:720px){ .snapshot-grid { grid-template-columns: repeat(3,1fr); } }
+  .stat { text-align:left; padding:12px; border-radius:10px; background:linear-gradient(180deg,#fff,#fcfffd); border:1px solid rgba(11,95,88,.03); box-shadow:0 6px 18px rgba(2,6,23,.04); }
+  .stat-num { font-size:28px; font-weight:900; color:#07102a; min-height:34px; }
+  .stat-label { font-size:13px; margin-top:6px; color:var(--muted); }
+
   .stat-green .stat-num { color: #0b5f58; }
-.stat-blue .stat-num { color: #2563eb; }
-.stat-orange .stat-num { color: #ea580c; }
+  .stat-blue .stat-num { color: #2563eb; }
+  .stat-orange .stat-num { color: #ea580c; }
 
-  .ptype-row, .benefit-row { display:flex; gap:12px; align-items:flex-start; }
-  .ptype-icon, .benefit-icon { width:40px; height:40px; display:flex; align-items:center; justify-content:center; color:var(--accent); flex:0 0 40px; }
-  .ptype.card.small, .benefit { padding:12px; box-shadow:none; border:1px solid rgba(11,95,88,.03); background:linear-gradient(180deg,#fff,#fcfffd); border-radius:10px; }
-  .ptype h4 { margin:0 0 6px 0; font-size:15px; }
-  .benefit-grid { display:grid; gap:12px; margin-top:10px; grid-template-columns: 1fr; }
-  @media(min-width:720px){ .benefit-grid { grid-template-columns: repeat(3,1fr); } }
-
-  /* snapshot counter styling */
-  .impact-snapshot .stat { text-align:center; padding:12px; border-radius:10px; background:linear-gradient(180deg,#fff,#fcfffd); border:1px solid rgba(11,95,88,.03); box-shadow:0 6px 18px rgba(2,6,23,.04); }
-  .stat-num { font-size:22px; font-weight:900; color:#07102a; min-height:28px; }
-  .stat-label { font-size:13px; margin-top:6px; }
-  
-  
-  /* IMPACT SNAPSHOT LAYOUT */
-.snapshot-grid {
-  display: grid;
-  gap: 16px;
-  grid-template-columns: 1fr; /* mobile default: stacked */
-}
-
-/* desktop & tablet: one row (3 columns) */
-@media (min-width: 768px) {
-  .snapshot-grid {
-    grid-template-columns: repeat(3, 1fr);
+  /* responsive: desktop 3 cards, mobile 1 card */
+  @media(min-width: 881px){
+    .slides .partner-card{ width: calc((100% - var(--gap)*2)/3); } /* 3 per row */
+    .partner-media{ height:160px; }
   }
-}
+  @media(max-width:880px){
+    .slides .partner-card{ width: calc(100%); } /* 1 per row */
+  }
 
+  /* touch friendly */
+  .slides-viewport { -webkit-overflow-scrolling: touch; position: relative; }
 </style>
 
-<!-- JavaScript: animate counters on scroll (IntersectionObserver) -->
+<!-- SCRIPT -->
 <script>
+(function(){
+  /* ---------- PARTNERS: edit partner data below ---------- */
+  const partners = [
+    { id:'aau', name:'Aden Adde International University', short:'University partner supporting training & research.', long:'AAIU supports clinical training and applied research in eye health across regions.', categories:['universities'], image:'images/images-acu-university.png', website:'https://aaiu.edu.so/', contact:'info@aaiu.edu.so' },
+    { id:'arag', name:'Arag Hospital', short:'Regional surgical hub delivering cataract surgery.', long:'Arag Hospital is a high-volume cataract surgical hub and mentors visiting teams.', categories:['hospitals','ngos'], image:'images/images-arag-hospital.png', website:'https://araghospital.com', contact:'surgery@araghospital.so' },
+    { id:'aah', name:'Aden Abdulle Hospital', short:'Regional hospital & outreach partner.', long:'Aden Abdulle Hospital provides outreach services and supports surgical camps.', categories:['hospitals'], image:'images/images-ac-hospital.png', website:'https://aah.so/', contact:'info@aah.so' },
+    { id:'hormuud', name:'Hormuud Salaam Foundation', short:'Funding & community programmes.', long:'Hormuud Salaam Foundation supports community programmes and local systems strengthening.', categories:['foundations','donors'], image:'images/images-hormuud-doundation.png', website:'https://hormuudsalaamfoundation.org/', contact:'info@hormuudsalaamfoundation.org' },
+    { id:'moh', name:'Ministry of Health — Somalia', short:'Policy partner for national integration.', long:'Ministry of Health coordinates national health policy and integration of eye care into primary services.', categories:['government'], image:'images/images-ministry-of-health.png', website:'https://moh.gov.so/so/home/', contact:'info@moh.so' },
+    { id:'bright', name:'BrightFuture Foundation', short:'Local grants and capacity support.', long:'BrightFuture funds equipment, training bursaries and clinic upgrades.', categories:['foundations','donors'], image:'images/images-bright-foundation.png', website:'https://brightfuture.example', contact:'grants@brightfuture.org' },
+    { id:'visiontech', name:'VisionTech Ltd', short:'Private supplier of equipment and spectacles solutions.', long:'VisionTech supplies diagnostic equipment and supports local optical workshops with maintenance and training.', categories:['companies'], image:'images/images-vision.png', website:'https://visiontech.example', contact:'sales@visiontech.com' },
+    { id:'localngo', name:'Local NGO Example', short:'Community outreach & mobilization partner.', long:'Local NGO Example runs community screening programmes and follow-up services in rural areas.', categories:['ngos'], image:'images/image8.png', website:'', contact:'info@localngo.example' }
+  ];
+
+  /* ---------- DOM refs ---------- */
+  const slides = document.getElementById('slides');
+  const viewport = document.getElementById('viewport');
+  const prevBtn = document.getElementById('prevBtn');
+  const nextBtn = document.getElementById('nextBtn');
+  const dotsWrap = document.getElementById('carouselDots');
+  const filterPills = Array.from(document.querySelectorAll('.partner-filter .pill'));
+  const modalBackdrop = document.getElementById('partnerModal');
+  const modalBody = document.getElementById('partnerModalBody');
+  const modalClose = document.getElementById('partnerModalClose');
+
+  /* ---------- state ---------- */
+  let filtered = partners.slice();
+  let perView = window.innerWidth <= 880 ? 1 : 3;
+  const GAP = 14;
+  let index = 0; // 0-based page index
+  let items = [];
+  let maxIndex = 0;
+
+  function esc(s){ if(s === 0) return '0'; if(s === '') return ''; if(!s && s !== 0) return ''; return String(s).replace(/[&<>"]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m])); }
+  function cap(s){ if(!s) return ''; return String(s).charAt(0).toUpperCase() + String(s).slice(1); }
+
+  function makeCardHTML(p){
+    return `
+      <div class="partner-card" data-id="${esc(p.id)}" role="group" aria-label="${esc(p.name)}">
+        <div class="partner-media"><img src="${esc(p.image)}" alt="${esc(p.name)} logo" loading="lazy" onerror="this.style.opacity=.12; this.src='images/placeholder.png'"></div>
+        <div class="partner-info">
+          <div class="partner-name">${esc(p.name)}</div>
+          <p class="partner-desc">${esc(p.short)}</p>
+          <div class="partner-meta">
+            <div class="partner-badge-small">${cap(p.categories && p.categories[0] ? p.categories[0] : '')}</div>
+            <div class="card-actions">
+              <button class="btn-more" data-id="${esc(p.id)}" aria-controls="partnerModal">More</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  function build(list){
+    items = list.slice();
+    perView = window.innerWidth <= 880 ? 1 : 3;
+    slides.innerHTML = '';
+    // add cards
+    items.forEach(p => slides.insertAdjacentHTML('beforeend', makeCardHTML(p)));
+
+    // if fewer items than perView: center and hide nav
+    if (items.length <= perView){
+      slides.style.justifyContent = 'center';
+      maxIndex = 0;
+      index = 0;
+      slides.style.transform = 'translateX(0)';
+      prevBtn.classList.add('hidden'); nextBtn.classList.add('hidden');
+      buildDots();
+      attachCardHandlers();
+      return;
+    } else {
+      slides.style.justifyContent = 'flex-start';
+    }
+
+    // compute pages (how many positions)
+    maxIndex = Math.max(0, items.length - perView);
+    index = Math.min(index, maxIndex);
+    updateUI(true);
+    attachCardHandlers();
+    buildDots();
+    updateButtonsVisibility();
+  }
+
+  function updateUI(noAnim=false){
+    const first = slides.querySelector('.partner-card');
+    if(!first) return;
+    const w = first.getBoundingClientRect().width + GAP;
+    if(noAnim) slides.style.transition = 'none';
+    slides.style.transform = `translateX(${ - index * w }px)`;
+    if(noAnim) requestAnimationFrame(()=> slides.style.transition = '');
+    setActiveDot(index);
+  }
+
+  function stepTo(page){
+    index = Math.max(0, Math.min(page, maxIndex));
+    updateUI();
+    updateButtonsVisibility();
+  }
+  function step(dir){ stepTo(index + dir); }
+
+  prevBtn.addEventListener('click', ()=> step(-1));
+  nextBtn.addEventListener('click', ()=> step(1));
+
+  function updateButtonsVisibility(){
+    if (items.length <= perView){ prevBtn.classList.add('hidden'); nextBtn.classList.add('hidden'); return; }
+    index <= 0 ? prevBtn.classList.add('hidden') : prevBtn.classList.remove('hidden');
+    index >= maxIndex ? nextBtn.classList.add('hidden') : nextBtn.classList.remove('hidden');
+  }
+
+  /* dots */
+  function buildDots(){
+    dotsWrap.innerHTML = '';
+    const pages = Math.max(1, maxIndex + 1);
+    for(let i=0;i<pages;i++){
+      const btn = document.createElement('button');
+      btn.setAttribute('aria-label', 'Go to page ' + (i+1));
+      btn.dataset.page = i;
+      btn.onclick = () => stepTo(i);
+      dotsWrap.appendChild(btn);
+    }
+    setActiveDot(index);
+  }
+  function setActiveDot(i){
+    Array.from(dotsWrap.children).forEach((b, idx) => b.classList.toggle('active', idx === i));
+  }
+
+  /* card handlers */
+  function attachCardHandlers(){
+    Array.from(slides.querySelectorAll('.btn-more')).forEach(btn => {
+      btn.onclick = (e) => {
+        e.stopPropagation();
+        const id = btn.dataset.id;
+        const p = partners.find(x => x.id === id) || items.find(x => x.id === id);
+        if(p) openModal(p);
+      };
+    });
+    Array.from(slides.querySelectorAll('.partner-card')).forEach(card => card.onclick = () => {});
+  }
+
+  /* swipe */
+  function addSwipe(viewportEl){
+    let startX=0, curX=0, dragging=false, pid=null;
+    viewportEl.addEventListener('pointerdown', e=>{
+      if (e.target.closest('.btn-more, button, a')) return;
+      dragging=true; startX=e.clientX; pid=e.pointerId;
+      viewportEl.setPointerCapture(pid); slides.style.transition='none';
+    }, { passive:true});
+
+    viewportEl.addEventListener('pointermove', e=>{
+      if(!dragging) return;
+      curX=e.clientX;
+      const diff = curX - startX;
+      const firstCard = slides.querySelector('.partner-card');
+      if(!firstCard) return;
+      const stepW = firstCard.getBoundingClientRect().width + GAP;
+      if (items.length <= perView) return;
+      slides.style.transform = `translateX(${ - index * stepW + diff }px)`;
+    }, { passive:true });
+
+    viewportEl.addEventListener('pointerup', e=>{
+      if(!dragging) return;
+      dragging=false; slides.style.transition='';
+      const diff = curX - startX; const threshold = 50;
+      if (diff < -threshold && index < maxIndex) step(1);
+      else if (diff > threshold && index > 0) step(-1);
+      else updateUI();
+      try { viewportEl.releasePointerCapture(pid); } catch(err){}
+    }, { passive:true });
+
+    viewportEl.addEventListener('pointercancel', ()=> { dragging=false; updateUI(); });
+  }
+  addSwipe(viewport);
+
+  /* --- Modal (image TOP + content under) --- */
+  function openModal(p){
+    modalBody.innerHTML = `
+      <div class="modal-left" aria-hidden="false">
+        <img src="${esc(p.image)}" alt="${esc(p.name)} logo" onerror="this.style.opacity=.12; this.src='images/placeholder.png'">
+      </div>
+      <div class="modal-content">
+        <h3>${esc(p.name)}</h3>
+        <div class="muted small">${(p.categories||[]).map(c => cap(c)).join(' • ')}</div>
+        <p class="muted" style="margin-top:8px">${esc(p.short)}</p>
+        <p style="margin-top:8px">${esc(p.long)}</p>
+        ${p.website ? `<a class="modal-visit-btn" href="${esc(p.website)}" target="_blank" rel="noopener">Visit website</a>` : `<div class="muted small" style="margin-top:8px">No website available</div>`}
+        ${p.contact ? `<div class="muted small" style="margin-top:8px">Contact: ${esc(p.contact)}</div>` : ''}
+      </div>
+    `;
+    modalBackdrop.classList.add('open');
+    modalBackdrop.setAttribute('aria-hidden','false');
+    modalClose.focus();
+    document.addEventListener('focus', trapFocus, true);
+  }
+  function closeModal(){
+    modalBackdrop.classList.remove('open');
+    modalBackdrop.setAttribute('aria-hidden','true');
+    modalBody.innerHTML = '';
+    document.removeEventListener('focus', trapFocus, true);
+  }
+  function trapFocus(e){
+    if(!modalBackdrop.classList.contains('open')) return;
+    if(!modalBackdrop.contains(e.target)){ e.stopPropagation(); modalClose.focus(); }
+  }
+  modalClose.addEventListener('click', closeModal);
+  modalBackdrop.addEventListener('click', (e) => { if(e.target === modalBackdrop) closeModal(); });
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeModal(); });
+
+  /* filtering */
+  function filterBy(category){
+    if (category === 'all') filtered = partners.slice();
+    else filtered = partners.filter(p => Array.isArray(p.categories) && p.categories.includes(category));
+    index = 0;
+    build(filtered);
+  }
+  filterPills.forEach(p => {
+    p.addEventListener('click', () => {
+      filterPills.forEach(x => x.classList.toggle('active', x === p));
+      filterBy(p.dataset.filter);
+    });
+    p.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); p.click(); } });
+  });
+
+  /* keyboard nav for viewport */
+  viewport.addEventListener('keydown', (e) => {
+    if(e.key === 'ArrowLeft'){ e.preventDefault(); step(-1); }
+    if(e.key === 'ArrowRight'){ e.preventDefault(); step(1); }
+  });
+
+  /* responsive rebuild */
+  let resizeTimeout = null;
+  window.addEventListener('resize', () => {
+    clearTimeout(resizeTimeout);
+    resizeTimeout = setTimeout(() => {
+      const oldPer = perView;
+      const newPer = window.innerWidth <= 880 ? 1 : 3;
+      if (oldPer !== newPer) {
+        perView = newPer;
+        build(filtered);
+      } else {
+        updateUI(true);
+      }
+    }, 120);
+  });
+
+  /* --- Counter animation (animate once on intersection) --- */
   (function(){
     function formatNumber(n){ return n.toLocaleString(); }
-
     function animateValue(el, target, duration){
-      const start = 0;
       const startTime = performance.now();
       function tick(now){
         const elapsed = now - startTime;
@@ -785,643 +1089,76 @@ a:focus, button:focus {
       }
       requestAnimationFrame(tick);
     }
-
-    function runSnapshotAnimation(root){
-      const nums = Array.from(root.querySelectorAll('.stat-num')).filter(n => n.dataset && n.dataset.target);
-      nums.forEach(el => {
-        const target = parseInt(el.dataset.target, 10) || 0;
-        const duration = 1200; // ms per number (fast, smooth)
-        animateValue(el, target, duration);
-      });
-    }
-
-    // observe the snapshot card and animate once when visible
-    const snapshot = document.getElementById('impactSnapshot');
-    if(snapshot){
-      const io = new IntersectionObserver((entries, obs) => {
-        entries.forEach(entry => {
-          if(entry.isIntersecting){
-            runSnapshotAnimation(snapshot);
-            obs.disconnect(); // only once
+    const snap = document.getElementById('impactSnapshot');
+    if(snap){
+      const io = new IntersectionObserver((entries, obs) =>{
+        entries.forEach(en => {
+          if(en.isIntersecting){
+            snap.querySelectorAll('.stat-num').forEach(el => {
+              if (el.dataset && el.dataset.target){
+                const t = parseInt(el.dataset.target,10) || 0;
+                animateValue(el, t, 1200);
+              }
+            });
+            obs.disconnect();
           }
         });
       }, { threshold: 0.35 });
-      io.observe(snapshot);
-    }
-
-    // also: if stats are above the fold (no intersection observer required), run immediately
-    if(snapshot && snapshot.getBoundingClientRect().top < window.innerHeight){
-      // small timeout to allow layout/paint
-      setTimeout(()=> runSnapshotAnimation(snapshot), 100);
+      io.observe(snap);
+      // if above fold
+      if(snap.getBoundingClientRect().top < window.innerHeight) setTimeout(()=> snap.querySelectorAll('.stat-num').forEach(el => {
+        const t = parseInt(el.dataset.target,10) || 0;
+        animateValue(el, t, 1200);
+      }), 100);
     }
   })();
+
+  /* init */
+  filtered = partners.slice();
+  build(filtered);
+
+  // accessibility keyboard for nav buttons
+  prevBtn.addEventListener('keydown', (e) => { if(e.key === 'Enter' || e.key === ' ') { e.preventDefault(); prevBtn.click(); } });
+  nextBtn.addEventListener('keydown', (e) => { if(e.key === 'Enter' || e.key === ' ') { e.preventDefault(); nextBtn.click(); } });
+
+})();
 </script>
 
+  
 
-
-
-<!-- END NEW: Partnership explanation sections -->
-
-    <!-- FILTER -->
-    <div class="card partners-area">
-      <div class="partners-head">
-        <div>
-          <h2>Our partners</h2>
-          <p class="muted">We are proud to work with national and international organisations committed to improving eye health.</p>
-        </div>
-
-        <div class="partner-filter" id="partnerFilter" role="toolbar" aria-label="Filter partners">
-          <button class="pill active" data-filter="all" aria-pressed="true">All</button>
-          <button class="pill" data-filter="ngos">NGOs</button>
-          <button class="pill" data-filter="donors">Donors</button>
-          <button class="pill" data-filter="government">Government bodies</button>
-          <button class="pill" data-filter="universities">Universities</button>
-          <button class="pill" data-filter="hospitals">Hospitals</button>
-          <button class="pill" data-filter="companies">Companies</button>
-          <button class="pill" data-filter="foundations">Foundations</button>
-        </div>
+  <!-- FOOTER -->
+  <footer class="site-footer" role="contentinfo">
+    <div class="container footer-inner">
+      <div class="footer-col">
+        <img src="images/logo.png" alt="SEHA logo" class="footer-logo">
+        <p class="muted">© 2026 Somali Eye Health Alliance — All Rights Reserved <a href="developers-contact.html">Developers</a></p>
       </div>
 
-      <!-- TWO ROWS (stacked) -->
-      <div class="partners-layout dual-rows">
-        <!-- TOP ROW -->
-        <div class="partners-slider row-top" aria-live="polite">
-          <button id="topPrev" class="slide-btn top-prev" aria-label="Prev top">‹</button>
-          <div class="slides-viewport" id="topViewport" tabindex="0">
-            <div class="slides" id="topSlides" aria-hidden="false"></div>
-          </div>
-          <button id="topNext" class="slide-btn top-next" aria-label="Next top">›</button>
-        </div>
+      <div class="footer-col">
+        <h4>Quick links</h4>
+        <ul class="small-list footer-links">
+          <li><a href="index.html">Home</a></li>
+          <li><a href="about.html">About Us</a></li>
+          <li><a href="programs.html">Programs</a></li>
+          <li><a href="resources.html">Resources</a></li>
+          <li><a href="membership.html">Membership</a></li>
+          <li><a href="contact.html">Contact</a></li>
+        </ul>
+      </div>
 
-        <!-- BOTTOM ROW -->
-        <div class="partners-slider row-bottom" aria-live="polite" style="margin-top:14px">
-          <button id="bottomPrev" class="slide-btn bottom-prev" aria-label="Prev bottom">‹</button>
-          <div class="slides-viewport" id="bottomViewport" tabindex="0">
-            <div class="slides" id="bottomSlides" aria-hidden="true"></div>
-          </div>
-          <button id="bottomNext" class="slide-btn bottom-next" aria-label="Next bottom">›</button>
-        </div>
+      <div class="footer-col">
+        <h4>Contact</h4>
+        <address class="muted">
+          Mogadishu, Somalia<br>
+          info@Somalieyehealthalliance.org <br>
+          +252 61 7000264
+                </address>
       </div>
     </div>
-
-    <!-- CTA -->
-    <section class="cta-box card">
-      <h3>Interested in partnering with us?</h3>
-      <p>For partnership enquiries please <a href="contact.html">contact us</a> — we welcome funding, technical and implementation collaborations.</p>
-    </section>
-  </div>
-
-  <!-- CENTERED MODAL -->
-  <div class="partner-modal-backdrop" id="partnerModal" aria-hidden="true" role="dialog" aria-modal="true">
-    <div class="partner-modal" role="document" id="partnerModalPanel">
-      <button class="partner-modal-close" id="partnerModalClose" aria-label="Close partner details">✕</button>
-      <div class="partner-modal-body" id="partnerModalBody" tabindex="0"></div>
-    </div>
-  </div>
-</section>
-
-<!-- STYLES -->
-<style>
-:root{
-  --accent:#16a085; --accent-2:#2dd4bf; --muted:#475569; --card-radius:12px; --gap:14px;
-  --autoplay-ms:2000;
-}
-
-/* === Partner card: vertical layout (image top, content below) === */
-.partner-card{
-  flex:0 0 auto;
-  display:flex;
-  flex-direction:column;
-  gap:12px;
-  align-items:stretch;
-  background:linear-gradient(180deg,#fff,#fbfdff);
-  padding:12px;
-  border-radius:12px;
-  border:1px solid rgba(11,95,88,.03);
-  box-shadow:0 6px 18px rgba(2,6,23,.04);
-  overflow:hidden;
-  min-height: 0; /* allow height to shrink on mobile */
-}
-
-.partner-media{
-  display:flex;
-  align-items:center;
-  justify-content:center;
-}
-
-.partner-media img{
-  max-width:100%;
-  max-height:100%;
-  width:auto;
-  height:auto;
-  object-fit:contain;
-  display:block;
-  transition:transform .25s ease;
-}
-
-
-/* Responsive: slightly taller images on wide screens */
-@media(min-width:1100px){
-  .partner-media{ height:160px; }
-}
-
-/* card content area */
-.partner-info{
-  display:flex;
-  flex-direction:column;
-  gap:8px;
-  align-items:stretch;
-  padding:0;
-}
-
-/* name */
-.partner-name{
-  font-weight:800;
-  color:#07102a;
-  font-size:15px;
-  margin:0;
-  line-height:1.2;
-}
-
-/* 2-line clamp for description */
-.partner-desc{
-  color:var(--muted);
-  font-size:13px;
-  line-height:1.35;
-  margin:0;
-  display:-webkit-box;
-  -webkit-line-clamp:2;
-  -webkit-box-orient:vertical;
-  overflow:hidden;
-  text-overflow:ellipsis;
-  min-height: calc(1.35em * 2); /* reserve space for 2 lines */
-}
-
-/* badge + More button row */
-.partner-meta{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:10px;
-  margin-top:auto; /* push meta to bottom */
-}
-
-/* small rounded badge */
-.partner-badge-small{
-  font-size:12px;
-  background:#eef6f4;
-  padding:6px 10px;
-  border-radius:999px;
-  color:#0b5563;
-  font-weight:700;
-  box-shadow:0 4px 12px rgba(2,6,23,.04);
-  white-space:nowrap;
-}
-
-/* ensure buttons don't wrap and align right */
-.btn-more{ border:0; background:var(--accent); color:#fff; font-weight:700; cursor:pointer; padding:8px 12px; border-radius:8px; box-shadow:0 8px 22px rgba(15,118,110,.10); transition:transform .12s; white-space:nowrap; }
-.btn-more:hover{ transform:translateY(-2px); }
-
-/* remove previous left-flush media rule (if present) so new layout takes effect */
-.slides .partner-card { box-sizing: border-box; }
-
-.partnership-container{max-width:1300px;margin:28px auto;padding:18px;box-sizing:border-box}
-.card{background:#fff;padding:18px;border-radius:var(--card-radius);box-shadow:0 10px 30px rgba(2,6,23,.06);margin-bottom:18px}
-.partners-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap}
-.partner-filter{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}
-.pill{background:#f3f4f6;border:0;padding:8px 12px;border-radius:999px;font-weight:700;cursor:pointer;box-shadow:0 2px 6px rgba(2,6,23,.03);transition:all .15s}
-.pill.active{background:linear-gradient(90deg,var(--accent),var(--accent-2));color:#fff;box-shadow:0 10px 30px rgba(16,118,110,.12)}
-.pill:focus{outline:3px solid rgba(45,212,191,.14);outline-offset:3px}
-
-/* structure */
-.partners-layout.dual-rows{display:block}
-.partners-slider{position:relative;display:flex;align-items:center}
-.slides-viewport{overflow:hidden;width:100%;border-radius:var(--card-radius);outline:none}
-.slides{display:flex;gap:var(--gap);transition:transform .45s cubic-bezier(.2,.9,.23,1);padding:0;will-change:transform}
-
-/* card */
-.partner-card:hover .partner-media img{transform:scale(1.06) translateY(-3px);filter:drop-shadow(0 10px 18px rgba(11,95,88,.08))}
-.partner-name{font-weight:800;color:#07102a;font-size:15px}
-.partner-desc{color:var(--muted);font-size:13px;line-height:1.3;margin:0;max-height:56px;overflow:hidden}
-.partner-meta{display:flex;align-items:center;justify-content:space-between;margin-top:auto;gap:10px;width:100%}
-.partner-badge-small{font-size:12px;background:#eef6f4;padding:6px 10px;border-radius:999px;color:#0b5563;font-weight:700;box-shadow:0 4px 12px rgba(2,6,23,.04)}
-.btn-more{border:0;background:var(--accent);color:#fff;font-weight:700;cursor:pointer;padding:8px 12px;border-radius:8px;box-shadow:0 8px 22px rgba(15,118,110,.10);transition:transform .12s}
-.btn-more:hover{transform:translateY(-2px)}
-
-/* prev/next buttons */
-.slide-btn{position:absolute;top:50%;transform:translateY(-50%);z-index:40;border:0;background:#fff;color:#0f766e;width:44px;height:44px;border-radius:999px;box-shadow:0 8px 28px rgba(2,6,23,.12);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:20px}
-.row-top .slide-btn{height:44px}
-.row-bottom .slide-btn{height:44px}
-.top-prev{left:8px}
-.top-next{right:8px}
-.bottom-prev{left:8px}
-.bottom-next{right:8px}
-
-/* modal */
-.partner-modal-backdrop{display:none;position:fixed;inset:0;background:rgba(2,6,23,.46);align-items:center;justify-content:center;z-index:2200;padding:24px}
-.partner-modal-backdrop.open{display:flex}
-.partner-modal{width:min(980px,96vw);max-height:92vh;overflow:auto;border-radius:12px;background:linear-gradient(180deg,#fff,#fbfdff);box-shadow:0 40px 100px rgba(2,6,23,.36);position:relative;padding:20px}
-.partner-modal-close{position:absolute;right:14px;top:14px;border:0;background:#fff;font-size:18px;cursor:pointer;width:44px;height:44px;border-radius:999px;box-shadow:0 8px 28px rgba(2,6,23,.12);display:inline-flex;align-items:center;justify-content:center;color:#0f766e;z-index:60}
-.partner-modal-body img{width:100%;max-height:320px;object-fit:cover;border-radius:8px;background:#fff;padding:6px;margin-bottom:12px}
-.partner-modal-body h3{margin:0 0 6px 0;font-size:20px;color:#07102a}
-.partner-modal-body .muted{color:var(--muted)}
-.partner-modal-body p{color:#334155;line-height:1.45;margin:6px 0}
-
-/* responsive breakpoints: desktop show 3 per row, mobile 1 per row */
-@media(min-width: 881px){
-  .slides .partner-card{ width: calc((100% - var(--gap)*2)/3); } /* 3 per row (desktop) */
-}
-@media(max-width:880px){
-  .slides .partner-card{ width: calc(100%); } /* 1 per row for mobile/tablet per your request */
-}
-
-/* hide scrollbars and prevent side peek */
-.slides-viewport { -webkit-overflow-scrolling: touch; position: relative; }
-</style>
-
-<script>
-  (function () {
-    /* ---------- DATA: change images & sites as needed ---------- */
-    const partners = [
-      { id:'aau', name:'Aden Adde International University', short:'Aden Adde International University (AAIU) is a non-profit institution, registered with the Ministry of Higher Education of Somalia.', long:'place in late 2015 with a group of Somali intellectuals lead by Prof Dr Osman Aden Abdulle,a prominent physician and geneticist who has spent his entire life in the service of his people. Following a civil war that destroyed the entire existing infrastructure,.', categories:['universities','technical'], image:'images/images-acu-university.png', website:'https://aaiu.edu.so/', contact:'info@aaiu.edu.so' },
-      { id:'arag', name:'Arag Hospital', short:'Regional surgical hub delivering cataract surgery and outreaches.', long:'Arag Hospital is a surgical centre providing high-volume cataract surgery and mentoring visiting teams.', categories:['hospitals','implementation'], image:'images/images-arag-hospital.png', website:'https://araghospital.com', contact:'surgery@araghospital.so' },
-      { id:'aah', name:'Aden Abdulle Hospital', short:'Aden Abdulle Hospital was named after Aden Abdulle Osman who was a prominent political figure in Somalia.', long:"Aden Abdulle Hospital was named after Aden Abdulle Osman who was a prominent political figure in Somalia. He served as the first President of Somalia from 1960 to 1967, following the country's independence from colonial rule. Osman played a significant role in the early years of Somalia's independence and was instrumental in the formation and development of the young nation.", categories:['hospitals'], image:'images/images-ac-hospital.png', website:'https://aah.so/', contact:'https://aah.so/contact/' },
-     
-      { id:'hormuud', name:'Hormuud Salaam Foundation', short:'Since its inception, Hormuud Salaam Foundation has been providing a critical economic and transformative lifeline to the Somali people in & outside Somalia through its extensive and global network.', long:' In 2013, Hormuud Telecom has officially established by Hormuud Salaam Foundation, the first ever corporate foundation, as a vehicle for its Corporate Social Responsibility program, with focus on giving back to the society and impacting the quality of life of the community in which funded Hormuud Telecom & Salam Bank.', categories:['donors','foundations'], image:'images/images-hormuud-doundation.png', website:'https://hormuudsalaamfoundation.org/', contact:'info@hormuudsalaamfoundation.org' },
-      { id:'moh', name:'Ministry of Health — Somalia', short:'Policy partner supporting integration of eye care into national health plans.', long:'Ministry of Health collaborates on policy, workforce planning and coordination of regional referral networks.', categories:['government'], image:'images/images-ministry-of-health.png', website:'https://moh.gov.so/so/home/', contact:'info@moh.so' },
-      { id:'bright', name:'BrightFuture Foundation', short:'Foundation supporting capacity building and small grants for local clinics.', long:'BrightFuture provides small grants and targeted funding for clinic refurbishment and training bursaries.', categories:['foundations','donors'], image:'images/images-bright-foundation.png', website:'https://brightfuture.example', contact:'grants@brightfuture.org' },
-      { id:'visiontech', name:'VisionTech Ltd', short:'Private supplier of diagnostic equipment and low-cost spectacles solutions.', long:'VisionTech supplies diagnostic equipment and supports local optical workshops with maintenance and training.', categories:['companies',], image:'images/images-vision.png', website:'https://visiontech.example', contact:'sales@visiontech.com' },
-      
-      { id:'regional', name:'Regional Health Consortium', short:'Cross-sector consortium coordinating regional service delivery and referral networks.', long:'Regional consortium of local government, NGOs and hospitals working on referrals, supply logistics and data-sharing.', categories:['government','ngos','hospitals'], image:'images/image8.png', website:'', contact:'' }
-    ];
-  
-    /* ---------- DOM refs ---------- */
-    const topSlides = document.getElementById('topSlides');
-    const bottomSlides = document.getElementById('bottomSlides');
-    const topViewport = document.getElementById('topViewport');
-    const bottomViewport = document.getElementById('bottomViewport');
-    const filterPills = Array.from(document.querySelectorAll('.partner-filter .pill'));
-    const modalBackdrop = document.getElementById('partnerModal');
-    const modalBody = document.getElementById('partnerModalBody');
-    const modalClose = document.getElementById('partnerModalClose');
-  
-    /* ---------- state ---------- */
-    let filtered = partners.slice();
-    let perView = window.innerWidth <= 880 ? 1 : 3;
-    const GAP = 14;
-  
-    // carousel structures for top & bottom — note each row has its own intervalMs
-    const carousels = {
-      top:    { container: topSlides,    viewport: topViewport,    direction: +1, timer: null, index: 0, items: [], intervalMs: 2000 },  // 2s
-      bottom: { container: bottomSlides, viewport: bottomViewport, direction: -1, timer: null, index: 0, items: [], intervalMs: 23000 } // 23s
-    };
-  
-    /* ---------- helpers ---------- */
-    function esc(s){ if(!s && s!==0) return ''; return String(s).replace(/[&<>"]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m])); }
-    function cap(s){ if(!s) return ''; return s.charAt(0).toUpperCase() + s.slice(1); }
-  
-    function makeCardHTML(p){
-      return `
-        <div class="partner-card" data-id="${esc(p.id)}">
-          <div class="partner-media"><img src="${esc(p.image)}" alt="${esc(p.name)} logo" loading="lazy" onerror="this.style.opacity=.12; this.src='images/placeholder.png'"></div>
-          <div class="partner-info">
-            <div class="partner-name">${esc(p.name)}</div>
-            <p class="partner-desc">${esc(p.short)}</p>
-            <div class="partner-meta">
-              <div class="partner-badge-small">${cap(p.categories[0]||'')}</div>
-              <div style="margin-left:auto;display:flex;gap:8px;align-items:center">
-                <button class="btn-more" data-id="${esc(p.id)}" aria-controls="partnerModal">More</button>
-              </div>
-            </div>
-          </div>
-        </div>
-      `;
-    }
-  
-    function buildCarousel(car, items) {
-      car.items = items.slice();
-      const per = perView || 1;
-      const container = car.container;
-      container.innerHTML = '';
-  
-      const prefix = items.slice(-per);
-      const suffix = items.slice(0, per);
-      const all = prefix.concat(items, suffix);
-      all.forEach(p => container.insertAdjacentHTML('beforeend', makeCardHTML(p)));
-  
-      car.index = per;
-      attachCardHandlers(container);
-  
-      container.addEventListener('transitionend', () => {
-        const n = items.length;
-        if (car.index >= n + per) {
-          car.index = per;
-          snapWithoutTransition(() => setTranslateFor(car));
-        } else if (car.index < per) {
-          car.index = n + per - 1;
-          snapWithoutTransition(() => setTranslateFor(car));
-        }
-      }, { passive: true });
-    }
-  
-    function setTranslateFor(car) {
-      const firstCard = car.container.querySelector('.partner-card');
-      if (!firstCard) return;
-      const cardW = firstCard.getBoundingClientRect().width;
-      const step = cardW + GAP;
-      car.container.style.transform = `translateX(${ - car.index * step }px)`;
-    }
-  
-    function snapWithoutTransition(fn) {
-      [carousels.top.container, carousels.bottom.container].forEach(c => c.style.transition = 'none');
-      requestAnimationFrame(() => requestAnimationFrame(() => {
-        fn();
-        [carousels.top.container, carousels.bottom.container].forEach(c => c.style.transition = '');
-      }));
-    }
-  
-    function attachCardHandlers(container) {
-      container.querySelectorAll('.btn-more').forEach(btn => {
-        btn.onclick = (e) => {
-          e.stopPropagation();
-          const id = btn.dataset.id;
-          const p = partners.find(x => x.id === id);
-          if (p) openModal(p);
-        };
-      });
-      container.querySelectorAll('.partner-media img').forEach(img => {
-        img.onclick = (e) => {
-          const card = e.target.closest('.partner-card');
-          const id = card && card.dataset.id;
-          const p = partners.find(x => x.id === id);
-          if (p && p.website) window.open(p.website, '_blank');
-        };
-      });
-    }
-  
-    function step(car, dir) {
-      if (!car.container.firstElementChild) return;
-      car.index += dir;
-      car.container.style.transition = '';
-      setTranslateFor(car);
-    }
-  
-    // autoplay: uses car.intervalMs now (individual per row)
-    function startAutoFor(car) {
-      stopAutoFor(car);
-      car.timer = setInterval(() => {
-        step(car, car.direction);
-      }, car.intervalMs);
-    }
-    function stopAutoFor(car) {
-      if (car.timer) { clearInterval(car.timer); car.timer = null; }
-    }
-    function restartAllAuto() {
-      stopAllAuto();
-      startAutoFor(carousels.top);
-      startAutoFor(carousels.bottom);
-    }
-    function stopAllAuto() { stopAutoFor(carousels.top); stopAutoFor(carousels.bottom); }
-  
-    function wireButtons() {
-      document.getElementById('topPrev').onclick = () => { step(carousels.top, -1); restartAllAuto(); };
-      document.getElementById('topNext').onclick = () => { step(carousels.top, +1); restartAllAuto(); };
-      document.getElementById('bottomPrev').onclick = () => { step(carousels.bottom, -1); restartAllAuto(); };
-      document.getElementById('bottomNext').onclick = () => { step(carousels.bottom, +1); restartAllAuto(); };
-  
-      [topViewport, bottomViewport].forEach(vp => {
-        vp.addEventListener('mouseenter', () => stopAllAuto());
-        vp.addEventListener('mouseleave', () => restartAllAuto());
-        vp.addEventListener('focusin', () => stopAllAuto());
-        vp.addEventListener('focusout', () => restartAllAuto());
-      });
-    }
-  
-    function addSwipe(viewport, car) {
-      let startX = 0, curX = 0, dragging = false, pid = null;
-      viewport.addEventListener('pointerdown', e => {
-        if (e.target.closest('.btn-more, button, a, .partner-media img')) return;
-        dragging = true; startX = e.clientX; pid = e.pointerId;
-        viewport.setPointerCapture(pid);
-        car.container.style.transition = 'none';
-      }, { passive: true });
-  
-      viewport.addEventListener('pointermove', e => {
-        if (!dragging) return;
-        curX = e.clientX;
-        const diff = curX - startX;
-        const firstCard = car.container.querySelector('.partner-card');
-        if (!firstCard) return;
-        const step = firstCard.getBoundingClientRect().width + GAP;
-        car.container.style.transform = `translateX(${ - car.index * step + diff }px)`;
-      }, { passive: true });
-  
-      viewport.addEventListener('pointerup', e => {
-        if (!dragging) return;
-        dragging = false;
-        car.container.style.transition = '';
-        const diff = curX - startX; const threshold = 50;
-        if (diff < -threshold) step(car, +1);
-        else if (diff > threshold) step(car, -1);
-        else setTranslateFor(car);
-        try { viewport.releasePointerCapture(pid); } catch (err) { }
-      }, { passive: true });
-  
-      viewport.addEventListener('pointercancel', () => { dragging = false; setTranslateFor(car); });
-    }
-  
-    function splitForRows(items) {
-      const top = [], bottom = [];
-      items.forEach((p, i) => { if (i % 2 === 0) top.push(p); else bottom.push(p); });
-      if (!top.length && bottom.length) top.push(...bottom.slice(0,1));
-      if (!bottom.length && top.length) bottom.push(...top.slice(0,1));
-      return { top, bottom };
-    }
-  
-    function renderBoth() {
-      topViewport.parentElement.style.display = '';
-      bottomViewport.parentElement.style.display = '';
-      topViewport.setAttribute('aria-hidden','false');
-      bottomViewport.setAttribute('aria-hidden','false');
-  
-      const { top, bottom } = splitForRows(filtered);
-      buildCarousel(carousels.top, top);
-      buildCarousel(carousels.bottom, bottom);
-  
-      requestAnimationFrame(() => {
-        setTranslateFor(carousels.top);
-        setTranslateFor(carousels.bottom);
-      });
-  
-      addSwipe(topViewport, carousels.top);
-      addSwipe(bottomViewport, carousels.bottom);
-      wireButtons();
-      restartAllAuto();
-    }
-  
-    function renderTopOnly(items) {
-      topViewport.parentElement.style.display = '';
-      bottomViewport.parentElement.style.display = 'none';
-      topViewport.setAttribute('aria-hidden','false');
-  
-      buildCarousel(carousels.top, items);
-      requestAnimationFrame(() => setTranslateFor(carousels.top));
-      addSwipe(topViewport, carousels.top);
-      wireButtons();
-      stopAllAuto();
-      startAutoFor(carousels.top); // only top runs
-    }
-  
-    function openModal(p) {
-      modalBody.innerHTML = `
-        <img src="${esc(p.image)}" alt="${esc(p.name)} logo" onerror="this.style.opacity=.12; this.src='images/placeholder.png'">
-        <h3>${esc(p.name)}</h3>
-        <div class="muted small">${p.categories.map(c => cap(c)).join(' • ')}</div>
-        <p class="muted" style="margin-top:8px">${esc(p.short)}</p>
-        <p style="margin-top:8px">${esc(p.long)}</p>
-        ${p.website ? `<p style="margin-top:8px"><a href="${esc(p.website)}" target="_blank" rel="noopener">Visit website</a></p>` : ''}
-        ${p.contact ? `<p class="muted small">Contact: ${esc(p.contact)}</p>` : ''}
-      `;
-      modalBackdrop.classList.add('open');
-      modalBackdrop.setAttribute('aria-hidden','false');
-      modalClose.focus();
-      document.addEventListener('focus', trapFocus, true);
-      stopAllAuto();
-    }
-    function closeModal() {
-      modalBackdrop.classList.remove('open');
-      modalBackdrop.setAttribute('aria-hidden','true');
-      modalBody.innerHTML = '';
-      document.removeEventListener('focus', trapFocus, true);
-      restartAllAuto();
-    }
-    function trapFocus(e) {
-      if (!modalBackdrop.classList.contains('open')) return;
-      if (!modalBackdrop.contains(e.target)) { e.stopPropagation(); modalClose.focus(); }
-    }
-    modalClose.addEventListener('click', closeModal);
-    modalBackdrop.addEventListener('click', (e) => { if (e.target === modalBackdrop) closeModal(); });
-    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeModal(); });
-  
-    function filterBy(category) {
-      if (category === 'all') {
-        filtered = partners.slice();
-        renderBoth();
-        return;
-      }
-      const matched = partners.filter(p => p.categories.includes(category));
-      filtered = matched.slice();
-      renderTopOnly(matched);
-    }
-  
-    filterPills.forEach(p => {
-      p.addEventListener('click', () => {
-        filterPills.forEach(x => x.classList.toggle('active', x === p));
-        filterBy(p.dataset.filter);
-      });
-      p.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); p.click(); } });
-    });
-  
-    let resizeTimeout = null;
-    window.addEventListener('resize', () => {
-      clearTimeout(resizeTimeout);
-      resizeTimeout = setTimeout(() => {
-        const oldPer = perView;
-        const newPer = window.innerWidth <= 880 ? 1 : 3;
-        if (oldPer !== newPer) {
-          perView = newPer;
-          const active = document.querySelector('.partner-filter .pill.active');
-          const cat = active ? active.dataset.filter : 'all';
-          if (cat === 'all') renderBoth(); else filterBy(cat);
-        } else {
-          [carousels.top, carousels.bottom].forEach(car => setTranslateFor(car));
-        }
-      }, 120);
-    });
-  
-    /* ---------- init ---------- */
-    filtered = partners.slice();
-    renderBoth();
-  
-  })();
-  </script>
-  
-
-<!-- ====== Modern footer (replace existing footer) ====== -->
-<footer class="site-footer" role="contentinfo" aria-labelledby="footer-heading">
-  <div class="container footer-top" id="footerTop">
-    <!-- col 1: logo + short mission -->
-    <div class="footer-block footer-brand" aria-labelledby="footer-brand">
-      <img src="images/logo.png" alt="SEHA logo" class="footer-logo" />
-      <div class="footer-slogan">
-        <p class="muted">
-          Saving sight • Building local capacity across Somalia. SEHA coordinates local clinics,
-          trains teams, and supports affordable optical services and safe cataract surgery across regions.
-        </p>
-        <p class="muted" style="margin-top:8px;font-size:13px">
-          We prioritise locally-led solutions, transparent reporting and practical toolkits so services keep working long after visits end.
-        </p>
-      </div>
-    </div>
-
-    <!-- col 2: quick links -->
-    <nav class="footer-block footer-links" aria-label="Footer quick links">
-      <h4 class="footer-heading">Quick links</h4>
-      <ul>
-        <li><a href="index.html">Home</a></li>
-        <li><a href="about.html">About Us</a></li>
-        <li><a href="programs.html">Programs</a></li>
-        <li><a href="resources.html">Resources</a></li>
-        <li><a href="membership.html">Membership</a></li>
-        <li><a href="contact.html">Contact</a></li>
-      </ul>
-    </nav>
-
-    <!-- col 3: contact + socials -->
-    <div class="footer-block footer-contact" aria-labelledby="footer-contact">
-      <h4 class="footer-heading">Contact</h4>
-      <address class="muted">
-        Mogadishu, Somalia<br />
-        <a href="mailto:info@somalieyehealthalliance.org">info@somalieyehealthalliance.org</a><br />
-        <a href="tel:+252617000264">+252 61 7000264</a>
-      </address>
-
-      <div class="footer-socials" aria-label="Contact & messaging">
-        <!-- WhatsApp -->
-        <a href="https://wa.me/252617000264" class="social" aria-label="WhatsApp" title="Chat on WhatsApp" target="_blank" rel="noopener">
-          <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true">
-            <path d="M20.52 3.48A11.93 11.93 0 0 0 12 0C5.373 0 .051 4.893 0 11.15 0 13.619.737 15.983 2.12 17.94L0 24l6.27-2.07A11.94 11.94 0 0 0 12 24c6.627 0 11.999-4.893 12-11.15 0-1.84-.46-3.6-1.48-5.37zM12 22.1c-1.67 0-3.29-.43-4.72-1.25l-.34-.2-3.72 1.23 1.24-3.63-.22-.37A9.07 9.07 0 0 1 2.9 11.15 9.1 9.1 0 0 1 12 2.1c4.83 0 8.8 3.45 8.8 9.05 0 5.59-3.97 10-8.8 10z"/>
-            <path d="M17.2 14.85c-.3-.15-1.78-.87-2.06-.97-.28-.1-.48-.15-.68.15s-.78.97-.95 1.17c-.17.2-.34.23-.63.08-.3-.15-1.27-.47-2.42-1.51-.89-.8-1.49-1.78-1.66-2.08-.17-.3-.02-.46.13-.61.13-.13.3-.34.45-.51.15-.17.2-.28.3-.46.1-.17.05-.33-.03-.48-.08-.15-.68-1.64-.93-2.23-.24-.59-.48-.51-.66-.52-.17-.01-.36-.01-.55-.01-.2 0-.52.07-.8.34-.28.27-1.06 1.04-1.06 2.52 0 1.49 1.09 2.93 1.24 3.13.15.2 2.14 3.4 5.2 4.77 3.07 1.36 3.07.9 3.62.84.55-.06 1.78-.72 2.03-1.41.24-.69.24-1.28.17-1.41-.07-.14-.28-.24-.58-.39z"/>
-          </svg>
-        </a>
-
-        <!-- Email quick action (same as contact, quick open mail client) -->
-        <a href="mailto:info@somalieyehealthalliance.org" class="social" aria-label="Email" title="Send email">
-          <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true"><path d="M2 6.5C2 5.67 2.67 5 3.5 5h17c.83 0 1.5.67 1.5 1.5v11c0 .83-.67 1.5-1.5 1.5h-17C2.67 19 2 18.33 2 17.5v-11zM4 7v.8l7.5 5.1c.2.15.5.15.7 0L20 7.8V7H4z"/></svg>
-        </a>
-      </div>
-    </div>
-  </div>
-
-  <!-- bottom legal bar -->
-  <div class="footer-bottom" role="contentinfo">
-    <div class="container footer-bottom-inner">
-      <div class="legal muted">© 2026 Somali Eye Health Alliance — All rights reserved.</div>
-      <div class="policies">
-        <a href="privacy.html">Privacy</a>
-        <span aria-hidden="true">•</span>
-        <a href="terms.html">Terms</a>
-        <span aria-hidden="true">•</span>
-        <a href="developers-contact.html">Developers</a>
-      </div>
-    </div>
-  </div>
-</footer>
-
+  </footer>
 
   <!-- page-specific JS (paste before closing body) -->
 <script src="script.js"></script>
   </body>
 </html>
-
 
