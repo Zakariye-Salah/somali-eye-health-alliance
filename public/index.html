@@ -8,7 +8,33 @@
   <link rel="icon" href="images/logo.png">
   <link rel="stylesheet" href="style.css">
 
-  <!-- START: Back-to-top small styles (optional: move into style.css) -->
+ 
+    
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const current = window.location.pathname.split("/").pop(); 
+      document.querySelectorAll(".main-nav a").forEach(a => {
+        const href = a.getAttribute("href");
+        if (href === current) {
+          a.classList.add("active");
+        }
+      });
+    });
+    </script>
+    
+
+
+<style>
+  /* small tweak so the animated numbers and suffix align nicely */
+  .stat-number { display:flex; align-items:baseline; gap:6px; justify-content:center; }
+  .stat-number .count { display:inline-block; min-width:3ch; text-align:center; }
+  .stat-number .suffix { font-weight:700; opacity:0.95; font-size:0.7em; margin-left:2px; color:inherit; }
+  
+  /* optional: a subtle entrance animation for the stat card when it appears */
+  .stat[data-animated="true"] { transform: translateY(0); opacity:1; transition: transform .42s cubic-bezier(.2,.9,.2,1), opacity .38s ease; }
+  .stat { transform: translateY(6px); opacity:0; }
+  </style>
+  
   <style>
     /* Floating "back to top" button */
     .seha-back-to-top {
@@ -146,10 +172,10 @@
 :root {
   --header-height: 72px;            /* desktop height (can tune) */
   --header-padding-x: 2px;
-  --brand-gap: 12px;
-  --logo-size: 44px;
+  --brand-gap: 7px;
+  --logo-size: 64px;
   --nav-gap: 3px;
-  --nav-font-size: 13px;
+  --nav-font-size: 13.6px;
   --donate-bg: #0f766e;
   --donate-hover: #0b5f58;
   --accent: #2dd4bf;
@@ -362,174 +388,18 @@ a:focus, button:focus {
   .nav-list { gap: 22px; }
 }
 
-
-  </style>
-    
-  <script>
-    document.addEventListener("DOMContentLoaded", () => {
-      const current = window.location.pathname.split("/").pop(); 
-      document.querySelectorAll(".main-nav a").forEach(a => {
-        const href = a.getAttribute("href");
-        if (href === current) {
-          a.classList.add("active");
-        }
-      });
-    });
-    </script>
-    
-  <!-- START: Back-to-top small styles (optional: move into style.css) -->
-  <style>
-    /* Floating "back to top" button */
-    .seha-back-to-top {
-      position: fixed;
-      right: 20px;
-      bottom: 24px;
-      width: 48px;
-      height: 48px;
-      border-radius: 12px;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      background: var(--primary);
-      color: #fff;
-      box-shadow: 0 10px 30px rgba(2,6,23,0.12);
-      cursor: pointer;
-      z-index: 1600;
-      opacity: 0;
-      pointer-events: none;
-      transform: translateY(8px);
-      transition: opacity .18s ease, transform .18s ease;
-      border: 0;
-    }
-
-    .seha-back-to-top.show {
-      opacity: 1;
-      pointer-events: auto;
-      transform: translateY(0);
-    }
-
-    /* focus / keyboard visibility */
-    .seha-back-to-top:focus {
-      outline: 3px solid rgba(45,212,191,0.22);
-      outline-offset: 4px;
-    }
-
-    /* inner svg */
-    .seha-back-to-top svg { width: 20px; height: 20px; display:block; }
-
-    /* small responsive tweak so it doesn't overlap on very small screens */
-    @media (max-width: 420px) {
-      .seha-back-to-top { right: 12px; bottom: 16px; width:44px; height:44px; border-radius:10px; }
-    }
-
-    /* optional: hide if user prefers reduced motion */
-    @media (prefers-reduced-motion: reduce) {
-      .seha-back-to-top { transition: none; }
-      html { scroll-behavior: auto; }
-    }
-    /* === Small/tight desktop header patch — only layout + sizing === */
-/* Apply only on desktop so mobile/menu/toggles are untouched */
-@media (min-width: 981px) {
-
-/* tighten header row and flush container edges */
-.site-header { padding: 0; }
-.container.header-inner { padding: 0 6px; max-width: var(--container); }
-
-/* reduce overall header height and gaps */
-.header-inner {
-  height: 52px;            /* slightly shorter */
-  gap: 8px;
-  padding: 0;
-  align-items: center;
-}
-
-/* branding: smaller logo and reduced text sizes */
-.brand { gap: 8px; min-width: 0; }
-.brand .logo { width: 34px; height: 34px; border-radius: 6px; }
-.brand-text .org-name {
-  font-size: 11px;         /* smaller title */
-  font-weight: 700;
-  line-height: 1;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-  overflow: hidden;
-}
-.brand-text .tagline {
-  font-size: 10px;         /* smaller tagline */
-  margin: 0;
-  opacity: 0.9;
-}
-
-/* navigation: smaller font, tighter padding and smaller gap */
-.main-nav { flex: 1 1 auto; min-width: 0; }
-.main-nav .nav-list {
-  gap: 6px;                /* tighter gap between menu items */
-  padding: 0 6px;
-}
-.main-nav a {
-  font-size: 12px;         /* smaller nav text */
-  padding: 6px 8px;        /* tighter clickable area */
-  border-radius: 6px;
-  font-weight: 700;
-}
-
-/* reduce the hover transform so it looks subtle on small header */
-.main-nav a:hover, .main-nav a:focus {
-  transform: translateY(-1px);
-  background: rgba(15,118,110,0.04);
-}
-
-/* ensure desktop popovers still position correctly (no clipping) */
-.nav-item { position: relative; }
-.nav-subtitle {
-  left: 50%;
-  transform: translateX(-50%) translateY(6px);
-  top: calc(100% + 6px);
-  min-width: 180px;
-  z-index: 2500;
-}
-}
-
-/* Keep mobile rules exactly as before (no changes) */
-@media (max-width: 980px) {
-/* nothing here — mobile behavior unchanged */
-}
-
-/* === ACTIVE NAVIGATION HIGHLIGHT === */
-@media (min-width: 981px) {
-  .main-nav a.active {
-    background: var(--primary-light, rgba(15,118,110,0.10));
-    color: var(--primary, #0f766e);
-    transform: none;       /* don't move up when active */
-  }
-
-  /* optional: keep hover consistent */
-  .main-nav a.active:hover {
-    background: var(--primary-light, rgba(15,118,110,0.12));
-    color: var(--primary, #0f766e);
-  }
-}
-
+.mission {
+  width: 30px;
+  height: 30px;
+} 
 
 
   </style>
-
-<style>
-  /* small tweak so the animated numbers and suffix align nicely */
-  .stat-number { display:flex; align-items:baseline; gap:6px; justify-content:center; }
-  .stat-number .count { display:inline-block; min-width:3ch; text-align:center; }
-  .stat-number .suffix { font-weight:700; opacity:0.95; font-size:0.7em; margin-left:2px; color:inherit; }
-  
-  /* optional: a subtle entrance animation for the stat card when it appears */
-  .stat[data-animated="true"] { transform: translateY(0); opacity:1; transition: transform .42s cubic-bezier(.2,.9,.2,1), opacity .38s ease; }
-  .stat { transform: translateY(6px); opacity:0; }
-  </style>
-  
   <!-- END: Back-to-top styles -->
 </head>
 <body>
- <!-- HEADER -->
- <header class="site-header" role="banner">
+<!-- HEADER -->
+<header class="site-header" role="banner">
   
   <!-- small, safe header-local CSS to avoid duplicate arrows & show mobile toggle only on small screens -->
   <style>
@@ -726,7 +596,6 @@ body[data-loading="true"] { overflow: hidden !important; }
 
   <div class="mobile-menu" id="mobileMenu" aria-hidden="true"></div>
 </header>
-
 
   <!-- MAIN -->
   <main id="main" role="main">
