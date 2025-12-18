@@ -57,7 +57,7 @@
 /* Make number big and responsive; clamp prevents it from growing too much */
 .stat-number .count {
   font-weight: 900;
-  font-size: clamp(28px, 5.6vw, 64px); /* small:28, fluid, max:64 */
+  font-size: clamp(28px, 5.6vw, 54px); /* small:28, fluid, max:64 */
   line-height: 1;
   letter-spacing: -0.02em;
   display: inline-block;
@@ -78,6 +78,24 @@
 .stat[data-animated="true"] { transform: translateY(0); opacity:1; transition: transform .42s cubic-bezier(.2,.9,.2,1), opacity .38s ease; }
 .stat { transform: translateY(6px); opacity:0; }
 
+
+/* make the number colorable and smooth */
+.stat-number .count,
+.stat-number .suffix {
+  transition: color .18s ease;
+}
+
+/* Example theme colors */
+.stat-number.teal .count,
+.stat-number.teal .suffix { color: #0f766e; }   /* green/teal */
+.stat-number.blue .count,
+.stat-number.blue .suffix { color: #2563eb; }   /* blue */
+.stat-number.orange .count,
+.stat-number.orange .suffix { color: #f97316; } /* orange */
+
+/* If you want the suffix slightly dimmer */
+.stat-number .suffix { opacity: 0.92; font-weight: 800; }
+
 /* Desktop: force single row (no wrap) and a bit more spacing */
 @media (min-width: 981px) {
   .stats-row { flex-wrap: nowrap; gap:36px; }
@@ -90,7 +108,6 @@
   .stat-number .count { font-size: clamp(22px, 5.8vw, 42px); }
   .stat { text-align: left; }
 }
-
 /* --- Mobile menu styles --- */
 .mobile-menu {
   display: none;
