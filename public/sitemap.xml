@@ -1,53 +1,53 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+
   <url>
     <loc>https://www.somalieyehealthalliance.org/</loc>
-    <lastmod>2025-12-12</lastmod>
+    <lastmod>2025-12-19</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
 
   <url>
     <loc>https://www.somalieyehealthalliance.org/about.html</loc>
-    <lastmod>2025-12-12</lastmod>
+    <lastmod>2025-12-19</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
 
   <url>
     <loc>https://www.somalieyehealthalliance.org/programs.html</loc>
-    <lastmod>2025-12-12</lastmod>
+    <lastmod>2025-12-19</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
 
   <url>
     <loc>https://www.somalieyehealthalliance.org/resources.html</loc>
-    <lastmod>2025-12-12</lastmod>
+    <lastmod>2025-12-19</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
 
   <url>
-    <loc>https://www.somalieyehealthalliance.org/contact.html</loc>
-    <lastmod>2025-12-12</lastmod>
-    <changefreq>yearly</changefreq>
-    <priority>0.4</priority>
-  </url>
-
-  <url>
     <loc>https://www.somalieyehealthalliance.org/events.html</loc>
-    <lastmod>2025-12-12</lastmod>
+    <lastmod>2025-12-19</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
 
   <url>
-    <loc>https://www.somalieyehealthalliance.org/membership.html</loc>
-    <lastmod>2025-12-12</lastmod>
+    <loc>https://www.somalieyehealthalliance.org/contact.html</loc>
+    <lastmod>2025-12-19</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.4</priority>
   </url>
 
-  <!-- Add more URLs for pages you create -->
+  <url>
+    <loc>https://www.somalieyehealthalliance.org/membership.html</loc>
+    <lastmod>2025-12-19</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.4</priority>
+  </url>
+
 </urlset>
