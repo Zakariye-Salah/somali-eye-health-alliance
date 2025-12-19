@@ -30,138 +30,7 @@
     
 
 
-<style>
-  /* small tweak so the animated numbers and suffix align nicely */
-  .stat-number { display:flex; align-items:baseline; gap:6px; justify-content:center; }
-  .stat-number .count { display:inline-block; min-width:3ch; text-align:center; }
-  .stat-number .suffix { font-weight:700; opacity:0.95; font-size:0.7em; margin-left:2px; color:inherit; }
-  
-  /* optional: a subtle entrance animation for the stat card when it appears */
-  .stat[data-animated="true"] { transform: translateY(0); opacity:1; transition: transform .42s cubic-bezier(.2,.9,.2,1), opacity .38s ease; }
-  .stat { transform: translateY(6px); opacity:0; }
 
-  /* --- Impact stats: single-row on desktop, big numbers --- */
-.stats-row {
-  display:flex;
-  gap:28px;
-  justify-content: space-between;
-  align-items: center;
-  flex-wrap: wrap;            /* allow wrapping on small screens */
-  margin: 0;
-}
-
-/* Each stat behaves like a responsive column */
-.stat {
-  flex: 1 1 0;
-  min-width: 0;              /* prevents overflow when text is long */
-  text-align: center;
-  padding: 8px 6px;
-}
-
-/* Make number big and responsive; clamp prevents it from growing too much */
-.stat-number .count {
-  font-weight: 900;
-  font-size: clamp(28px, 5.6vw, 54px); /* small:28, fluid, max:64 */
-  line-height: 1;
-  letter-spacing: -0.02em;
-  display: inline-block;
-  min-width: 3ch;
-}
-
-/* keep suffix visually smaller but bold */
-.stat-number .suffix {
-  font-weight: 800;
-  opacity: 0.95;
-  font-size: 0.6em;
-  margin-left: 6px;
-  display: inline-block;
-  vertical-align: baseline;
-}
-
-/* entrance animation (optional) */
-.stat[data-animated="true"] { transform: translateY(0); opacity:1; transition: transform .42s cubic-bezier(.2,.9,.2,1), opacity .38s ease; }
-.stat { transform: translateY(6px); opacity:0; }
-
-
-/* make the number colorable and smooth */
-.stat-number .count,
-.stat-number .suffix {
-  transition: color .18s ease;
-}
-
-/* Example theme colors */
-.stat-number.teal .count,
-.stat-number.teal .suffix { color: #0f766e; }   /* green/teal */
-.stat-number.blue .count,
-.stat-number.blue .suffix { color: #2563eb; }   /* blue */
-.stat-number.orange .count,
-.stat-number.orange .suffix { color: #f97316; } /* orange */
-
-/* If you want the suffix slightly dimmer */
-.stat-number .suffix { opacity: 0.92; font-weight: 800; }
-
-/* Desktop: force single row (no wrap) and a bit more spacing */
-@media (min-width: 981px) {
-  .stats-row { flex-wrap: nowrap; gap:36px; }
-  .stat { padding: 12px 14px; }
-}
-
-/* Mobile: stack vertically */
-@media (max-width: 980px) {
-  .stats-row { flex-direction: column; gap: 10px; }
-  .stat-number .count { font-size: clamp(22px, 5.8vw, 42px); }
-  .stat { text-align: left; }
-}
-/* --- Mobile menu styles --- */
-.mobile-menu {
-  display: none;
-  position: fixed;
-  left: 0;
-  right: 0;
-  top: var(--header-height, 64px);
-  background: #fff;
-  z-index: 150;
-  box-shadow: 0 18px 80px rgba(2,6,23,0.12);
-  max-height: calc(100vh - var(--header-height, 64px));
-  overflow: auto;
-  padding: 12px;
-  transition: transform .18s ease, opacity .18s ease;
-}
-
-/* show */
-
-/* make nav-list vertical inside mobile menu */
-.mobile-menu .nav-list {
-  display:flex;
-  flex-direction: column;
-  gap: 6px;
-  margin: 0;
-  padding: 0;
-}
-
-/* mobile submenu hidden by default */
-.mobile-menu .sub,
-.mobile-menu .mobile-sub {
-  display: none;
-  padding-left: 12px;
-  margin-top: 6px;
-}
-
-/* when parent has 'open' show it */
-.mobile-menu .nav-item.open > .sub,
-.mobile-menu .nav-item.open > .mobile-sub {
-  display: block;
-}
-
-/* accessible focus states inside mobile menu */
-.mobile-menu a:focus { outline: 3px solid rgba(45,212,191,0.14); outline-offset: 4px; border-radius: 6px; }
-
-/* small tweak so desktop hover popovers behave unchanged */
-@media (min-width: 981px) {
-  .mobile-menu { display: none !important; }
-}
-
-  </style>
   
 
   <!-- END: Back-to-top styles -->
@@ -458,7 +327,7 @@ body[data-loading="true"] { overflow: hidden !important; }
 
       <div class="recent-highlight">
         <div>
-          <p class="muted">Inn 2025  Somali Eye Health Alliance supported a 4-week outreach in Beledweyne and Afgooye that screened 2,300 people and fitted 780 spectacles. Local teams were mentored in triage and low-vision follow-up.</p>
+          <p class="muted">In 2025  Somali Eye Health Alliance supported a 4-week outreach in Beledweyne and Afgooye that screened 2,300 people and fitted 780 spectacles. Local teams were mentored in triage and low-vision follow-up.</p>
         </div>
       </div>
     </div>
