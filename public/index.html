@@ -1664,37 +1664,6 @@ body[data-loading="true"] { overflow: hidden !important; }
 
 
 
-  </script>
-
-  <script>
-(function(){
-  const el = document.querySelector('.grid-3');
-  const infoBoxId = 'seha-diagnostic-box';
-  if(document.getElementById(infoBoxId)) return;
-  const box = document.createElement('div');
-  box.id = infoBoxId;
-  box.style.position = 'fixed';
-  box.style.zIndex = 99999;
-  box.style.left = 8 + 'px';
-  box.style.top = 8 + 'px';
-  box.style.background = 'rgba(0,0,0,0.7)';
-  box.style.color = '#fff';
-  box.style.padding = '8px 10px';
-  box.style.borderRadius = '8px';
-  box.style.fontSize = '13px';
-  box.style.lineHeight = '1.2';
-  box.style.maxWidth = 'calc(100% - 16px)';
-  if(!el){
-    box.textContent = '.grid-3 NOT FOUND on this page';
-    document.body.appendChild(box);
-    return;
-  }
-  const cs = getComputedStyle(el);
-  const cols = cs.getPropertyValue('grid-template-columns') || 'n/a';
-  box.innerHTML = '<strong>.grid-3</strong><br>grid-template-columns: ' + cols;
-  document.body.appendChild(box);
-})();
-</script>
 
   <script>
 (function(){
