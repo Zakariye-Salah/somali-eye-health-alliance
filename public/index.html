@@ -30,7 +30,138 @@
     
 
 
+<style>
+  /* small tweak so the animated numbers and suffix align nicely */
+  .stat-number { display:flex; align-items:baseline; gap:6px; justify-content:center; }
+  .stat-number .count { display:inline-block; min-width:3ch; text-align:center; }
+  .stat-number .suffix { font-weight:700; opacity:0.95; font-size:0.7em; margin-left:2px; color:inherit; }
+  
+  /* optional: a subtle entrance animation for the stat card when it appears */
+  .stat[data-animated="true"] { transform: translateY(0); opacity:1; transition: transform .42s cubic-bezier(.2,.9,.2,1), opacity .38s ease; }
+  .stat { transform: translateY(6px); opacity:0; }
 
+  /* --- Impact stats: single-row on desktop, big numbers --- */
+.stats-row {
+  display:flex;
+  gap:28px;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;            /* allow wrapping on small screens */
+  margin: 0;
+}
+
+/* Each stat behaves like a responsive column */
+.stat {
+  flex: 1 1 0;
+  min-width: 0;              /* prevents overflow when text is long */
+  text-align: center;
+  padding: 8px 6px;
+}
+
+/* Make number big and responsive; clamp prevents it from growing too much */
+.stat-number .count {
+  font-weight: 900;
+  font-size: clamp(28px, 5.6vw, 54px); /* small:28, fluid, max:64 */
+  line-height: 1;
+  letter-spacing: -0.02em;
+  display: inline-block;
+  min-width: 3ch;
+}
+
+/* keep suffix visually smaller but bold */
+.stat-number .suffix {
+  font-weight: 800;
+  opacity: 0.95;
+  font-size: 0.6em;
+  margin-left: 6px;
+  display: inline-block;
+  vertical-align: baseline;
+}
+
+/* entrance animation (optional) */
+.stat[data-animated="true"] { transform: translateY(0); opacity:1; transition: transform .42s cubic-bezier(.2,.9,.2,1), opacity .38s ease; }
+.stat { transform: translateY(6px); opacity:0; }
+
+
+/* make the number colorable and smooth */
+.stat-number .count,
+.stat-number .suffix {
+  transition: color .18s ease;
+}
+
+/* Example theme colors */
+.stat-number.teal .count,
+.stat-number.teal .suffix { color: #0f766e; }   /* green/teal */
+.stat-number.blue .count,
+.stat-number.blue .suffix { color: #2563eb; }   /* blue */
+.stat-number.orange .count,
+.stat-number.orange .suffix { color: #f97316; } /* orange */
+
+/* If you want the suffix slightly dimmer */
+.stat-number .suffix { opacity: 0.92; font-weight: 800; }
+
+/* Desktop: force single row (no wrap) and a bit more spacing */
+@media (min-width: 981px) {
+  .stats-row { flex-wrap: nowrap; gap:36px; }
+  .stat { padding: 12px 14px; }
+}
+
+/* Mobile: stack vertically */
+@media (max-width: 980px) {
+  .stats-row { flex-direction: column; gap: 10px; }
+  .stat-number .count { font-size: clamp(22px, 5.8vw, 42px); }
+  .stat { text-align: left; }
+}
+/* --- Mobile menu styles --- */
+.mobile-menu {
+  display: none;
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: var(--header-height, 64px);
+  background: #fff;
+  z-index: 150;
+  box-shadow: 0 18px 80px rgba(2,6,23,0.12);
+  max-height: calc(100vh - var(--header-height, 64px));
+  overflow: auto;
+  padding: 12px;
+  transition: transform .18s ease, opacity .18s ease;
+}
+
+/* show */
+
+/* make nav-list vertical inside mobile menu */
+.mobile-menu .nav-list {
+  display:flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+}
+
+/* mobile submenu hidden by default */
+.mobile-menu .sub,
+.mobile-menu .mobile-sub {
+  display: none;
+  padding-left: 12px;
+  margin-top: 6px;
+}
+
+/* when parent has 'open' show it */
+.mobile-menu .nav-item.open > .sub,
+.mobile-menu .nav-item.open > .mobile-sub {
+  display: block;
+}
+
+/* accessible focus states inside mobile menu */
+.mobile-menu a:focus { outline: 3px solid rgba(45,212,191,0.14); outline-offset: 4px; border-radius: 6px; }
+
+/* small tweak so desktop hover popovers behave unchanged */
+@media (min-width: 981px) {
+  .mobile-menu { display: none !important; }
+}
+
+  </style>
   
 
   <!-- END: Back-to-top styles -->
@@ -1026,516 +1157,7 @@ body[data-loading="true"] { overflow: hidden !important; }
 </div>
 
 
-<script>
-  /*
-    Help FAB click routing:
-    - Admin / Superadmin => open admin inbox page
-    - Otherwise => open the help widget panel (so homepage remains visible)
-  */
-  (function(){
-    function safeGetUser() {
-      try { if (typeof window.getUser === 'function') return window.getUser(); } catch(e){}
-      try { const u = localStorage.getItem('seha_user'); return u ? JSON.parse(u) : null; } catch(e){ return null; }
-    }
-    function safeGetToken() {
-      try { if (typeof window.getToken === 'function') return window.getToken(); } catch(e){}
-      return localStorage.getItem('seha_token') || null;
-    }
-  
-    // find FAB and widget panel if present
-    const fab = document.getElementById('sehaHelpFab');
-    const panel = document.getElementById('sehaHelpPanel');
-    const closeBtn = document.getElementById('sehaCloseBtn');
-  
-    function openWidgetPanel() {
-      if (!panel || !fab) return;
-      panel.classList.remove('hidden');
-      fab.style.display = 'none';
-      // focus input for better UX
-      const input = panel.querySelector('#sehaInput');
-      if (input) setTimeout(()=> input.focus(), 120);
-    }
-  
-    function closeWidgetPanel() {
-      if (!panel || !fab) return;
-      panel.classList.add('hidden');
-      fab.style.display = 'flex';
-    }
-  
-    if (!fab) return; // nothing to wire
-  
-    fab.addEventListener('click', (e) => {
-      // check role - prefer getUser() if available, fallback to token/json in storage
-      const token = safeGetToken();
-      const user = safeGetUser();
-      const role = user && user.role ? String(user.role).toLowerCase() : null;
-  
-      if (token && (role === 'admin' || role === 'superadmin')) {
-        // admin: open admin inbox in same tab
-        // If you prefer new tab, change to window.open('/admin/help-inbox.html', '_blank')
-        window.location.href = 'help-inbox.html';
-        return;
-      }
-  
-      // otherwise, show the normal user widget
-      if (panel) {
-        openWidgetPanel();
-      } else {
-        // If widget not present on this page, navigate to a page that hosts it
-        window.location.href = 'help-widget.html';
-      }
-    });
-  
-    if (closeBtn) closeBtn.addEventListener('click', closeWidgetPanel);
-  
-    // Optional: allow keyboard ESC to close widget
-    document.addEventListener('keydown', (ev) => {
-      if (ev.key === 'Escape' && panel && !panel.classList.contains('hidden')) closeWidgetPanel();
-    });
-  })();
-  
-  (function () {
-  const API_BASE = (location.hostname === 'localhost' || location.hostname === '127.0.0.1') ? 'http://localhost:4000' : '';
 
-  // DOM
-  const fab = document.getElementById('sehaHelpFab');
-  const panel = document.getElementById('sehaHelpPanel');
-  const closeBtn = document.getElementById('sehaCloseBtn');
-  const body = document.getElementById('sehaBody');
-  const sub = document.getElementById('sehaHelpSub');
-  const input = document.getElementById('sehaInput');
-  const send = document.getElementById('sehaSend');
-
-  // local keys
-  const localKeyAnon = 'seha_help_anon';
-  const localConvKey = 'seha_help_conv';
-  const sendQueueKey = 'seha_help_queue';
-
-  // state
-  let currentConv = null;
-  let socket = null;
-  let pollTimer = null;
-  let loadExistingDebounce = 0;
-
-  // helpers
-  function safeGetUser() { try { if (typeof window.getUser === 'function') return window.getUser(); } catch(e){} try { const u = localStorage.getItem('seha_user'); return u ? JSON.parse(u) : null } catch(e) { return null } }
-  function safeGetToken() { try { if (typeof window.getToken === 'function') return window.getToken(); } catch(e){} return localStorage.getItem('seha_token') || null; }
-  function ensureAnon() {
-    try {
-      let anon = JSON.parse(localStorage.getItem(localKeyAnon) || 'null');
-      if (!anon) { anon = { anonId: 'anon-' + Math.random().toString(36).slice(2,10), name: null }; localStorage.setItem(localKeyAnon, JSON.stringify(anon)); }
-      return anon;
-    } catch (e) { const anon = { anonId: 'anon-' + Math.random().toString(36).slice(2,10), name: null }; localStorage.setItem(localKeyAnon, JSON.stringify(anon)); return anon; }
-  }
-  function anonLabel(anonId) { if (!anonId) return 'Anonymous'; return 'Anonymous-' + String(anonId).slice(-6); }
-  function escapeHtml(s) { if (!s) return ''; return String(s).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
-
-  /* Robust apiFetch with retry/backoff for 429 + transient errors */
-  async function apiFetch(url, opts = {}, { retries = 2, backoff = 400 } = {}) {
-    opts.headers = opts.headers || {};
-    const token = safeGetToken();
-    if (token) opts.headers['Authorization'] = 'Bearer ' + token;
-    if (opts.body && !opts.headers['Content-Type']) opts.headers['Content-Type'] = 'application/json';
-    opts.method = opts.method || (opts.body ? 'POST' : 'GET');
-
-    let attempt = 0;
-    while (attempt <= retries) {
-      try {
-        const res = await fetch((API_BASE || '') + url, opts);
-        const json = await res.json().catch(()=>null);
-        if (res.status === 429) { const wait = backoff * Math.pow(2, attempt); await new Promise(r => setTimeout(r, wait)); attempt++; continue; }
-        return { ok: res.ok, status: res.status, data: json };
-      } catch (err) {
-        if (attempt < retries) { const wait = backoff * Math.pow(2, attempt); await new Promise(r => setTimeout(r, wait)); attempt++; continue; }
-        return { ok:false, status:0, error: err };
-      }
-    }
-    return { ok:false, status:429, error: 'Too many requests' };
-  }
-
-  /* queue helpers */
-  function loadQueue() { try { return JSON.parse(localStorage.getItem(sendQueueKey) || '[]'); } catch(e) { return []; } }
-  function saveQueue(q) { localStorage.setItem(sendQueueKey, JSON.stringify(q || [])); }
-  function enqueueMessage(payload) { const q = loadQueue(); q.push(payload); saveQueue(q); }
-  async function flushQueue() {
-    const q = loadQueue();
-    if (!q.length) return;
-    const remaining = [];
-    for (const item of q) {
-      try {
-        if (item.type === 'append' && item.convId) {
-          const r = await apiFetch('/api/help/conversations/' + encodeURIComponent(item.convId) + '/messages', { method: 'POST', body: JSON.stringify({ text: item.text, topic: item.topic }) }, { retries: 3 });
-          if (!r.ok) remaining.push(item); else {
-            if (currentConv && String(currentConv._id) === String(item.convId)) { currentConv = r.data.conversation || currentConv; localStorage.setItem(localConvKey, JSON.stringify(currentConv)); renderMessages(currentConv.messages || []); }
-          }
-        } else if (item.type === 'create') {
-          const r = await apiFetch('/api/help/conversations', { method: 'POST', body: JSON.stringify(item.payload) }, { retries: 3 });
-          if (!r.ok) remaining.push(item); else { currentConv = r.data.conversation; localStorage.setItem(localConvKey, JSON.stringify(currentConv)); renderMessages(currentConv.messages || []); }
-        }
-      } catch (e) { remaining.push(item); }
-    }
-    saveQueue(remaining);
-  }
-
-  /* RENDERING */
-  function renderMessages(messages) {
-    body.innerHTML = '';
-    const convDiv = document.createElement('div');
-    convDiv.className = 'convo';
-    if (!messages || messages.length === 0) {
-      convDiv.innerHTML = '<div class="muted">No messages yet</div>';
-    } else {
-      messages.forEach(m => {
-        const d = document.createElement('div');
-        d.className = 'msg' + (m.sender === 'user' ? ' user' : '');
-        const txt = document.createElement('div');
-        txt.textContent = m.text || '';
-        d.appendChild(txt);
-        const meta = document.createElement('div');
-        meta.className = 'muted';
-        const who = m.senderName ? m.senderName : (m.sender === 'user' ? (currentConv && currentConv.name ? currentConv.name : anonLabel(currentConv && currentConv.anonId)) : 'Support');
-        const t = m.createdAt ? new Date(m.createdAt).toLocaleString() : '';
-        const topic = (m.meta && m.meta.topic) ? ` • ${m.meta.topic}` : '';
-        meta.textContent = `${who}${topic} • ${t}`;
-        d.appendChild(meta);
-        convDiv.appendChild(d);
-      });
-    }
-    body.appendChild(convDiv);
-    body.scrollTop = body.scrollHeight;
-  }
-
-  function appendLocalMessage(msg) {
-    currentConv.messages = currentConv.messages || [];
-    currentConv.messages.push(msg);
-    localStorage.setItem(localConvKey, JSON.stringify(currentConv));
-    renderMessages(currentConv.messages || []);
-  }
-
-  /* FLOWS: welcome -> topic -> followup -> create conv */
-  function showWelcomeFlow() {
-    body.innerHTML = '';
-    const el = document.createElement('div');
-    el.innerHTML = `
-      <div style="font-weight:700">How can we help?</div>
-      <div class="muted" style="margin-bottom:8px">Choose a topic so we can route your message:</div>
-      <div class="controls" id="topicBtns">
-        <button class="btn" data-topic="Donation">Donation</button>
-        <button class="btn" data-topic="Membership">Membership</button>
-        <button class="btn" data-topic="Opportunities">Opportunities</button>
-        <button class="btn" data-topic="Other">Other</button>
-      </div>
-      <div style="margin-top:8px" id="namePrompt"></div>
-    `;
-    body.appendChild(el);
-
-    const anon = ensureAnon();
-    const user = safeGetUser();
-    const namePrompt = document.getElementById('namePrompt');
-
-    if (!user) {
-      namePrompt.innerHTML = `<div class="muted">What should we call you? (optional)</div>
-        <div style="display:flex;gap:8px;margin-top:6px">
-          <input id="visitorName" class="input" placeholder="Your name or leave anonymous" value="${anon.name ? escapeHtml(anon.name) : ''}" />
-          <button id="saveVisitorName" class="btn">Save</button>
-        </div>
-        <div id="visitorSavedMsg" class="muted" style="margin-top:6px; display:${anon.name ? 'block' : 'none'}">Saved as <strong id="visitorSaved">${anon.name ? escapeHtml(anon.name) : ''}</strong></div>
-      `;
-      const inputEl = document.getElementById('visitorName');
-      const saveBtn = document.getElementById('saveVisitorName');
-      const savedMsg = document.getElementById('visitorSavedMsg');
-      const savedNameSpan = document.getElementById('visitorSaved');
-
-      saveBtn.addEventListener('click', () => {
-        const val = (inputEl.value || '').trim();
-        if (val) { anon.name = val; localStorage.setItem(localKeyAnon, JSON.stringify(anon)); savedNameSpan.textContent = val; savedMsg.style.display = 'block'; sub.textContent = 'Visitor: ' + val; }
-        else { anon.name = null; localStorage.setItem(localKeyAnon, JSON.stringify(anon)); savedMsg.style.display = 'none'; sub.textContent = 'Ask for help — anonymous OK'; }
-      });
-
-      inputEl.addEventListener('keydown', (ev) => { if (ev.key === 'Enter') { ev.preventDefault(); saveBtn.click(); } });
-    } else {
-      sub.textContent = 'Logged in as ' + (user.fullName || user.name || 'You');
-    }
-
-    document.querySelectorAll('#topicBtns .btn').forEach(b => { b.addEventListener('click', () => askFollowUp(b.dataset.topic)); });
-  }
-
-  function askFollowUp(topic) {
-    body.innerHTML = '';
-    const wrapper = document.createElement('div');
-    wrapper.innerHTML = `
-      <div style="font-weight:700">${escapeHtml(topic)}</div>
-      <div class="muted" style="margin-bottom:8px">Please tell us more about your ${escapeHtml(topic.toLowerCase())} question (short summary)</div>
-      <textarea id="followText" rows="4" style="width:100%;padding:8px;border-radius:8px;border:1px solid #eef2f2"></textarea>
-      <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:8px">
-        <button id="backTopic" class="btn">Back</button>
-        <button id="startConv" class="btn primary">Start chat</button>
-      </div>
-    `;
-    body.appendChild(wrapper);
-    document.getElementById('backTopic').addEventListener('click', showWelcomeFlow);
-    document.getElementById('startConv').addEventListener('click', async () => {
-      const details = (document.getElementById('followText').value || '').trim();
-      await startConversation(topic, details);
-    });
-  }
-
-  async function startConversation(topic, details) {
-    const anon = ensureAnon();
-    const user = safeGetUser();
-    const payload = { anonId: anon.anonId, initialMessage: details || ('Start: ' + topic), topic, details, name: anon.name || null };
-
-    // optimistic UI
-    currentConv = { localId:'local-'+Date.now(), anonId: anon.anonId, name: anon.name || null, messages: [{ sender:'user', text: payload.initialMessage, createdAt: new Date().toISOString(), senderName: payload.name || null, meta: { topic } }], meta: { topic, details } };
-    localStorage.setItem(localConvKey, JSON.stringify(currentConv));
-    renderMessages(currentConv.messages);
-
-    // try create on server
-    const r = await apiFetch('/api/help/conversations', { method:'POST', body: JSON.stringify(payload) }, { retries: 3 });
-    if (!r.ok) {
-      // enqueue create for later
-      enqueueMessage({ type:'create', payload });
-      startPolling();
-      return;
-    }
-    currentConv = r.data.conversation;
-    localStorage.setItem(localConvKey, JSON.stringify(currentConv));
-    renderMessages(currentConv.messages || []);
-    if (socket && currentConv && currentConv._id) socket.emit('identify', { convId: currentConv._id });
-    flushQueue();
-    startPolling();
-  }
-
-  /* Send message from input */
-  async function sendMessageFromInput() {
-    const txt = (input.value || '').trim();
-    if (!txt) return;
-    input.value = '';
-    const anon = ensureAnon();
-    const now = new Date().toISOString();
-    const msg = { _id: 'm-' + Date.now(), sender:'user', text: txt, createdAt: now, status: 'pending', senderName: (currentConv && currentConv.name) ? currentConv.name : (anon.name || null), meta: (currentConv && currentConv.meta) ? currentConv.meta : null };
-    if (!currentConv) currentConv = { localId:'local-'+Date.now(), anonId: anon.anonId, messages: [] };
-    appendLocalMessage(msg);
-
-    // if server conv exists
-    if (currentConv._id) {
-      const r = await apiFetch('/api/help/conversations/' + encodeURIComponent(currentConv._id) + '/messages', { method:'POST', body: JSON.stringify({ text: txt }) }, { retries: 2 });
-      if (r.ok && r.data && r.data.conversation) {
-        currentConv = r.data.conversation;
-        localStorage.setItem(localConvKey, JSON.stringify(currentConv));
-        renderMessages(currentConv.messages || []);
-        flushQueue();
-        return;
-      } else {
-        enqueueMessage({ type:'append', convId: currentConv._id, text: txt, topic: (currentConv.meta && currentConv.meta.topic) ? currentConv.meta.topic : undefined });
-        const last = currentConv.messages[currentConv.messages.length -1];
-        if (last) last.status = 'failed';
-        localStorage.setItem(localConvKey, JSON.stringify(currentConv));
-        renderMessages(currentConv.messages || []);
-        startPolling();
-        return;
-      }
-    }
-
-    // else create conv with initial message
-    const payload = { anonId: anon.anonId, initialMessage: txt, topic: (currentConv && currentConv.meta) ? currentConv.meta.topic : undefined, details: (currentConv && currentConv.meta) ? currentConv.meta.details : undefined, name: anon.name || undefined };
-    const r2 = await apiFetch('/api/help/conversations', { method:'POST', body: JSON.stringify(payload) }, { retries: 3 });
-    if (r2.ok && r2.data && r2.data.conversation) {
-      currentConv = r2.data.conversation;
-      localStorage.setItem(localConvKey, JSON.stringify(currentConv));
-      renderMessages(currentConv.messages || []);
-      if (socket && currentConv && currentConv._id) socket.emit('identify', { convId: currentConv._id });
-      flushQueue();
-      return;
-    } else {
-      enqueueMessage({ type:'create', payload });
-      startPolling();
-      return;
-    }
-  }
-
-  /* POLLING + SOCKET fallback */
-  function startPolling() { if (pollTimer) return; pollTimer = setInterval(async () => { await flushQueue(); const nowt = Date.now(); if (nowt - loadExistingDebounce > 2500) { loadExistingDebounce = nowt; await loadExisting(false).catch(()=>{}); } }, 3500); }
-  function stopPolling() { if (pollTimer) { clearInterval(pollTimer); pollTimer = null; } }
-
-  async function loadExisting(focus = true) {
-    const user = safeGetUser();
-    const anon = ensureAnon();
-    const token = safeGetToken();
-
-    if (token) {
-      const r = await apiFetch('/api/help/conversations/me');
-      if (r.ok && r.data && r.data.conversation) {
-        currentConv = r.data.conversation;
-        localStorage.setItem(localConvKey, JSON.stringify(currentConv));
-        sub.textContent = 'Logged in as ' + (user && (user.fullName || user.name) ? (user.fullName || user.name) : 'You');
-        renderMessages(currentConv.messages || []);
-        if (socket && currentConv && currentConv._id) socket.emit('identify', { convId: currentConv._id });
-        return;
-      } else if (r.status === 404) { /* no conv */ } else if (r.status === 429) { return; }
-    }
-
-    const raw = localStorage.getItem(localConvKey);
-    if (raw) {
-      try { currentConv = JSON.parse(raw); renderMessages(currentConv.messages || []); return; } catch(e){ currentConv = null; }
-    }
-
-    const r2 = await apiFetch('/api/help/conversations/anon/' + encodeURIComponent(anon.anonId));
-    if (r2.ok && r2.data && r2.data.conversation) {
-      currentConv = r2.data.conversation;
-      localStorage.setItem(localConvKey, JSON.stringify(currentConv));
-      renderMessages(currentConv.messages || []);
-      if (socket && currentConv && currentConv._id) socket.emit('identify', { convId: currentConv._id });
-      return;
-    }
-
-    showWelcomeFlow();
-    startPolling();
-  }
-
-  function loadSocketIoClient(cb) {
-    if (window.io) return cb(null);
-    const tryUrls = [];
-    if (API_BASE) tryUrls.push(API_BASE + '/socket.io/socket.io.js');
-    tryUrls.push('https://cdn.socket.io/4.6.1/socket.io.min.js');
-    let i = 0;
-    function next() {
-      if (i >= tryUrls.length) return cb(new Error('socket.io client failed to load'));
-      const src = tryUrls[i++];
-      const s = document.createElement('script'); s.src = src; s.async = true;
-      s.onload = () => { if (window.io) return cb(null); else next(); };
-      s.onerror = () => { console.warn('socket.io client failed load:', src); next(); };
-      document.head.appendChild(s);
-    }
-    next();
-  }
-
-  function initSocket() {
-    if (!window.io) return;
-    const token = safeGetToken();
-    socket = io(API_BASE || '/', { auth: token ? { token } : undefined, transports: ['websocket','polling'] });
-
-    socket.on('connect', () => {
-      if (currentConv && currentConv._id) socket.emit('identify', { convId: currentConv._id });
-      stopPolling();
-    });
-
-    socket.on('help.message', (data) => {
-      if (!data || !data.conversationId) return;
-      if (currentConv && String(currentConv._id) === String(data.conversationId)) {
-        currentConv.messages = currentConv.messages || [];
-        if (data.message) currentConv.messages.push(data.message);
-        localStorage.setItem(localConvKey, JSON.stringify(currentConv));
-        renderMessages(currentConv.messages || []);
-      }
-    });
-
-    socket.on('help.updated', (data) => {
-      if (data && data.conversation && currentConv && String(currentConv._id) === String(data.conversation._id)) {
-        currentConv = data.conversation;
-        localStorage.setItem(localConvKey, JSON.stringify(currentConv));
-        renderMessages(currentConv.messages || []);
-      }
-    });
-
-    socket.on('connect_error', (err) => { console.warn('socket connect_error', err && err.message ? err.message : err); startPolling(); });
-    socket.on('disconnect', () => startPolling());
-  }
-
-  /* UI wiring */
-  if (fab) {
-    fab.addEventListener('click', async () => {
-      panel.classList.remove('hidden');
-      fab.style.display = 'none';
-      loadSocketIoClient((err) => { if (!err) initSocket(); else startPolling(); });
-      await loadExisting();
-    });
-  }
-
-  if (closeBtn) closeBtn.addEventListener('click', () => {
-    panel.classList.add('hidden');
-    fab.style.display = 'flex';
-    stopPolling();
-  });
-
-  if (send) send.addEventListener('click', sendMessageFromInput);
-  if (input) input.addEventListener('keydown', (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessageFromInput(); } });
-
-  (function preInit() {
-    const user = safeGetUser();
-    if (user && (user.fullName || user.name)) sub.textContent = 'Signed in as ' + (user.fullName || user.name);
-    const raw = localStorage.getItem(localConvKey);
-    if (raw) {
-      try { currentConv = JSON.parse(raw); renderMessages(currentConv.messages || []); } catch(e){ /* ignore */ }
-    } else { showWelcomeFlow(); }
-    setTimeout(flushQueue, 600);
-  })();
-
-  // expose helpers (debug)
-  window.__seha_help = { ensureAnon, getCurrentConv: () => currentConv, startPolling, stopPolling, flushQueue };
-
-})();
-
-(function() {
-  // formatting helper with locale-aware thousands separator
-  const fmt = (n) => new Intl.NumberFormat().format(Math.round(n));
-
-  // count-up animation function
-  function animateCount(el, start, end, duration = 1400, suffix = '') {
-    const startTime = performance.now();
-    function tick(now) {
-      const elapsed = now - startTime;
-      const progress = Math.min(elapsed / duration, 1);
-      // easeOutCubic
-      const eased = 1 - Math.pow(1 - progress, 3);
-      const value = start + (end - start) * eased;
-      el.textContent = fmt(value);
-      if (progress < 1) {
-        requestAnimationFrame(tick);
-      } else {
-        // ensure final exact value
-        el.textContent = fmt(end);
-        if (suffix) {
-          // suffix displayed in separate .suffix element already
-        }
-      }
-    }
-    requestAnimationFrame(tick);
-  }
-
-  // Find all counters
-  const counters = Array.from(document.querySelectorAll('.stat .count'));
-  if (!counters.length) return;
-
-  // IntersectionObserver to trigger when stats visible
-  const io = new IntersectionObserver((entries, obs) => {
-    entries.forEach(entry => {
-      if (!entry.isIntersecting) return;
-      const span = entry.target;
-      const target = parseInt(span.dataset.target || '0', 10) || 0;
-      const suffix = span.dataset.suffix || '';
-      // guard — prevent double animation
-      const parentStat = span.closest('.stat');
-      if (parentStat && parentStat.dataset.animated === 'true') {
-        obs.unobserve(span);
-        return;
-      }
-      // animate
-      animateCount(span, 0, target, 1500, suffix);
-      if (parentStat) parentStat.dataset.animated = 'true';
-      // unobserve this counter
-      obs.unobserve(span);
-    });
-  }, { threshold: 0.4 });
-
-  counters.forEach(c => io.observe(c));
-})();
-
-
-
-
-
-  </script>
   
   <script src="script.js"></script>
 </body>
