@@ -1129,12 +1129,6 @@ html.dark .mobile-menu .mobile-sub-toggle {
 
 
 
-/* Mobile fix: program cards one per row */
-@media (max-width: 768px) {
-  .grid-3 {
-    grid-template-columns: 1fr;
-  }
-}
 
 
 
