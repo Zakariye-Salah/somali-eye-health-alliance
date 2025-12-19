@@ -1696,6 +1696,26 @@ body[data-loading="true"] { overflow: hidden !important; }
 })();
 </script>
 
+  <script>
+(function(){
+  // tries to find the first linked stylesheet (common case)
+  const link = document.querySelector('link[rel="stylesheet"][href]');
+  if(!link){ console.log('No external stylesheet link found.'); return; }
+  const href = link.getAttribute('href');
+  fetch(href, {cache: 'no-store'}).then(r => r.text()).then(t => {
+    const preview = t.slice(0, 800).replace(/\n/g,' ');
+    const div = document.createElement('div');
+    div.style.position='fixed'; div.style.zIndex=99998; div.style.left='8px'; div.style.bottom='8px';
+    div.style.background='rgba(255,255,255,0.95)'; div.style.color='#000'; div.style.padding='8px';
+    div.style.borderRadius='8px'; div.style.fontSize='12px'; div.style.maxWidth='calc(100% - 16px)';
+    div.textContent = 'Loaded CSS ('+href+'): ' + preview;
+    document.body.appendChild(div);
+    console.log('Loaded CSS from', href, t.slice(0,2000));
+  }).catch(e => console.log('Fetch error', e));
+})();
+</script>
+
+
   <script src="script.js"></script>
 </body>
 </html>
